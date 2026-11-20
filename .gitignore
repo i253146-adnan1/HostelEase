@@ -6,3 +6,8 @@ __pycache__/
 media/
 .vscode/
 .DS_Store
+.env
+venv/
+__pycache__/
+*.py[cod]
+media/
