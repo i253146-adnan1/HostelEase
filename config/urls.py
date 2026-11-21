@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('hostel/', include('hostel.urls')),
+    path('warden/fees/', include('finance.urls')),
 ]
 
 if settings.DEBUG:
