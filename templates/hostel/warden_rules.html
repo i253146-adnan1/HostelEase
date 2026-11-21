@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Hostel Rules — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Manage Hostel Rules</h1>
+    <div class="d-flex gap-2">
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'hostel:warden_announcements' %}" class="btn btn-outline-dark">Announcements</a>
+            <a href="{% url 'hostel:warden_menu' %}" class="btn btn-outline-dark">Menu</a>
+            <a href="{% url 'hostel:warden_rules' %}" class="btn btn-dark">Rules</a>
+        </div>
+        <a href="{% url 'hostel:rule_create' %}" class="btn btn-primary btn-sm">Add Rule</a>
+    </div>
+</div>
+
+{% if rules %}
+    <div class="list-group shadow-sm">
+        {% for rule in rules %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="h5 mb-1">{{ rule.title }}</h2>
+                        <p class="mb-0">{{ rule.description|linebreaksbr }}</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'hostel:rule_edit' rule.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <a href="{% url 'hostel:rule_delete' rule.pk %}" class="btn btn-outline-danger btn-sm">Remove</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">No hostel rules added yet.</div>
+{% endif %}
+{% endblock %}
