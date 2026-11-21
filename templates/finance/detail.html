@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Fee - {{ student.full_name }} - HostelEase{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Fee: {{ student.full_name }} <small class="text-muted">{{ student.student_id }}</small></h1>
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Total fee</div><div class="h5" id="total-fee">{{ ledger.total_fee }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Paid (verified)</div><div class="h5" id="paid-amount">{{ ledger.paid_amount }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Remaining</div><div class="h5" id="remaining-amount">{{ ledger.remaining_amount }}</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Excess paid</div><div class="h5" id="excess-paid">{{ ledger.excess_paid }}</div></div></div></div>
+</div>
+<form method="post" class="bg-white p-4 rounded shadow-sm mb-4" style="max-width:520px">{% csrf_token %}
+  <h2 class="h5">Change total fee</h2>
+  {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+  <div class="mb-3"><label class="form-label" for="total_fee">New total fee</label>
+    <input class="form-control" id="total_fee" name="total_fee" value="{{ values.total_fee|default:ledger.total_fee }}"></div>
+  <div class="mb-3"><label class="form-label" for="reason">Reason (required if lowered below the amount paid)</label>
+    <textarea class="form-control" id="reason" name="reason" rows="2">{{ values.reason|default:'' }}</textarea></div>
+  <button class="btn btn-primary" type="submit">Update fee</button>
+</form>
+<h2 class="h5">Change history</h2>
+<div class="table-responsive bg-white rounded shadow-sm"><table class="table mb-0">
+  <thead><tr><th>Date</th><th>Old</th><th>New</th><th>Reason</th><th>By</th></tr></thead>
+  <tbody>{% for h in history %}<tr><td>{{ h.changed_at|date:"Y-m-d H:i" }}</td><td>{{ h.old_total|default_if_none:"-" }}</td><td>{{ h.new_total }}</td><td>{{ h.reason }}</td><td>{{ h.changed_by }}</td></tr>{% endfor %}</tbody></table></div>
+<a class="btn btn-link mt-2" href="{% url 'finance:list' %}">Back to fee ledger</a>
+{% endblock %}

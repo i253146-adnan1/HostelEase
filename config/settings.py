@@ -6,9 +6,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = SECRET_KEY = os.environ.get('SECRET_KEY', '')
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
+# Local-development fallback so the project runs/tests without a SECRET_KEY entry
+# in .env. Always set a real SECRET_KEY in .env for anything beyond local use.
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'hostelease-local-dev-insecure-key-change-me'
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
