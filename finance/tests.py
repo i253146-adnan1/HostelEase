@@ -179,7 +179,12 @@ class FeeChangeTests(TestCase):
 
 class FeeViewTests(TestCase):
     def setUp(self):
-        self.warden = User.objects.create_user('w', password='Warden-Pass-123', is_staff=True)
+        self.warden = User.objects.create_user(
+            'w', password='Warden-Pass-123', role='warden', is_staff=True
+        )
+        self.student_user = User.objects.create_user(
+            'stu1', password='Student-Pass-123', role='student'
+        )
         self.student_ref = 1
         services.create_fee_record(self.student_ref, '1000', '600')
         self.url = f'/warden/fees/{self.student_ref}/'
@@ -199,6 +204,17 @@ class FeeViewTests(TestCase):
         r = self.client.post(self.url, {'total_fee': '100', 'reason': ''})
         self.assertContains(r, 'reason is required')
         self.assertEqual(services.get_ledger(self.student_ref)['total_fee'], D('1000'))
+
+    def test_student_cannot_access_fee_pages(self):
+        self.client.force_login(self.student_user)
+        self.assertEqual(self.client.get('/warden/fees/').status_code, 403)
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+        self.assertEqual(self.client.post(self.url, {'total_fee': '1'}).status_code, 403)
+
+    def test_anonymous_redirected_from_fee_pages(self):
+        self.client.logout()
+        self.assertEqual(self.client.get('/warden/fees/').status_code, 302)
+        self.assertEqual(self.client.get(self.url).status_code, 302)
 
     def test_missing_student_404(self):
         self.assertEqual(self.client.get('/warden/fees/9999/').status_code, 404)

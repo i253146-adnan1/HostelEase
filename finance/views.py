@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
+from accounts.guards import warden_required
+
 from . import services
 
 
@@ -17,6 +19,7 @@ def _get_student_summary(student_pk):
         }
 
 
+@warden_required
 def fee_list(request):
     rows = []
     for ledger in services.list_ledgers():
@@ -29,6 +32,7 @@ def fee_list(request):
     return render(request, 'finance/list.html', {'rows': rows})
 
 
+@warden_required
 def fee_detail(request, student_pk):
     student = _get_student_summary(student_pk)
     ledger = services.get_ledger(student_pk)
