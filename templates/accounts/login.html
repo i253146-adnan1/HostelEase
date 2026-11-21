@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-3 text-center">Sign In to HostelEase</h2>
+                <form method="post" action="{% url 'accounts:login' %}">
+                    {% csrf_token %}
+                    {% if request.GET.next %}
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="id_username"
+                            name="username"
+                            value="{{ username|default:'' }}"
+                            required
+                            autofocus
+                        >
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="id_password"
+                            name="password"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

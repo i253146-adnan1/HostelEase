@@ -13,6 +13,7 @@ class HostelInfoTests(TestCase):
             username='warden',
             password='warden-password-123',
             is_staff=True,
+            role='warden',
         )
         self.student = User.objects.create_user(
             username='student1',

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Warden Dashboard — HostelEase{% endblock %}
+
+{% block content %}
+<div class="p-4 mb-4 bg-white rounded-3 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">Welcome, {{ user.username }}</h1>
+            <p class="text-muted mb-0">Warden Portal — Manage hostel operations and student records.</p>
+        </div>
+        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary btn-sm">Change Password</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Hostel Information</h5>
+                <p class="card-text text-muted small">Publish announcements, mess menu, and hostel rules.</p>
+                <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'hostel:warden_announcements' %}" class="btn btn-outline-primary btn-sm">Announcements</a>
+                    <a href="{% url 'hostel:warden_menu' %}" class="btn btn-outline-primary btn-sm">Mess Menu</a>
+                    <a href="{% url 'hostel:warden_rules' %}" class="btn btn-outline-primary btn-sm">Hostel Rules</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Students &amp; Rooms</h5>
+                <p class="card-text text-muted small">Manage student accounts, room capacity, and allocations.</p>
+                <div class="d-flex flex-column gap-2">
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Student Management (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Rooms &amp; Requests (Coming Soon)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Finance &amp; Operations</h5>
+                <p class="card-text text-muted small">Review payment proofs, complaints, leave, visitors, and meals.</p>
+                <div class="d-flex flex-column gap-2">
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Fees &amp; Payments (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Complaints (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Leave Requests (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Visitor Log (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Meal Opt-Outs (Coming Soon)</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Feedback Summary (Coming Soon)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

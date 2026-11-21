@@ -32,6 +32,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.guards.ForcePasswordChangeMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -86,3 +87,8 @@ MAILERS = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTH_USER_MODEL = 'accounts.User'
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/accounts/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
