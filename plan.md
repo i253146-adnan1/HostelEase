@@ -288,7 +288,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-06 — Hostel information: announcements, menu and rules
 
 - **Priority:** P1
-- **Lead:** Adnanullah
+- **Lead:** Muhammad Fahad Basharat
 - **Scheduled date:** 20 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-12; AC-12.1–AC-12.6; proposed OQ-02 default.
