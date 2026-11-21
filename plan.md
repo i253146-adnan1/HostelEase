@@ -992,6 +992,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | Version | Date | Change | Reason / evidence | Approved by |
 |---|---|---|---|---|
 | v01 | 17 Nov 2026 | Initial baseline: stack, 21 slices, dependencies, leads, schedule, acceptance criteria and evidence process | D3 context + D4 instructions + team technology selections | Team |
+| v02 | 21 Nov 2026 | Slices VS-00, VS-01, VS-04, VS-06, and VS-02 implemented and accepted; test coverage updated | Implementation progress and workflow evidence | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1102,7 +1103,16 @@ The final report must cover:
 
 ## 16. Current status
 
-All implementation slices are **Not Started** as of the preparation of this baseline. No implementation evidence or test results are claimed by this document.
+### Completed & Accepted Slices (as of 21 Nov 2026)
+| Slice ID | Slice Title | Lead | Status |
+|---|---|---|---|
+| VS-00 | Project foundation and approved stack | Adnanullah | Accepted |
+| VS-01 | Authentication and cross-cutting access guard | Farmanullah | Accepted |
+| VS-02 | Warden student registration and initial fee/account creation | Safiullah | Accepted |
+| VS-04 | Fee ledger and fee-change history | Adnanullah | Accepted |
+| VS-06 | Hostel information: announcements, menu and rules | Muhammad Fahad Basharat | Accepted |
+| VS-03 | Room catalogue, assignment and capacity enforcement | Muhammad Fahad Basharat | In Progress (Contract & service implemented in VS-02) |
+| Remaining (VS-05, VS-07 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |
 |---|---|

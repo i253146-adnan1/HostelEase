@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -79,3 +80,63 @@ class Rule(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Room(models.Model):
+    """Room catalogue entity (VS-03). Owned by Rooms module."""
+
+    room_number = models.CharField(max_length=20, unique=True)
+    capacity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['room_number']
+
+    def __str__(self):
+        return f'Room {self.room_number}'
+
+
+class RoomAssignment(models.Model):
+    """Active/historical room assignments for students. No cross-module FK to Student."""
+
+    room = models.ForeignKey(Room, on_delete=models.PROTECT, related_name='assignments')
+    student_id = models.CharField(max_length=50, db_index=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-assigned_at', '-id']
+
+    def __str__(self):
+        return f'{self.student_id} -> Room {self.room.room_number} (active={self.is_active})'
+
+
+class Student(models.Model):
+    """Student record managed by Warden (FR-01, BR-04, BR-05, BR-09, FR-13)."""
+
+    STATUS_ACTIVE = 'Active'
+    STATUS_LEFT = 'Left'
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_LEFT, 'Left'),
+    ]
+
+    student_id = models.CharField(max_length=50, unique=True, db_index=True)
+    full_name = models.CharField(max_length=150)
+    contact_number = models.CharField(max_length=20)
+    guardian_name = models.CharField(max_length=150)
+    guardian_contact_number = models.CharField(max_length=20)
+    email = models.EmailField(blank=True)
+    address = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+    user_id = models.PositiveIntegerField(null=True, blank=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['student_id']
+
+    def __str__(self):
+        return f'{self.student_id} - {self.full_name}'
+
