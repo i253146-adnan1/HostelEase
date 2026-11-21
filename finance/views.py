@@ -9,14 +9,21 @@ from . import services
 def _get_student_summary(student_pk):
     """Look up student via Student Management service when available."""
     try:
-        from students import services as student_services
-        return student_services.get_student(student_pk)
+        from hostel import student_service
+        student = student_service.get_student(student_pk)
+        if student is not None:
+            return {
+                'id': student.pk,
+                'student_id': student.student_id,
+                'full_name': student.full_name,
+            }
     except ImportError:
-        return {
-            'id': student_pk,
-            'student_id': f'#{student_pk}',
-            'full_name': f'Student #{student_pk}',
-        }
+        pass
+    return {
+        'id': student_pk,
+        'student_id': f'#{student_pk}',
+        'full_name': f'Student #{student_pk}',
+    }
 
 
 @warden_required

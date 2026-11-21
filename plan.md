@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v01 — Baseline approved implementation plan  
+**Plan version:** v03 — Cycle 2 integrated and verified  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -993,6 +993,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 |---|---|---|---|---|
 | v01 | 17 Nov 2026 | Initial baseline: stack, 21 slices, dependencies, leads, schedule, acceptance criteria and evidence process | D3 context + D4 instructions + team technology selections | Team |
 | v02 | 21 Nov 2026 | Slices VS-00, VS-01, VS-04, VS-06, and VS-02 implemented and accepted; test coverage updated | Implementation progress and workflow evidence | Team |
+| v03 | 22 Nov 2026 | Cycle 2 integration complete: VS-03 merged & accepted; restored VS-04 finance routes & VS-06 hostel-info routes/views/tests; synced hostel migrations & warden dashboard links | All unit, integration, and Cycle 2 E2E tests passing | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1111,7 +1112,7 @@ The final report must cover:
 | VS-02 | Warden student registration and initial fee/account creation | Safiullah | Accepted |
 | VS-04 | Fee ledger and fee-change history | Adnanullah | Accepted |
 | VS-06 | Hostel information: announcements, menu and rules | Muhammad Fahad Basharat | Accepted |
-| VS-03 | Room catalogue, assignment and capacity enforcement | Muhammad Fahad Basharat | In Progress (Contract & service implemented in VS-02) |
+| VS-03 | Room catalogue, assignment and capacity enforcement | Muhammad Fahad Basharat | Accepted |
 | Remaining (VS-05, VS-07 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |

@@ -34,7 +34,7 @@
                 <p class="card-text text-muted small">Manage student accounts, room capacity, and allocations.</p>
                 <div class="d-flex flex-column gap-2">
                     <a href="{% url 'hostel:warden_student_list' %}" class="btn btn-outline-primary btn-sm">Student Management</a>
-                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Rooms &amp; Requests (Coming Soon)</a>
+                    <a href="{% url 'hostel:room_list' %}" class="btn btn-outline-primary btn-sm">Room Management</a>
                 </div>
             </div>
         </div>

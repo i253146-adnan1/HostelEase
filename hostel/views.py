@@ -199,3 +199,219 @@ def warden_student_detail(request, pk):
         'ledger': ledger,
         'fee_history': fee_history,
     })
+
+
+# --- Hostel Information (VS-06: Announcements, Mess Menu, Rules) ---
+
+from django import forms as django_forms
+from .models import Announcement, MenuItem, Rule
+
+
+def _clean_non_empty(value, field_label):
+    if not value or not value.strip():
+        raise django_forms.ValidationError(f'{field_label} cannot be empty.')
+    return value.strip()
+
+
+class AnnouncementForm(django_forms.ModelForm):
+    class Meta:
+        model = Announcement
+        fields = ['title', 'message']
+        widgets = {
+            'title': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'message': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+    def clean_title(self):
+        return _clean_non_empty(self.cleaned_data.get('title'), 'Title')
+
+    def clean_message(self):
+        return _clean_non_empty(self.cleaned_data.get('message'), 'Message')
+
+
+class MenuItemForm(django_forms.ModelForm):
+    class Meta:
+        model = MenuItem
+        fields = ['day_of_week', 'meal_type', 'items']
+        widgets = {
+            'day_of_week': django_forms.Select(attrs={'class': 'form-select'}),
+            'meal_type': django_forms.Select(attrs={'class': 'form-select'}),
+            'items': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def clean_items(self):
+        return _clean_non_empty(self.cleaned_data.get('items'), 'Menu items')
+
+
+class RuleForm(django_forms.ModelForm):
+    class Meta:
+        model = Rule
+        fields = ['title', 'description']
+        widgets = {
+            'title': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'description': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+    def clean_title(self):
+        return _clean_non_empty(self.cleaned_data.get('title'), 'Title')
+
+    def clean_description(self):
+        return _clean_non_empty(self.cleaned_data.get('description'), 'Description')
+
+
+def _handle_info_form(request, form_class, template_name, redirect_name, success_msg, page_title, cancel_url_name, instance=None):
+    if request.method == 'POST':
+        form = form_class(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, success_msg)
+            return redirect(redirect_name)
+    else:
+        form = form_class(instance=instance)
+
+    return render(request, template_name, {
+        'form': form,
+        'page_title': page_title,
+        'cancel_url_name': cancel_url_name,
+        'is_edit': instance is not None,
+    })
+
+
+def _handle_info_delete(request, model_class, pk, redirect_name, success_msg, item_type, cancel_url_name):
+    obj = get_object_or_404(model_class, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, success_msg)
+        return redirect(redirect_name)
+
+    return render(request, 'hostel/confirm_delete.html', {
+        'object': obj,
+        'item_type': item_type,
+        'cancel_url_name': cancel_url_name,
+    })
+
+
+def student_announcements(request):
+    if not request.user.is_authenticated:
+        return redirect('/accounts/login/')
+    return render(request, 'hostel/student_announcements.html', {
+        'announcements': Announcement.objects.all(),
+    })
+
+
+def student_menu(request):
+    if not request.user.is_authenticated:
+        return redirect('/accounts/login/')
+    return render(request, 'hostel/student_menu.html', {
+        'menu_items': MenuItem.objects.all(),
+    })
+
+
+def student_rules(request):
+    if not request.user.is_authenticated:
+        return redirect('/accounts/login/')
+    return render(request, 'hostel/student_rules.html', {
+        'rules': Rule.objects.all(),
+    })
+
+
+@_warden_portal_required
+def warden_announcements(request):
+    return render(request, 'hostel/warden_announcements.html', {
+        'announcements': Announcement.objects.all(),
+    })
+
+
+@_warden_portal_required
+def announcement_create(request):
+    return _handle_info_form(
+        request, AnnouncementForm, 'hostel/entry_form.html',
+        'hostel:warden_announcements', 'Announcement published.',
+        'Publish Announcement', 'hostel:warden_announcements',
+    )
+
+
+@_warden_portal_required
+def announcement_edit(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    return _handle_info_form(
+        request, AnnouncementForm, 'hostel/entry_form.html',
+        'hostel:warden_announcements', 'Announcement updated.',
+        'Edit Announcement', 'hostel:warden_announcements', instance=announcement,
+    )
+
+
+@_warden_portal_required
+def announcement_delete(request, pk):
+    return _handle_info_delete(
+        request, Announcement, pk, 'hostel:warden_announcements',
+        'Announcement removed.', 'Announcement', 'hostel:warden_announcements',
+    )
+
+
+@_warden_portal_required
+def warden_menu(request):
+    return render(request, 'hostel/warden_menu.html', {
+        'menu_items': MenuItem.objects.all(),
+    })
+
+
+@_warden_portal_required
+def menu_create(request):
+    return _handle_info_form(
+        request, MenuItemForm, 'hostel/entry_form.html',
+        'hostel:warden_menu', 'Menu entry added.',
+        'Add Menu Entry', 'hostel:warden_menu',
+    )
+
+
+@_warden_portal_required
+def menu_edit(request, pk):
+    menu_item = get_object_or_404(MenuItem, pk=pk)
+    return _handle_info_form(
+        request, MenuItemForm, 'hostel/entry_form.html',
+        'hostel:warden_menu', 'Menu entry updated.',
+        'Edit Menu Entry', 'hostel:warden_menu', instance=menu_item,
+    )
+
+
+@_warden_portal_required
+def menu_delete(request, pk):
+    return _handle_info_delete(
+        request, MenuItem, pk, 'hostel:warden_menu',
+        'Menu entry removed.', 'Menu Entry', 'hostel:warden_menu',
+    )
+
+
+@_warden_portal_required
+def warden_rules(request):
+    return render(request, 'hostel/warden_rules.html', {
+        'rules': Rule.objects.all(),
+    })
+
+
+@_warden_portal_required
+def rule_create(request):
+    return _handle_info_form(
+        request, RuleForm, 'hostel/entry_form.html',
+        'hostel:warden_rules', 'Rule added.',
+        'Add Rule', 'hostel:warden_rules',
+    )
+
+
+@_warden_portal_required
+def rule_edit(request, pk):
+    rule = get_object_or_404(Rule, pk=pk)
+    return _handle_info_form(
+        request, RuleForm, 'hostel/entry_form.html',
+        'hostel:warden_rules', 'Rule updated.',
+        'Edit Rule', 'hostel:warden_rules', instance=rule,
+    )
+
+
+@_warden_portal_required
+def rule_delete(request, pk):
+    return _handle_info_delete(
+        request, Rule, pk, 'hostel:warden_rules',
+        'Rule removed.', 'Rule', 'hostel:warden_rules',
+    )
