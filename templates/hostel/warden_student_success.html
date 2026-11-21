@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Successful — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4 text-center">
+                <div class="text-success mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                </div>
+                <h1 class="h3 mb-2">Student Registered Successfully</h1>
+                <p class="text-muted mb-4">The student record, login account, room assignment, and initial fee ledger have been created.</p>
+
+                <!-- Credentials Handover Box -->
+                <div class="card bg-light border-warning border-2 text-start p-4 mb-4">
+                    <h5 class="h6 text-uppercase text-warning-emphasis fw-bold mb-3">One-Time Student Credentials (Handover)</h5>
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-sm-4 text-muted">Username / Student ID:</div>
+                        <div class="col-sm-8"><span class="badge bg-dark fs-6">{{ student.student_id }}</span></div>
+                    </div>
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-sm-4 text-muted">Temporary Password:</div>
+                        <div class="col-sm-8">
+                            <span class="font-monospace fw-bold fs-5 text-primary bg-white px-2 py-1 border rounded">{{ temporary_password }}</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-info py-2 px-3 small mb-0">
+                        <strong>Security Requirement:</strong> Hand these credentials to the resident in person. At first login, HostelEase will automatically require the student to change this temporary password before they can access their dashboard (AC-02.4, OQ-25).
+                    </div>
+                </div>
+
+                <!-- Registration Summary -->
+                <div class="card border text-start p-3 mb-4">
+                    <h6 class="border-bottom pb-2 mb-3">Registration Summary</h6>
+                    <div class="row g-2 small">
+                        <div class="col-sm-4 text-muted">Full Name:</div>
+                        <div class="col-sm-8 fw-semibold">{{ student.full_name }}</div>
+
+                        <div class="col-sm-4 text-muted">Contact:</div>
+                        <div class="col-sm-8">{{ student.contact_number }}</div>
+
+                        <div class="col-sm-4 text-muted">Guardian:</div>
+                        <div class="col-sm-8">{{ student.guardian_name }} ({{ student.guardian_contact_number }})</div>
+
+                        <div class="col-sm-4 text-muted">Assigned Room:</div>
+                        <div class="col-sm-8"><span class="badge bg-primary">Room {{ room.room_number }}</span></div>
+
+                        <div class="col-sm-4 text-muted">Total Fee:</div>
+                        <div class="col-sm-8 font-monospace">Rs. {{ ledger.total_fee|floatformat:2 }}</div>
+
+                        <div class="col-sm-4 text-muted">Opening Verified Paid:</div>
+                        <div class="col-sm-8 font-monospace text-success">Rs. {{ ledger.paid_amount|floatformat:2 }}</div>
+
+                        <div class="col-sm-4 text-muted">Remaining Balance:</div>
+                        <div class="col-sm-8 font-monospace fw-bold text-danger">Rs. {{ ledger.remaining_amount|floatformat:2 }}</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'hostel:warden_student_create' %}" class="btn btn-outline-primary">Register Another Student</a>
+                    <a href="{% url 'hostel:warden_student_list' %}" class="btn btn-primary px-4">View All Students</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

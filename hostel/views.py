@@ -5,7 +5,12 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Announcement, MenuItem, Rule
+from accounts.guards import warden_required
+from finance import services as finance_services
+from . import room_service, student_service
+from .models import Announcement, MenuItem, Rule, Room, RoomAssignment, Student
+from .student_service import StudentError
+from .room_service import RoomError
 
 
 def _is_warden(user):
@@ -293,3 +298,114 @@ def rule_delete(request, pk):
         'Rule',
         'hostel:warden_rules',
     )
+
+
+# ==========================================
+# Warden Student Registration & Management (VS-02)
+# ==========================================
+
+@warden_required
+def warden_student_list(request):
+    """List all registered students with room and fee overview."""
+    students = student_service.list_students()
+    records = []
+    for s in students:
+        room_info = room_service.get_student_room(s.student_id)
+        ledger = finance_services.get_ledger(s.id)
+        records.append({
+            'student': s,
+            'room': room_info,
+            'ledger': ledger,
+        })
+    return render(request, 'hostel/warden_student_list.html', {
+        'records': records,
+    })
+
+
+@warden_required
+def warden_student_create(request):
+    """Register a new student with login account, fee record and room assignment (FR-01)."""
+    rooms = room_service.list_rooms()
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name', '').strip()
+        student_id = request.POST.get('student_id', '').strip()
+        contact_number = request.POST.get('contact_number', '').strip()
+        guardian_name = request.POST.get('guardian_name', '').strip()
+        guardian_contact_number = request.POST.get('guardian_contact_number', '').strip()
+        room_identifier = request.POST.get('room', '').strip()
+        total_fee = request.POST.get('total_fee', '').strip()
+        opening_paid = request.POST.get('opening_paid', '0').strip()
+        email = request.POST.get('email', '').strip()
+        address = request.POST.get('address', '').strip()
+        temporary_password = request.POST.get('temporary_password', '').strip()
+
+        try:
+            result = student_service.register_student(
+                full_name=full_name,
+                student_id=student_id,
+                contact_number=contact_number,
+                guardian_name=guardian_name,
+                guardian_contact_number=guardian_contact_number,
+                room_identifier=room_identifier,
+                total_fee=total_fee,
+                opening_paid=opening_paid,
+                email=email,
+                address=address,
+                temporary_password=temporary_password or None,
+                created_by=request.user.username,
+            )
+            return render(request, 'hostel/warden_student_success.html', {
+                'student': result['student'],
+                'user': result['user'],
+                'room': result['room'],
+                'temporary_password': result['temporary_password'],
+                'ledger': result['ledger'],
+            })
+        except (StudentError, RoomError) as exc:
+            messages.error(request, str(exc))
+            return render(request, 'hostel/warden_student_create.html', {
+                'rooms': rooms,
+                'form_data': request.POST,
+            })
+
+    return render(request, 'hostel/warden_student_create.html', {
+        'rooms': rooms,
+        'form_data': {},
+    })
+
+
+@warden_required
+def warden_student_detail(request, pk):
+    """View details of a student record."""
+    student = get_object_or_404(Student, pk=pk)
+    room_info = room_service.get_student_room(student.student_id)
+    ledger = finance_services.get_ledger(student.id)
+    fee_history = finance_services.get_history(student.id)
+
+    return render(request, 'hostel/warden_student_detail.html', {
+        'student': student,
+        'room': room_info,
+        'ledger': ledger,
+        'fee_history': fee_history,
+    })
+
+
+@warden_required
+def warden_room_create(request):
+    """Quick room creation helper for warden if catalogue is empty."""
+    if request.method == 'POST':
+        room_number = request.POST.get('room_number', '').strip()
+        capacity = request.POST.get('capacity', '').strip()
+        try:
+            room_service.create_room(room_number, capacity)
+            messages.success(request, f'Room {room_number} created successfully.')
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('hostel:warden_student_create')
+        except RoomError as exc:
+            messages.error(request, str(exc))
+
+    return redirect('hostel:warden_student_create')
+

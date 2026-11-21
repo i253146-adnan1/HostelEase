@@ -27,4 +27,10 @@ urlpatterns = [
     path('warden/rules/create/', views.rule_create, name='rule_create'),
     path('warden/rules/<int:pk>/edit/', views.rule_edit, name='rule_edit'),
     path('warden/rules/<int:pk>/delete/', views.rule_delete, name='rule_delete'),
+
+    # Warden student registration & management (VS-02)
+    path('warden/students/', views.warden_student_list, name='warden_student_list'),
+    path('warden/students/add/', views.warden_student_create, name='warden_student_create'),
+    path('warden/students/<int:pk>/', views.warden_student_detail, name='warden_student_detail'),
+    path('warden/rooms/create/', views.warden_room_create, name='warden_room_create'),
 ]
