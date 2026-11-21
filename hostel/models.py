@@ -93,6 +93,23 @@ class Room(models.Model):
     class Meta:
         ordering = ['room_number']
 
+
+    @property
+    def occupancy(self):
+        return self.assignments.filter(is_active=True).count()
+
+    @property
+    def is_full(self):
+        return self.occupancy >= self.capacity
+
+    @property
+    def available_slots(self):
+        return self.capacity - self.occupancy
+
+    @classmethod
+    def get_pending_request_count(cls):
+        return 0
+
     def __str__(self):
         return f'Room {self.room_number}'
 

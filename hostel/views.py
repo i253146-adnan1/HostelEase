@@ -32,7 +32,7 @@ def room_list(request):
 @require_GET
 def room_detail(request, room_id):
     room = get_object_or_404(Room, pk=room_id)
-    active_assignments = room.assignments.filter(is_active=True).select_related('student_user')
+    active_assignments = room.assignments.filter(is_active=True)
     return render(
         request,
         'hostel/room_detail.html',
@@ -112,8 +112,8 @@ def room_assign(request, room_id):
 @require_POST
 def room_clear_assignment(request, assignment_id):
     assignment = get_object_or_404(RoomAssignment, pk=assignment_id)
-    if assignment.student_user_id is not None:
-        cleared = services.clear_student_room_assignment(assignment.student_user_id)
+    if assignment.student_id is not None:
+        cleared = services.clear_student_room_assignment(assignment.student_id)
         if cleared:
             messages.success(request, "Student room assignment cleared.")
         else:
@@ -124,3 +124,78 @@ def room_clear_assignment(request, assignment_id):
         messages.success(request, "Room assignment cleared.")
 
     return redirect('hostel:room_detail', room_id=assignment.room_id)
+
+from django.http import HttpResponseForbidden
+from . import student_service
+from .models import Student
+from finance import services as finance_services
+
+
+def _warden_portal_required(view_func):
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('/accounts/login/')
+        if getattr(request.user, 'role', None) != 'warden' and not request.user.is_staff:
+            return HttpResponseForbidden('Forbidden')
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+
+@_warden_portal_required
+def warden_student_list(request):
+    students = student_service.list_students()
+    records = []
+    for s in students:
+        assign = RoomAssignment.objects.filter(student_id=s.student_id, is_active=True).select_related('room').first()
+        ledger = finance_services.get_ledger(s.id)
+        records.append({
+            'student': s,
+            'room': assign.room if assign else None,
+            'ledger': ledger,
+        })
+    return render(request, 'hostel/warden_student_list.html', {'records': records})
+
+
+@_warden_portal_required
+def warden_student_create(request):
+    rooms = Room.objects.all().order_by('room_number')
+    if request.method == 'POST':
+        try:
+            result = student_service.register_student(
+                full_name=request.POST.get('full_name', ''),
+                student_id=request.POST.get('student_id', ''),
+                contact_number=request.POST.get('contact_number', ''),
+                guardian_name=request.POST.get('guardian_name', ''),
+                guardian_contact_number=request.POST.get('guardian_contact_number', ''),
+                room_identifier=request.POST.get('room', ''),
+                total_fee=request.POST.get('total_fee', ''),
+                opening_paid=request.POST.get('opening_paid', '0'),
+                email=request.POST.get('email', ''),
+                address=request.POST.get('address', ''),
+                temporary_password=request.POST.get('temporary_password', ''),
+                created_by=request.user.username,
+            )
+            return render(request, 'hostel/warden_student_success.html', result)
+        except student_service.StudentError as exc:
+            messages.error(request, str(exc))
+            return render(request, 'hostel/warden_student_create.html', {
+                'rooms': rooms,
+                'error': str(exc),
+                'form_data': request.POST,
+            })
+    return render(request, 'hostel/warden_student_create.html', {'rooms': rooms, 'form_data': {}})
+
+
+@_warden_portal_required
+def warden_student_detail(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    assign = RoomAssignment.objects.filter(student_id=student.student_id, is_active=True).select_related('room').first()
+    ledger = finance_services.get_ledger(student.id)
+    fee_history = finance_services.get_history(student.id)
+    return render(request, 'hostel/warden_student_detail.html', {
+        'student': student,
+        'room': assign.room if assign else None,
+        'ledger': ledger,
+        'fee_history': fee_history,
+    })

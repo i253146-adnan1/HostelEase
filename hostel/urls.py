@@ -11,4 +11,7 @@ urlpatterns = [
     path('rooms/<int:room_id>/delete/', views.room_delete, name='room_delete'),
     path('rooms/<int:room_id>/assign/', views.room_assign, name='room_assign'),
     path('rooms/assignment/<int:assignment_id>/clear/', views.room_clear_assignment, name='room_clear_assignment'),
+    path('warden/students/', views.warden_student_list, name='warden_student_list'),
+    path('warden/students/create/', views.warden_student_create, name='warden_student_create'),
+    path('warden/students/<int:pk>/', views.warden_student_detail, name='warden_student_detail'),
 ]

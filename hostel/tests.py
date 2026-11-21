@@ -40,7 +40,7 @@ class RoomModuleTests(TestCase):
         self.assertTrue(
             RoomAssignment.objects.filter(
                 room=room,
-                student_user=self.student1,
+                student_id=str(self.student1.pk),
                 is_active=True,
             ).exists()
         )
