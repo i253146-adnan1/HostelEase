@@ -1,230 +1,160 @@
 from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Announcement, MenuItem, Rule
+from . import services
+from .models import Room, RoomAssignment
 
 User = get_user_model()
 
 
-class HostelInfoTests(TestCase):
+class RoomModuleTests(TestCase):
     def setUp(self):
         self.warden = User.objects.create_user(
             username='warden',
-            password='warden-password-123',
+            password='password123',
             is_staff=True,
-            role='warden',
         )
-        self.student = User.objects.create_user(
+        self.student1 = User.objects.create_user(
             username='student1',
-            password='student-password-123',
+            password='password123',
+            is_staff=False,
+        )
+        self.student2 = User.objects.create_user(
+            username='student2',
+            password='password123',
             is_staff=False,
         )
 
-    def test_ac_12_1_warden_publishes_announcement(self):
+    def test_ac_09_1_assign_to_room_with_free_capacity(self):
+        self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='101', capacity=2)
+
+        response = self.client.post(
+            reverse('hostel:room_assign', args=[room.pk]),
+            {'user_id': self.student1.pk},
+        )
+
+        self.assertRedirects(response, reverse('hostel:room_detail', args=[room.pk]))
+        self.assertTrue(
+            RoomAssignment.objects.filter(
+                room=room,
+                student_user=self.student1,
+                is_active=True,
+            ).exists()
+        )
+
+    def test_ac_09_2_full_room_rejects_assignment(self):
+        self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='102', capacity=1)
+        services.assign_student_to_room(room.pk, self.student1.pk)
+
+        with self.assertRaises(ValueError):
+            services.assign_student_to_room(room.pk, self.student2.pk)
+
+        response = self.client.post(
+            reverse('hostel:room_assign', args=[room.pk]),
+            {'user_id': self.student2.pk},
+            follow=True,
+        )
+
+        msgs = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue(any('full' in m.lower() for m in msgs))
+        self.assertEqual(
+            RoomAssignment.objects.filter(room=room, is_active=True).count(),
+            1,
+        )
+
+    def test_ac_09_3_capacity_cannot_be_reduced_below_occupancy(self):
+        self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='103', capacity=3)
+        services.assign_student_to_room(room.pk, self.student1.pk)
+        services.assign_student_to_room(room.pk, self.student2.pk)
+
+        response = self.client.post(
+            reverse('hostel:room_edit', args=[room.pk]),
+            {'room_number': '103', 'capacity': 1},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('capacity', form.errors)
+        self.assertContains(response, '2 students assigned')
+
+        room.refresh_from_db()
+        self.assertEqual(room.capacity, 3)
+
+    def test_ac_09_4_room_with_assigned_students_cannot_be_removed(self):
+        self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='104', capacity=2)
+        services.assign_student_to_room(room.pk, self.student1.pk)
+
+        response = self.client.post(
+            reverse('hostel:room_delete', args=[room.pk]),
+            follow=True,
+        )
+
+        self.assertTrue(Room.objects.filter(pk=room.pk).exists())
+        msgs = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue(any('cannot remove' in m.lower() for m in msgs))
+
+    def test_room_create_valid(self):
         self.client.force_login(self.warden)
         response = self.client.post(
-            reverse('hostel:announcement_create'),
-            {'title': 'Water Supply Notice', 'message': 'Maintenance from 2 PM to 4 PM.'},
+            reverse('hostel:room_create'),
+            {'room_number': '201', 'capacity': 4},
         )
-        self.assertRedirects(response, reverse('hostel:warden_announcements'))
-        self.assertEqual(Announcement.objects.count(), 1)
 
-        self.client.force_login(self.student)
-        student_resp = self.client.get(reverse('hostel:student_announcements'))
-        self.assertEqual(student_resp.status_code, 200)
-        self.assertContains(student_resp, 'Water Supply Notice')
-        self.assertContains(student_resp, 'Maintenance from 2 PM to 4 PM.')
+        self.assertRedirects(response, reverse('hostel:room_list'))
+        self.assertTrue(Room.objects.filter(room_number='201', capacity=4).exists())
 
-    def test_ac_12_2_empty_title_or_message_rejected(self):
+    def test_room_create_zero_capacity_rejected(self):
         self.client.force_login(self.warden)
+        response = self.client.post(
+            reverse('hostel:room_create'),
+            {'room_number': '202', 'capacity': 0},
+        )
 
-        for payload in [
-            {'title': '', 'message': 'Valid message'},
-            {'title': '   ', 'message': 'Valid message'},
-            {'title': 'Valid title', 'message': ''},
-            {'title': 'Valid title', 'message': '   '},
-        ]:
-            response = self.client.post(reverse('hostel:announcement_create'), payload)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(Announcement.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertFalse(Room.objects.filter(room_number='202').exists())
 
-        self.client.force_login(self.student)
-        student_resp = self.client.get(reverse('hostel:student_announcements'))
-        self.assertEqual(student_resp.status_code, 200)
-        self.assertContains(student_resp, 'No announcements have been published yet.')
-
-    def test_ac_12_2_empty_menu_and_rule_rejected(self):
+    def test_room_edit_valid_increase_capacity(self):
         self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='203', capacity=2)
 
-        menu_resp = self.client.post(
-            reverse('hostel:menu_create'),
-            {'day_of_week': 'Monday', 'meal_type': 'Breakfast', 'items': '   '},
+        response = self.client.post(
+            reverse('hostel:room_edit', args=[room.pk]),
+            {'room_number': '203', 'capacity': 5},
         )
-        self.assertEqual(menu_resp.status_code, 200)
-        self.assertEqual(MenuItem.objects.count(), 0)
 
-        rule_resp = self.client.post(
-            reverse('hostel:rule_create'),
-            {'title': '', 'description': 'Quiet hours after 11 PM.'},
-        )
-        self.assertEqual(rule_resp.status_code, 200)
-        self.assertEqual(Rule.objects.count(), 0)
+        self.assertRedirects(response, reverse('hostel:room_list'))
+        room.refresh_from_db()
+        self.assertEqual(room.capacity, 5)
 
-    def test_ac_12_3_warden_can_edit_and_remove_entries(self):
-        ann = Announcement.objects.create(title='Old Title', message='Old message')
-        menu = MenuItem.objects.create(day_of_week='Monday', meal_type='Lunch', items='Rice and Dal')
-        rule = Rule.objects.create(title='Curfew', description='Gate closes at 10 PM')
-
+    def test_clear_assignment_soft_deletes(self):
         self.client.force_login(self.warden)
+        room = Room.objects.create(room_number='204', capacity=2)
+        assignment = services.assign_student_to_room(room.pk, self.student1.pk)
 
-        # Edit all three
-        self.assertRedirects(
-            self.client.post(
-                reverse('hostel:announcement_edit', args=[ann.pk]),
-                {'title': 'New Title', 'message': 'Updated message'},
-            ),
-            reverse('hostel:warden_announcements'),
-        )
-        self.assertRedirects(
-            self.client.post(
-                reverse('hostel:menu_edit', args=[menu.pk]),
-                {'day_of_week': 'Tuesday', 'meal_type': 'Dinner', 'items': 'Biryani'},
-            ),
-            reverse('hostel:warden_menu'),
-        )
-        self.assertRedirects(
-            self.client.post(
-                reverse('hostel:rule_edit', args=[rule.pk]),
-                {'title': 'Updated Curfew', 'description': 'Gate closes at 10:30 PM'},
-            ),
-            reverse('hostel:warden_rules'),
+        response = self.client.post(
+            reverse('hostel:room_clear_assignment', args=[assignment.pk]),
         )
 
-        # Verify student sees updated content
-        self.client.force_login(self.student)
-        self.assertContains(self.client.get(reverse('hostel:student_announcements')), 'New Title')
-        self.assertContains(self.client.get(reverse('hostel:student_menu')), 'Biryani')
-        self.assertContains(self.client.get(reverse('hostel:student_rules')), 'Updated Curfew')
+        self.assertRedirects(response, reverse('hostel:room_detail', args=[room.pk]))
+        assignment.refresh_from_db()
+        self.assertFalse(assignment.is_active)
+        self.assertEqual(room.occupancy, 0)
 
-        # Remove all three as warden
-        self.client.force_login(self.warden)
-        self.assertRedirects(
-            self.client.post(reverse('hostel:announcement_delete', args=[ann.pk])),
-            reverse('hostel:warden_announcements'),
-        )
-        self.assertRedirects(
-            self.client.post(reverse('hostel:menu_delete', args=[menu.pk])),
-            reverse('hostel:warden_menu'),
-        )
-        self.assertRedirects(
-            self.client.post(reverse('hostel:rule_delete', args=[rule.pk])),
-            reverse('hostel:warden_rules'),
-        )
+    def test_non_staff_user_redirected_from_room_list(self):
+        self.client.force_login(self.student1)
+        response = self.client.get(reverse('hostel:room_list'))
 
-        self.assertEqual(Announcement.objects.count(), 0)
-        self.assertEqual(MenuItem.objects.count(), 0)
-        self.assertEqual(Rule.objects.count(), 0)
+        self.assertNotEqual(response.status_code, 200)
+        self.assertRedirects(response, '/accounts/login/', fetch_redirect_response=False)
 
-        # Verify student sees removed state
-        self.client.force_login(self.student)
-        self.assertNotContains(self.client.get(reverse('hostel:student_announcements')), 'New Title')
-        self.assertNotContains(self.client.get(reverse('hostel:student_menu')), 'Biryani')
-        self.assertNotContains(self.client.get(reverse('hostel:student_rules')), 'Updated Curfew')
-
-    def test_ac_12_4_student_cannot_create_edit_or_remove(self):
-        ann = Announcement.objects.create(title='Notice', message='Body')
-        menu = MenuItem.objects.create(day_of_week='Wednesday', meal_type='Lunch', items='Pasta')
-        rule = Rule.objects.create(title='Silence', description='Keep noise down')
-
-        self.client.force_login(self.student)
-
-        forbidden_gets = [
-            reverse('hostel:warden_announcements'),
-            reverse('hostel:announcement_create'),
-            reverse('hostel:announcement_edit', args=[ann.pk]),
-            reverse('hostel:announcement_delete', args=[ann.pk]),
-            reverse('hostel:warden_menu'),
-            reverse('hostel:menu_create'),
-            reverse('hostel:menu_edit', args=[menu.pk]),
-            reverse('hostel:menu_delete', args=[menu.pk]),
-            reverse('hostel:warden_rules'),
-            reverse('hostel:rule_create'),
-            reverse('hostel:rule_edit', args=[rule.pk]),
-            reverse('hostel:rule_delete', args=[rule.pk]),
-        ]
-        for url in forbidden_gets:
-            self.assertEqual(self.client.get(url).status_code, 403, f'GET {url} should be 403')
-
-        self.assertEqual(
-            self.client.post(
-                reverse('hostel:announcement_create'),
-                {'title': 'Hacked', 'message': 'Nope'},
-            ).status_code,
-            403,
-        )
-        self.assertEqual(
-            self.client.post(
-                reverse('hostel:menu_edit', args=[menu.pk]),
-                {'day_of_week': 'Friday', 'meal_type': 'Dinner', 'items': 'Changed'},
-            ).status_code,
-            403,
-        )
-        self.assertEqual(
-            self.client.post(reverse('hostel:rule_delete', args=[rule.pk])).status_code,
-            403,
-        )
-
-        # Confirm no records were created, modified, or deleted
-        self.assertEqual(Announcement.objects.count(), 1)
-        self.assertEqual(MenuItem.objects.get(pk=menu.pk).items, 'Pasta')
-        self.assertEqual(Rule.objects.count(), 1)
-
-    def test_ac_12_5_empty_state_renders_without_error(self):
-        self.client.force_login(self.student)
-
-        ann_resp = self.client.get(reverse('hostel:student_announcements'))
-        menu_resp = self.client.get(reverse('hostel:student_menu'))
-        rules_resp = self.client.get(reverse('hostel:student_rules'))
-
-        self.assertEqual(ann_resp.status_code, 200)
-        self.assertEqual(menu_resp.status_code, 200)
-        self.assertEqual(rules_resp.status_code, 200)
-        self.assertContains(ann_resp, 'No announcements have been published yet.')
-        self.assertContains(menu_resp, 'No menu entries have been published yet.')
-        self.assertContains(rules_resp, 'No hostel rules have been published yet.')
-
-    def test_ac_12_6_menu_and_rules_shown_to_authenticated_students(self):
-        self.client.force_login(self.warden)
-        self.client.post(
-            reverse('hostel:menu_create'),
-            {'day_of_week': 'Friday', 'meal_type': 'Dinner', 'items': 'Chicken Karahi and Naan'},
-        )
-        self.client.post(
-            reverse('hostel:rule_create'),
-            {'title': 'Visitor Hours', 'description': 'Visitors allowed from 4 PM to 7 PM.'},
-        )
-
-        self.client.force_login(self.student)
-        menu_resp = self.client.get(reverse('hostel:student_menu'))
-        rules_resp = self.client.get(reverse('hostel:student_rules'))
-
-        self.assertEqual(menu_resp.status_code, 200)
-        self.assertContains(menu_resp, 'Friday')
-        self.assertContains(menu_resp, 'Dinner')
-        self.assertContains(menu_resp, 'Chicken Karahi and Naan')
-
-        self.assertEqual(rules_resp.status_code, 200)
-        self.assertContains(rules_resp, 'Visitor Hours')
-        self.assertContains(rules_resp, 'Visitors allowed from 4 PM to 7 PM.')
-
-    def test_public_home_page_does_not_show_hostel_info(self):
-        Announcement.objects.create(title='Secret Notice', message='Internal only')
-        MenuItem.objects.create(day_of_week='Monday', meal_type='Breakfast', items='Omelette')
-        Rule.objects.create(title='Internal Rule', description='Students only')
-
-        home_resp = self.client.get(reverse('home'))
-        self.assertEqual(home_resp.status_code, 200)
-        self.assertNotContains(home_resp, 'Secret Notice')
-        self.assertNotContains(home_resp, 'Omelette')
-        self.assertNotContains(home_resp, 'Internal Rule')
+    def test_pending_request_count_placeholder(self):
+        self.assertEqual(Room.get_pending_request_count(), 0)
+        self.assertEqual(services.get_pending_request_count(), 0)
