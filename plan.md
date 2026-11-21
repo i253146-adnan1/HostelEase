@@ -90,8 +90,8 @@ Names and previous D3 roles are taken from the submitted D3 contribution log.
 |---|---|---|
 | Muhammad Fahad Basharat (Role-01) | ADR-001, ADR-005, ASR identification, decision facilitation | Rooms and room-request workflow; integration coordination |
 | Safiullah (Role-02) | AGENTS.md, ADR-002, module boundaries and relational persistence | Student Management, data model conventions and database integrity |
-| Adnanullah (Role-03) | ADR-003, authentication boundary, AI context handoff/evaluation | Authentication and access guard; security review |
-| Farmanullah (Role-04) | architecture.md, ADR-004, packaging | Shared UI/layout, file storage, hostel information and local run/deployment documentation |
+| Adnanullah (Role-03) | ADR-003, authentication boundary, AI context handoff/evaluation | Shared UI/layout, file storage, hostel information and local run/deployment documentation |
+| Farmanullah (Role-04) | architecture.md, ADR-004, packaging | Authentication and access guard; security review |
 
 Ownership means one accountable slice lead. Other members review and test across the product. It does not prevent cross-training or shared fixes.
 
@@ -173,7 +173,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-00 — Project foundation and approved stack
 
 - **Priority:** P0
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 18 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements/context:** ADR-001 to ADR-005; approved team technology choice; D4 Stage 2/3.
@@ -193,7 +193,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-01 — Authentication and cross-cutting access guard
 
 - **Priority:** P0
-- **Lead:** Adnanullah
+- **Lead:** Farmanullah
 - **Scheduled date:** 19 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-02, NFR-01, BR-01, BR-08, BR-09, BR-13; AC-02.1–AC-02.4; AC-NFR-01; ADR-003.
@@ -251,7 +251,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-04 — Fee ledger and fee-change history
 
 - **Priority:** P0
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 19 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-06, NFR-02, BR-03, BR-10; AC-06.1, AC-06.2, AC-NFR-02.
@@ -271,7 +271,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-05 — Student profile and own-record boundary
 
 - **Priority:** P0
-- **Lead:** Adnanullah
+- **Lead:** Farmanullah
 - **Scheduled date:** 20 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-03, NFR-01, BR-08; AC-03.1–AC-03.2, AC-NFR-01.
@@ -288,7 +288,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-06 — Hostel information: announcements, menu and rules
 
 - **Priority:** P1
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 20 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-12; AC-12.1–AC-12.6; proposed OQ-02 default.
@@ -324,7 +324,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-08 — Shared local file-storage service
 
 - **Priority:** P1
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 20 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-04, FR-07, C-02, NFR-01; ADR-004.
@@ -342,7 +342,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-09 — Student payment-proof submission
 
 - **Priority:** P1
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 21 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-04, BR-02, BR-03; AC-04.1, AC-04.2; F-03.
@@ -361,7 +361,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-10 — Student complaint submission and status view
 
 - **Priority:** P1
-- **Lead:** Adnanullah
+- **Lead:** Farmanullah
 - **Scheduled date:** 21 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-07; AC-07.1–AC-07.4; C-02; BR-05.
@@ -418,7 +418,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-13 — Warden complaint management
 
 - **Priority:** P1
-- **Lead:** Adnanullah
+- **Lead:** Farmanullah
 - **Scheduled date:** 22 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-08; AC-08.1; BR-04; proposed OQ-03/OQ-12 defaults.
@@ -508,7 +508,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-18 — Student meal opt-out and warden summary
 
 - **Priority:** P2
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 23 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-19; AC-19.1–AC-19.5; proposed OQ-33 default.
@@ -527,7 +527,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-19 — Warden pending-items dashboard
 
 - **Priority:** P1
-- **Lead:** Adnanullah
+- **Lead:** Farmanullah
 - **Scheduled date:** 23 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-14, NFR-01, NFR-04; AC-14.1, AC-14.2; ADR-005.
@@ -546,7 +546,7 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 ### VS-20 — Student fee, payment and request-status views; end-to-end student home
 
 - **Priority:** P1
-- **Lead:** Farmanullah
+- **Lead:** Adnanullah
 - **Scheduled date:** 24 November 2026
 - **Maximum duration:** 1 working day
 - **Requirements:** FR-03, FR-04, FR-05, FR-06, FR-07, FR-10, FR-12, FR-13, FR-17, FR-19; AC-03.x, AC-04.x, AC-05.x, AC-06.x and relevant student-facing ACs.
@@ -663,18 +663,18 @@ Each feature slice has a one-day maximum allocation. Four members can work in pa
 
 | Date | Member 1 — Fahad | Member 2 — Safiullah | Member 3 — Adnanullah | Member 4 — Farmanullah |
 |---|---|---|---|---|
-| **18 Nov** | Review room/service contracts; prepare room model proposal | Review schema and student model proposal | Review auth/guard contracts and security matrix | **VS-00 foundation + ADR-006** (lead); agree base templates and repo |
-| **19 Nov** | **VS-03 Rooms** | **VS-02 Student registration** | **VS-01 Authentication** | **VS-04 Fee ledger** |
-| **20 Nov** | Review room integration; help with room edge cases | **VS-07 Feedback** | **VS-05 Student profile** | **VS-06 Hostel information** + **VS-08 File storage** only if storage work is independent and both fit within their separate one-day limits; otherwise VS-08 is moved to 21 Nov and VS-06 remains the sole lead slice |
-| **21 Nov** | **VS-11 Room requests** | **VS-12 Payment verification** | **VS-10 Complaint submission** | **VS-09 Payment-proof submission** |
-| **22 Nov** | **VS-15 Leave requests** | **VS-14 Feedback summary** | **VS-13 Complaint management** | **VS-08 File storage** if deferred from 20 Nov; otherwise cross-module integration support and tests |
-| **23 Nov** | **VS-17 Visitor log** | **VS-16 Student lifecycle** | **VS-19 Dashboard** | **VS-18 Meal opt-outs** |
-| **24 Nov** | Room/leave integration review | Student/database integrity review | Security and dashboard integration review | **VS-20 Student fee/payment/status views**; all members assist with integrated student navigation |
-| **25 Nov** | Cross-module integration and end-to-end room/leave flows | Database integrity, fee and feedback tests | Role isolation, security and dashboard tests | File handling, UI and local-run integration tests |
-| **26 Nov** | Demo rehearsal and defect fixes | Demo rehearsal and defect fixes | Demo rehearsal and defect fixes | README, local execution check, packaging and defect fixes |
-| **27 Nov** | Final submission and contribution confirmation | Final submission and contribution confirmation | Final submission and evidence confirmation | Final submission and packaging confirmation |
+| **18 Nov** | Review room/service contracts; prepare room model proposal | Review schema and student model proposal | **VS-00 foundation + ADR-006** (lead); agree base templates and repo | Review auth/guard contracts and security matrix |
+| **19 Nov** | **VS-03 Rooms** | **VS-02 Student registration** | **VS-04 Fee ledger** | **VS-01 Authentication** |
+| **20 Nov** | Review room integration; help with room edge cases | **VS-07 Feedback** | **VS-06 Hostel information** + **VS-08 File storage** only if storage work is independent and both fit within their separate one-day limits; otherwise VS-08 is moved to 21 Nov and VS-06 remains the sole lead slice | **VS-05 Student profile** |
+| **21 Nov** | **VS-11 Room requests** | **VS-12 Payment verification** | **VS-09 Payment-proof submission** | **VS-10 Complaint submission** |
+| **22 Nov** | **VS-15 Leave requests** | **VS-14 Feedback summary** | **VS-08 File storage** if deferred from 20 Nov; otherwise cross-module integration support and tests | **VS-13 Complaint management** |
+| **23 Nov** | **VS-17 Visitor log** | **VS-16 Student lifecycle** | **VS-18 Meal opt-outs** | **VS-19 Dashboard** |
+| **24 Nov** | Room/leave integration review | Student/database integrity review | **VS-20 Student fee/payment/status views**; all members assist with integrated student navigation | Security and dashboard integration review |
+| **25 Nov** | Cross-module integration and end-to-end room/leave flows | Database integrity, fee and feedback tests | File handling, UI and local-run integration tests | Role isolation, security and dashboard tests |
+| **26 Nov** | Demo rehearsal and defect fixes | Demo rehearsal and defect fixes | README, local execution check, packaging and defect fixes | Demo rehearsal and defect fixes |
+| **27 Nov** | Final submission and contribution confirmation | Final submission and contribution confirmation | Final submission and packaging confirmation | Final submission and evidence confirmation |
 
-**Allocation correction / guardrail:** VS-08 is a one-day slice and must have exactly one lead-day. If it is completed on 20 November, Farmanullah must not be assigned a second full slice that day; VS-06 may instead be led by Fahad or moved to another member with capacity. The project coordinator must freeze the final allocation in the daily plan before work starts. The table deliberately exposes this scheduling choice rather than pretending one person can complete two full-day slices in parallel.
+**Allocation correction / guardrail:** VS-08 is a one-day slice and must have exactly one lead-day. If it is completed on 20 November, Adnanullah must not be assigned a second full slice that day; VS-06 may instead be led by Fahad or moved to another member with capacity. The project coordinator must freeze the final allocation in the daily plan before work starts. The table deliberately exposes this scheduling choice rather than pretending one person can complete two full-day slices in parallel.
 
 ### Recommended clean allocation (authoritative)
 
@@ -682,15 +682,15 @@ To avoid double-booking, use this allocation as the final slice lead schedule:
 
 | Date | Fahad | Safiullah | Adnanullah | Farmanullah |
 |---|---|---|---|---|
-| 18 Nov | Interface contract review | Data model contract review | Auth contract review | VS-00 |
-| 19 Nov | VS-03 | VS-02 | VS-01 | VS-04 |
-| 20 Nov | VS-06 | VS-07 | VS-05 | VS-08 |
-| 21 Nov | VS-11 | VS-12 | VS-10 | VS-09 |
-| 22 Nov | VS-15 | VS-14 | VS-13 | Integration support |
-| 23 Nov | VS-17 | VS-16 | VS-19 | VS-18 |
-| 24 Nov | Integration | Integration | Integration | VS-20 |
-| 25 Nov | E2E tests | DB/fee tests | Security tests | UI/file tests |
-| 26 Nov | Demo/fixes | Demo/fixes | Demo/fixes | Packaging/fixes |
+| 18 Nov | Interface contract review | Data model contract review | VS-00 | Auth contract review |
+| 19 Nov | VS-03 | VS-02 | VS-04 | VS-01 |
+| 20 Nov | VS-06 | VS-07 | VS-08 | VS-05 |
+| 21 Nov | VS-11 | VS-12 | VS-09 | VS-10 |
+| 22 Nov | VS-15 | VS-14 | Integration support | VS-13 |
+| 23 Nov | VS-17 | VS-16 | VS-18 | VS-19 |
+| 24 Nov | Integration | Integration | VS-20 | Integration |
+| 25 Nov | E2E tests | DB/fee tests | UI/file tests | Security tests |
+| 26 Nov | Demo/fixes | Demo/fixes | Packaging/fixes | Demo/fixes |
 | 27 Nov | Submission | Submission | Submission | Submission |
 
 ### Daily cadence
@@ -945,8 +945,8 @@ The team must demonstrate at least these integrated flows:
 |---|---|---|---|
 | 24 Nov | Feature integration completion | All members | Integrated application |
 | 25 Nov | Main E2E flows and regression | All; each owner leads own flow | E2E test log |
-| 25 Nov | Security, fee, room and file edge cases | Adnanullah, Safiullah, Fahad, Farmanullah | Validation evidence |
-| 26 Nov | Local deployment from clean checkout | Farmanullah + all | Verified README/run instructions |
+| 25 Nov | Security, fee, room and file edge cases | Farmanullah, Safiullah, Fahad, Adnanullah | Validation evidence |
+| 26 Nov | Local deployment from clean checkout | Adnanullah + all | Verified README/run instructions |
 | 26 Nov | Demo rehearsal and defect fixes | All | Demo checklist and final known-issues list |
 | 27 Nov | Submission | All | Final package |
 
