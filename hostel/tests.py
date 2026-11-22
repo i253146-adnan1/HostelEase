@@ -86,6 +86,15 @@ class RoomModuleTests(TestCase):
         room.refresh_from_db()
         self.assertEqual(room.capacity, 3)
 
+        # BVA: reducing capacity to exact current occupancy (2) is allowed
+        ok_resp = self.client.post(
+            reverse('hostel:room_edit', args=[room.pk]),
+            {'room_number': '103', 'capacity': 2},
+        )
+        self.assertRedirects(ok_resp, reverse('hostel:room_list'))
+        room.refresh_from_db()
+        self.assertEqual(room.capacity, 2)
+
     def test_ac_09_4_room_with_assigned_students_cannot_be_removed(self):
         self.client.force_login(self.warden)
         room = Room.objects.create(room_number='104', capacity=2)
