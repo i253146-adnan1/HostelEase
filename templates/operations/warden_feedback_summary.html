@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback Summary — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">Hostel Feedback Summary</h1>
+        <p class="text-muted mb-0">Aggregated resident ratings across key facilities (FR-15, AC-15.4).</p>
+    </div>
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+</div>
+
+<!-- Overview Stats Banner -->
+<div class="p-3 mb-4 bg-white rounded-3 shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <span class="text-muted">Total Submissions Recorded:</span>
+        <span class="fs-4 fw-bold ms-2 text-primary">{{ summary.total_submissions }}</span>
+    </div>
+    <span class="badge bg-info text-dark">All retained records aggregated</span>
+</div>
+
+{% if summary.total_submissions > 0 %}
+    <div class="row g-4">
+        {% for key, aspect in summary.aspects.items %}
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                            <div>
+                                <h5 class="card-title mb-1">{{ aspect.label }}</h5>
+                                <small class="text-muted">Facility Rating</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fs-4 fw-bold text-warning">&#9733; {{ aspect.average }}</span>
+                                <div class="text-muted small">out of 5.0</div>
+                            </div>
+                        </div>
+
+                        <!-- Star Rating Breakdown Bars -->
+                        <div class="d-flex flex-column gap-2">
+                            {% for star in star_range %}
+                                <div class="d-flex align-items-center small">
+                                    <span class="me-2" style="width: 55px;">{{ star }} Star{% if star > 1 %}s{% endif %}</span>
+                                    <div class="progress flex-grow-1 me-3" style="height: 14px;">
+                                        <div
+                                            class="progress-bar {% if star >= 4 %}bg-success{% elif star == 3 %}bg-info{% elif star == 2 %}bg-warning{% else %}bg-danger{% endif %}"
+                                            role="progressbar"
+                                            style="width: {% for s, pct in aspect.percentages.items %}{% if s == star %}{{ pct }}{% endif %}{% endfor %}%;"
+                                            aria-valuenow="{% for s, cnt in aspect.counts.items %}{% if s == star %}{{ cnt }}{% endif %}{% endfor %}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="{{ summary.total_submissions }}"
+                                        ></div>
+                                    </div>
+                                    <span class="text-muted font-monospace text-end" style="width: 75px;">
+                                        {% for s, cnt in aspect.counts.items %}{% if s == star %}{{ cnt }}{% endif %}{% endfor %}
+                                        ({% for s, pct in aspect.percentages.items %}{% if s == star %}{{ pct }}{% endif %}{% endfor %}%)
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card shadow-sm border-0 p-5 text-center">
+        <h5 class="text-muted mb-2">No feedback submissions received yet.</h5>
+        <p class="text-muted mb-0">When residents submit ratings for food, rooms, washrooms, and the environment, aggregated counts will appear here.</p>
+    </div>
+{% endif %}
+{% endblock %}
