@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
-from accounts.guards import warden_required
+from accounts.guards import student_required, warden_required
 
 from . import services
 
@@ -62,6 +62,54 @@ def fee_detail(request, student_pk):
         'student': student,
         'ledger': ledger,
         'history': services.get_history(student_pk),
+        'error': error,
+        'values': request.POST if request.method == 'POST' else {},
+    })
+
+
+def _resolve_logged_in_student(user):
+    """Resolve the Student record for the logged-in student user via Student service."""
+    from hostel.models import Student
+    from hostel import student_service
+
+    student = Student.objects.filter(user_id=user.pk).first()
+    if student is None:
+        student = student_service.get_student_by_id(user.username)
+    return student
+
+
+@student_required
+def student_fee_and_proofs(request):
+    """Student own-fee summary, payment-proof submission, and proof history (VS-09, FR-04)."""
+    student = _resolve_logged_in_student(request.user)
+    if student is None:
+        return render(request, 'finance/student_fees.html', {
+            'student': None,
+            'ledger': None,
+            'payments': [],
+            'error': 'No student record is linked to your account yet.',
+            'values': {},
+        })
+
+    error = ''
+    if request.method == 'POST':
+        try:
+            services.submit_payment_proof(
+                student_ref=student.pk,
+                owner_user_id=request.user.pk,
+                amount=request.POST.get('amount'),
+                payment_date=request.POST.get('payment_date'),
+                proof_file=request.FILES.get('proof_file'),
+            )
+            messages.success(request, 'Payment proof submitted and marked Pending for warden verification.')
+            return redirect('finance_student:my_fees')
+        except services.FeeError as exc:
+            error = str(exc)
+
+    return render(request, 'finance/student_fees.html', {
+        'student': student,
+        'ledger': services.get_ledger(student.pk),
+        'payments': services.list_student_payments(student.pk),
         'error': error,
         'values': request.POST if request.method == 'POST' else {},
     })

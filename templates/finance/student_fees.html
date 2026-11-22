@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}My Fees &amp; Payment Proofs — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">My Fees &amp; Payment Proofs</h1>
+    {% if student %}<p class="text-muted mb-0">{{ student.full_name }} ({{ student.student_id }})</p>{% endif %}
+  </div>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:dashboard' %}">Back to Dashboard</a>
+</div>
+
+{% if ledger %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Total Fee</div><div class="h5 mb-0">{{ ledger.total_fee }}</div></div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Paid (Verified)</div><div class="h5 mb-0">{{ ledger.paid_amount }}</div></div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Remaining</div><div class="h5 mb-0">{{ ledger.remaining_amount }}</div></div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Excess Paid</div><div class="h5 mb-0">{{ ledger.excess_paid }}</div></div></div></div>
+</div>
+{% endif %}
+
+{% if student %}
+<div class="card shadow-sm mb-4" style="max-width: 600px;">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Submit Payment Proof</h2>
+    <p class="text-muted small">Upload proof of an offline/external payment (JPG, PNG, or PDF, max 5 MB). HostelEase does not process online payments.</p>
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label" for="id_amount">Amount *</label>
+        <input class="form-control" id="id_amount" name="amount" inputmode="decimal" value="{{ values.amount|default:'' }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_payment_date">Payment Date *</label>
+        <input class="form-control" type="date" id="id_payment_date" name="payment_date" value="{{ values.payment_date|default:'' }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_proof_file">Proof File (JPG, PNG, PDF &le; 5 MB) *</label>
+        <input class="form-control" type="file" id="id_proof_file" name="proof_file" accept=".jpg,.jpeg,.png,.pdf" required>
+      </div>
+      <button class="btn btn-primary" type="submit">Submit Proof</button>
+    </form>
+  </div>
+</div>
+
+<h2 class="h5 mb-2">My Payment History</h2>
+{% if payments %}
+<div class="table-responsive bg-white rounded shadow-sm">
+  <table class="table table-striped mb-0 align-middle">
+    <thead>
+      <tr>
+        <th>Submitted</th>
+        <th>Payment Date</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Proof</th>
+        <th>Remark</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in payments %}
+      <tr>
+        <td>{{ p.created_at|date:"Y-m-d H:i" }}</td>
+        <td>{{ p.payment_date|date:"Y-m-d"|default:"-" }}</td>
+        <td>{{ p.amount }}</td>
+        <td>
+          {% if p.status == 'Verified' %}<span class="badge bg-success">Verified</span>
+          {% elif p.status == 'Rejected' %}<span class="badge bg-danger">Rejected</span>
+          {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+        </td>
+        <td>
+          {% if p.proof_file_key %}
+            <a href="{% url 'operations:download_file' p.proof_file_key %}" target="_blank">{{ p.proof_file_name|default:"View Proof" }}</a>
+          {% else %}-{% endif %}
+        </td>
+        <td>{{ p.warden_remark|default:p.note|default:"-" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No payment proofs submitted yet.</div>
+{% endif %}
+{% elif error %}
+<div class="alert alert-warning">{{ error }}</div>
+{% endif %}
+{% endblock %}
