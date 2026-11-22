@@ -3,11 +3,13 @@ from io import StringIO
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from .guards import login_required_guard, student_required, warden_required
+from .models import StudentProfile
 
 User = get_user_model()
 
@@ -208,3 +210,134 @@ class AuthenticationAndGuardsTests(TestCase):
                 '--password',
                 'AnotherPass123',
             )
+
+
+def make_warden(username='warden', password='warden-pass-123'):
+    return User.objects.create_user(
+        username=username,
+        password=password,
+        role='warden',
+        is_staff=True,
+    )
+
+
+def make_student(username, student_id, full_name, password='student-pass-123'):
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        role='student',
+        is_staff=False,
+    )
+    profile = StudentProfile.objects.create(
+        user=user,
+        student_id=student_id,
+        full_name=full_name,
+        contact_number='03001234567',
+        guardian_name='Guardian Name',
+        guardian_contact='03009876543',
+        status='Active',
+        room_number='101',
+    )
+    return user, profile
+
+
+class StudentProfileTests(TestCase):
+
+    def setUp(self):
+        self.warden = make_warden()
+        self.student1_user, self.student1_profile = make_student('ali', '25I-001', 'Ali Khan')
+        self.student2_user, self.student2_profile = make_student('sara', '25I-002', 'Sara Ahmed')
+
+    # AC-03.1: Student sees own profile
+    def test_ac_03_1_student_sees_own_profile(self):
+        self.client.force_login(self.student1_user)
+        response = self.client.get(reverse('accounts:student_profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Ali Khan')
+        self.assertContains(response, '25I-001')
+        self.assertNotContains(response, 'Sara Ahmed')
+        self.assertNotContains(response, '25I-002')
+
+    # AC-03.1: Student dashboard shows own data only
+    def test_ac_03_1_student_dashboard_shows_own_data(self):
+        self.client.force_login(self.student1_user)
+        response = self.client.get(reverse('accounts:student_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Ali Khan')
+        self.assertNotContains(response, 'Sara Ahmed')
+
+    # AC-03.2: Student cannot access warden announcement management page
+    def test_ac_03_2_student_cannot_access_warden_announcements(self):
+        self.client.force_login(self.student1_user)
+        response = self.client.get(reverse('hostel:warden_announcements'))
+        self.assertEqual(response.status_code, 403)
+
+    # AC-03.2: Student cannot access warden menu management page
+    def test_ac_03_2_student_cannot_access_warden_menu(self):
+        self.client.force_login(self.student1_user)
+        response = self.client.get(reverse('hostel:warden_menu'))
+        self.assertEqual(response.status_code, 403)
+
+    # AC-03.2: Student cannot access warden rules management page
+    def test_ac_03_2_student_cannot_access_warden_rules(self):
+        self.client.force_login(self.student1_user)
+        response = self.client.get(reverse('hostel:warden_rules'))
+        self.assertEqual(response.status_code, 403)
+
+    # AC-NFR-01: Warden cannot access student dashboard
+    def test_ac_nfr_01_warden_cannot_access_student_dashboard(self):
+        self.client.force_login(self.warden)
+        response = self.client.get(reverse('accounts:student_dashboard'))
+        self.assertEqual(response.status_code, 403)
+
+    # AC-NFR-01: Warden cannot access student profile page
+    def test_ac_nfr_01_warden_cannot_access_student_profile(self):
+        self.client.force_login(self.warden)
+        response = self.client.get(reverse('accounts:student_profile'))
+        self.assertEqual(response.status_code, 403)
+
+    # Anonymous user redirected to login
+    def test_anonymous_user_redirected_from_dashboard(self):
+        response = self.client.get(reverse('accounts:student_dashboard'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response['Location'])
+
+    # Anonymous user redirected from profile
+    def test_anonymous_user_redirected_from_profile(self):
+        response = self.client.get(reverse('accounts:student_profile'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response['Location'])
+
+    # Student2 cannot see Student1 data (privacy isolation)
+    def test_student2_cannot_see_student1_data(self):
+        self.client.force_login(self.student2_user)
+        response = self.client.get(reverse('accounts:student_profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sara Ahmed')
+        self.assertNotContains(response, 'Ali Khan')
+        self.assertNotContains(response, '25I-001')
+
+    # StudentProfile model: student_id must be unique
+    def test_student_id_must_be_unique(self):
+        with self.assertRaises(IntegrityError):
+            new_user = User.objects.create_user(
+                username='duplicate',
+                password='pass123',
+                role='student',
+                is_staff=False,
+            )
+            StudentProfile.objects.create(
+                user=new_user,
+                student_id='25I-001',
+                full_name='Duplicate Student',
+                contact_number='03001111111',
+                guardian_name='Guardian',
+                guardian_contact='03002222222',
+            )
+
+    # StudentProfile model: is_active() works correctly
+    def test_student_is_active_method(self):
+        self.assertTrue(self.student1_profile.is_active())
+        self.student1_profile.status = 'Left'
+        self.student1_profile.save()
+        self.assertFalse(self.student1_profile.is_active())

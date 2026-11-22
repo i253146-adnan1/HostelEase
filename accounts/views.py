@@ -6,7 +6,16 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from .guards import login_required_guard
+from .guards import login_required_guard, student_required
+from .models import StudentProfile
+
+
+def _get_own_student_profile(user):
+    """Return the StudentProfile belonging to the given user, or None."""
+    try:
+        return StudentProfile.objects.get(user=user)
+    except StudentProfile.DoesNotExist:
+        return None
 
 
 def login_view(request):
@@ -54,8 +63,23 @@ def dashboard_view(request):
     if request.user.role == 'warden':
         return render(request, 'accounts/warden_dashboard.html')
     if request.user.role == 'student':
-        return render(request, 'accounts/student_dashboard.html')
+        profile = _get_own_student_profile(request.user)
+        return render(request, 'accounts/student_dashboard.html', {'profile': profile})
     return HttpResponseForbidden('Invalid user role.')
+
+
+@student_required
+def student_dashboard(request):
+    """Render the student dashboard scoped strictly to the logged-in student."""
+    profile = _get_own_student_profile(request.user)
+    return render(request, 'accounts/student_dashboard.html', {'profile': profile})
+
+
+@student_required
+def student_profile(request):
+    """Render the read-only student profile scoped strictly to the logged-in student."""
+    profile = _get_own_student_profile(request.user)
+    return render(request, 'accounts/student_profile.html', {'profile': profile})
 
 
 @login_required_guard

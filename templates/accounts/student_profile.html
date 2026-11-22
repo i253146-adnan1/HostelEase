@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">My Student Profile</h1>
+        <p class="text-muted mb-0">Read-only view of your hostel record. Contact the warden for profile updates.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'accounts:student_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary btn-sm">Change Password</a>
+    </div>
+</div>
+
+{% if profile %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3 text-muted">Full Name</dt>
+            <dd class="col-sm-9">{{ profile.full_name }}</dd>
+
+            <dt class="col-sm-3 text-muted">Student ID</dt>
+            <dd class="col-sm-9">{{ profile.student_id }}</dd>
+
+            <dt class="col-sm-3 text-muted">Contact Number</dt>
+            <dd class="col-sm-9">{{ profile.contact_number }}</dd>
+
+            <dt class="col-sm-3 text-muted">Guardian Name</dt>
+            <dd class="col-sm-9">{{ profile.guardian_name }}</dd>
+
+            <dt class="col-sm-3 text-muted">Guardian Contact</dt>
+            <dd class="col-sm-9">{{ profile.guardian_contact }}</dd>
+
+            <dt class="col-sm-3 text-muted">Room Number</dt>
+            <dd class="col-sm-9">
+                {% if profile.room_number %}{{ profile.room_number }}{% else %}Not assigned{% endif %}
+            </dd>
+
+            <dt class="col-sm-3 text-muted">Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge {% if profile.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ profile.status }}
+                </span>
+            </dd>
+
+            <dt class="col-sm-3 text-muted">Record Created</dt>
+            <dd class="col-sm-9 mb-0">{{ profile.created_at }}</dd>
+        </dl>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning" role="alert">
+    Your student profile has not been set up yet.
+</div>
+{% endif %}
+{% endblock %}
