@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Feedback — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="h3 mb-1">Hostel Feedback</h1>
+                <p class="text-muted mb-0">Rate hostel facilities to help management improve resident living conditions.</p>
+            </div>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <!-- Rating Submission Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="card-title border-bottom pb-2 mb-3">Rate Key Facilities (1 to 5 Stars)</h5>
+                <form method="post" action="{% url 'operations:student_feedback' %}">
+                    {% csrf_token %}
+
+                    <!-- Food & Mess -->
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                            <label class="form-label fw-bold mb-0">1. Food &amp; Mess Quality <span class="text-danger">*</span></label>
+                            <span class="text-muted small">Taste, nutrition, timeliness, and hygiene</span>
+                        </div>
+                        <div class="d-flex gap-4 flex-wrap pt-1">
+                            {% for star in "12345" %}
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="food_rating"
+                                        id="food_{{ star }}"
+                                        value="{{ star }}"
+                                        {% if form_data.food_rating == star %}checked{% endif %}
+                                        required
+                                    >
+                                    <label class="form-check-label" for="food_{{ star }}">
+                                        {{ star }} <span class="text-warning">&#9733;</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Rooms & Maintenance -->
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                            <label class="form-label fw-bold mb-0">2. Rooms &amp; Maintenance <span class="text-danger">*</span></label>
+                            <span class="text-muted small">Furniture, lighting, space, and room condition</span>
+                        </div>
+                        <div class="d-flex gap-4 flex-wrap pt-1">
+                            {% for star in "12345" %}
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="room_rating"
+                                        id="room_{{ star }}"
+                                        value="{{ star }}"
+                                        {% if form_data.room_rating == star %}checked{% endif %}
+                                        required
+                                    >
+                                    <label class="form-check-label" for="room_{{ star }}">
+                                        {{ star }} <span class="text-warning">&#9733;</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Washrooms & Cleanliness -->
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                            <label class="form-label fw-bold mb-0">3. Washrooms &amp; Cleanliness <span class="text-danger">*</span></label>
+                            <span class="text-muted small">Cleanliness, water availability, and sanitization</span>
+                        </div>
+                        <div class="d-flex gap-4 flex-wrap pt-1">
+                            {% for star in "12345" %}
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="washroom_rating"
+                                        id="washroom_{{ star }}"
+                                        value="{{ star }}"
+                                        {% if form_data.washroom_rating == star %}checked{% endif %}
+                                        required
+                                    >
+                                    <label class="form-check-label" for="washroom_{{ star }}">
+                                        {{ star }} <span class="text-warning">&#9733;</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Hostel Environment -->
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                            <label class="form-label fw-bold mb-0">4. Hostel Environment &amp; Atmosphere <span class="text-danger">*</span></label>
+                            <span class="text-muted small">Quietness, security, discipline, and study atmosphere</span>
+                        </div>
+                        <div class="d-flex gap-4 flex-wrap pt-1">
+                            {% for star in "12345" %}
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="environment_rating"
+                                        id="env_{{ star }}"
+                                        value="{{ star }}"
+                                        {% if form_data.environment_rating == star %}checked{% endif %}
+                                        required
+                                    >
+                                    <label class="form-check-label" for="env_{{ star }}">
+                                        {{ star }} <span class="text-warning">&#9733;</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-secondary py-2 small mb-3">
+                        <strong>Policy Note:</strong> You can submit feedback at any time. Per BR-11, submitted ratings cannot be modified once sent.
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Feedback History Card -->
+        {% if past_submissions %}
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="card-title border-bottom pb-2 mb-3">Your Submission History</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th class="text-center">Food</th>
+                                    <th class="text-center">Rooms</th>
+                                    <th class="text-center">Washrooms</th>
+                                    <th class="text-center">Environment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in past_submissions %}
+                                    <tr>
+                                        <td>{{ item.created_at|date:"M d, Y H:i" }}</td>
+                                        <td class="text-center"><span class="badge bg-warning text-dark">{{ item.food_rating }} &#9733;</span></td>
+                                        <td class="text-center"><span class="badge bg-warning text-dark">{{ item.room_rating }} &#9733;</span></td>
+                                        <td class="text-center"><span class="badge bg-warning text-dark">{{ item.washroom_rating }} &#9733;</span></td>
+                                        <td class="text-center"><span class="badge bg-warning text-dark">{{ item.environment_rating }} &#9733;</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

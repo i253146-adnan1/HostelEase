@@ -1113,7 +1113,8 @@ The final report must cover:
 | VS-04 | Fee ledger and fee-change history | Adnanullah | Accepted |
 | VS-06 | Hostel information: announcements, menu and rules | Muhammad Fahad Basharat | Accepted |
 | VS-03 | Room catalogue, assignment and capacity enforcement | Muhammad Fahad Basharat | Accepted |
-| Remaining (VS-05, VS-07 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
+| VS-07 | Feedback submission and warden rating summary | Safiullah | Accepted |
+| Remaining (VS-05, VS-08 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |
 |---|---|

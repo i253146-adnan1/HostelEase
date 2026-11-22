@@ -13,6 +13,7 @@ Each row lists the member's contribution and the shared-AI-project chat referenc
 
 | Member | Date | Slice ID / Activity | Contribution made | Evidence / Branch |
 |---|---|---|---|---|
+| Safiullah (Role-02) | 22 Nov 2026 | VS-07 Feedback submission & warden rating summary | Implemented Feedback model, feedback_service, star-rating validation, repeat submission support, immutability & retention enforcement (BR-11, BR-05), warden aggregation summary (AC-15.4), UI templates, and 13 unit/view tests. | `feature/VS-07-feedback`, `workflow-evidence/VS-07.md` |
 | Safiullah (Role-02) | 21 Nov 2026 | VS-02 Student registration & initial fee/account creation | Implemented Student model, room assignment integration, atomic registration transaction, one-time credential handover, contact number validation, and automated test suite (14 test methods) for FR-01, AC-01.1–AC-01.4, OQ-21, OQ-25, OQ-26. | `feature/VS-02-student-registration`, `workflow-evidence/VS-02.md` |
 | Adnanullah (Role-03) | 21 Nov 2026 | VS-04 Fee ledger & fee-change history | Implemented FeeRecord, immutable FeeChange, Payment ledger, and fee change history views with 20 unit/regression tests. | `feature/VS-04-fee-ledger`, `workflow-evidence/VS-04.md` |
 | Farmanullah (Role-04) | 21 Nov 2026 | VS-01 Authentication & access guard | Implemented login, password change, forced password change middleware, and role-based guards with 18 tests. | `feature/VS-01-auth-guard` |
