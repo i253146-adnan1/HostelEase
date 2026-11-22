@@ -1,8 +1,9 @@
 from django.contrib import messages
+from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.shortcuts import redirect, render
 
-from accounts.guards import student_required, warden_required
-from . import feedback_service
+from accounts.guards import login_required_guard, student_required, warden_required
+from . import feedback_service, file_storage
 from .feedback_service import FeedbackError
 
 
@@ -50,3 +51,20 @@ def warden_feedback_summary_view(request):
         'summary': summary,
         'star_range': [5, 4, 3, 2, 1],  # Highest to lowest for chart display
     })
+
+
+@login_required_guard
+def download_stored_file(request, file_key):
+    """Serve a stored file only to its owner student or the warden (VS-08, NFR-01)."""
+    stored_file = file_storage.get_stored_file(file_key)
+    if stored_file is None:
+        raise Http404('File not found.')
+    if not file_storage.can_access_file(request.user, stored_file):
+        return HttpResponseForbidden('You do not have permission to access this file.')
+    try:
+        handle = file_storage.open_stored_file(stored_file)
+    except FileNotFoundError:
+        raise Http404('File not found on disk.')
+    response = FileResponse(handle, content_type=stored_file.content_type or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{stored_file.original_name}"'
+    return response
