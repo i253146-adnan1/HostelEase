@@ -64,6 +64,8 @@ class Payment(models.Model):
     proof_file_name = models.CharField(max_length=255, blank=True)
     note = models.CharField(max_length=200, blank=True)
     warden_remark = models.TextField(blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decided_by = models.CharField(max_length=150, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -71,3 +73,7 @@ class Payment(models.Model):
 
     def delete(self, *args, **kwargs):
         raise PermissionError('Payment records cannot be hard-deleted.')
+
+    @property
+    def rejection_remark(self):
+        return self.warden_remark

@@ -17,6 +17,73 @@
     <textarea class="form-control" id="reason" name="reason" rows="2">{{ values.reason|default:'' }}</textarea></div>
   <button class="btn btn-primary" type="submit">Update fee</button>
 </form>
+<h2 class="h5 mt-4">Payment records &amp; proofs</h2>
+{% if payments %}
+<div class="table-responsive bg-white rounded shadow-sm mb-4">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Submitted</th>
+        <th>Payment Date</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Proof</th>
+        <th>Remark / Note</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in payments %}
+      <tr>
+        <td>#{{ p.pk }}</td>
+        <td>{{ p.created_at|date:"Y-m-d H:i" }}</td>
+        <td>{{ p.payment_date|date:"Y-m-d"|default:"-" }}</td>
+        <td><strong>{{ p.amount }}</strong></td>
+        <td>
+          {% if p.status == 'Verified' %}<span class="badge bg-success">Verified</span>
+          {% elif p.status == 'Rejected' %}<span class="badge bg-danger">Rejected</span>
+          {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+        </td>
+        <td>
+          {% if p.proof_file_key %}
+            <a href="{% url 'operations:download_file' p.proof_file_key %}" target="_blank">View Proof</a>
+          {% else %}-{% endif %}
+        </td>
+        <td>{{ p.warden_remark|default:p.note|default:"-" }}</td>
+        <td>
+          {% if p.status == 'Pending' %}
+            <div class="d-flex gap-1">
+              <form method="post" action="{% url 'finance:verify_payment' p.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'finance:detail' student.id %}">
+                <button type="submit" class="btn btn-sm btn-success">Verify</button>
+              </form>
+              <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="collapse" data-bs-target="#reject-det-{{ p.pk }}">Reject</button>
+            </div>
+            <div class="collapse mt-2" id="reject-det-{{ p.pk }}">
+              <form method="post" action="{% url 'finance:reject_payment' p.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'finance:detail' student.id %}">
+                <div class="input-group input-group-sm">
+                  <input type="text" name="remark" class="form-control" placeholder="Remark required" required>
+                  <button class="btn btn-danger" type="submit">Confirm</button>
+                </div>
+              </form>
+            </div>
+          {% else %}
+            <small class="text-muted">{{ p.decided_by|default:"-" }}</small>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-light border mb-4">No payment records found for this student.</div>
+{% endif %}
+
 <h2 class="h5">Change history</h2>
 <div class="table-responsive bg-white rounded shadow-sm"><table class="table mb-0">
   <thead><tr><th>Date</th><th>Old</th><th>New</th><th>Reason</th><th>By</th></tr></thead>
