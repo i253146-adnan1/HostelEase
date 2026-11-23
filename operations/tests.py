@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.exceptions import PermissionDenied
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from . import feedback_service
+from .complaint_service import ComplaintService
 from .feedback_service import FeedbackError, FeedbackValidationError
-from .models import Feedback
+from .models import Complaint, Feedback, StoredFile
 
 User = get_user_model()
 
@@ -237,3 +240,188 @@ class FeedbackViewTests(TestCase):
         self.assertContains(resp, 'Rooms &amp; Maintenance')
         self.assertContains(resp, 'Washrooms &amp; Cleanliness')
         self.assertContains(resp, 'Hostel Environment')
+
+
+class ComplaintSubmissionTests(TestCase):
+    def setUp(self):
+        self.student1 = User.objects.create_user(
+            username='student1', password='testpass123', role='student'
+        )
+        self.student2 = User.objects.create_user(
+            username='student2', password='testpass123', role='student'
+        )
+        self.warden = User.objects.create_user(
+            username='warden1', password='testpass123', role='warden', is_staff=True
+        )
+        self.client = Client()
+
+    # AC-07.1 — Test 1
+    def test_valid_complaint_no_attachment_saved_as_submitted(self):
+        complaint = ComplaintService.submit_complaint(
+            self.student1, 'internet', 'WiFi not working'
+        )
+        self.assertEqual(complaint.status, 'Submitted')
+        self.assertEqual(complaint.category, 'internet')
+        self.assertIsNone(complaint.attachment)
+
+    # AC-07.1 — Test 2: POST via view, valid form
+    def test_valid_complaint_post_redirects_to_list(self):
+        self.client.login(username='student1', password='testpass123')
+        response = self.client.post(reverse('operations:complaint_submit'), {
+            'category': 'internet',
+            'description': 'WiFi very slow',
+        })
+        self.assertRedirects(response, reverse('operations:complaint_list'))
+        self.assertEqual(Complaint.objects.filter(student_user=self.student1).count(), 1)
+
+    # AC-07.2 — Test 3: Missing category
+    def test_missing_category_complaint_not_saved(self):
+        self.client.login(username='student1', password='testpass123')
+        response = self.client.post(reverse('operations:complaint_submit'), {
+            'description': 'Some problem',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Complaint.objects.count(), 0)
+
+    # AC-07.2 — Test 4: Missing description
+    def test_missing_description_complaint_not_saved(self):
+        self.client.login(username='student1', password='testpass123')
+        response = self.client.post(reverse('operations:complaint_submit'), {
+            'category': 'internet',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Complaint.objects.count(), 0)
+
+    # AC-07.3 — Test 5: .txt attachment rejected
+    def test_invalid_attachment_type_rejected(self):
+        self.client.login(username='student1', password='testpass123')
+        bad_file = SimpleUploadedFile('report.txt', b'hello', content_type='text/plain')
+        response = self.client.post(reverse('operations:complaint_submit'), {
+            'category': 'internet',
+            'description': 'Problem',
+            'attachment': bad_file,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Complaint.objects.count(), 0)
+
+    # AC-07.3 — Test 6: Oversized attachment rejected
+    def test_oversized_attachment_rejected(self):
+        self.client.login(username='student1', password='testpass123')
+        big_data = b'\xff\xd8\xff' + b'x' * (5 * 1024 * 1024 + 1)
+        big_file = SimpleUploadedFile('big.jpg', big_data, content_type='image/jpeg')
+        response = self.client.post(reverse('operations:complaint_submit'), {
+            'category': 'internet',
+            'description': 'Problem',
+            'attachment': big_file,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Complaint.objects.count(), 0)
+
+    # AC-07.4 — Test 7: Student views own complaint detail
+    def test_student_views_own_complaint_detail(self):
+        complaint = ComplaintService.submit_complaint(
+            self.student1, 'internet', 'WiFi not working'
+        )
+        self.client.login(username='student1', password='testpass123')
+        response = self.client.get(
+            reverse('operations:complaint_detail', args=[complaint.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'WiFi not working')
+
+    # NFR-01 — Test 8: Student cannot view another student's complaint
+    def test_student_cannot_view_other_student_complaint(self):
+        complaint = ComplaintService.submit_complaint(
+            self.student1, 'internet', 'Private complaint'
+        )
+        self.client.login(username='student2', password='testpass123')
+        response = self.client.get(
+            reverse('operations:complaint_detail', args=[complaint.pk])
+        )
+        self.assertIn(response.status_code, [403, 404])
+
+    # BR-05 — Test 9: No delete URL exists
+    def test_no_delete_url_exists(self):
+        from django.urls import NoReverseMatch
+        with self.assertRaises(NoReverseMatch):
+            reverse('operations:complaint_delete', args=[1])
+
+    # BR-05 — Test 10: Complaint.delete() raises PermissionError
+    def test_complaint_model_delete_raises(self):
+        complaint = ComplaintService.submit_complaint(
+            self.student1, 'internet', 'Test'
+        )
+        with self.assertRaises(PermissionError):
+            complaint.delete()
+
+
+class ComplaintServiceTests(TestCase):
+    def setUp(self):
+        self.student1 = User.objects.create_user(
+            username='s1', password='pass', role='student'
+        )
+        self.student2 = User.objects.create_user(
+            username='s2', password='pass', role='student'
+        )
+
+    # Test 11: get_pending_count returns correct count
+    def test_get_pending_count_submitted_and_in_progress(self):
+        ComplaintService.submit_complaint(self.student1, 'internet', 'A')
+        ComplaintService.submit_complaint(self.student1, 'internet', 'B')
+        c = ComplaintService.submit_complaint(self.student1, 'internet', 'C')
+        c.status = 'In Progress'
+        c.save()
+        d = ComplaintService.submit_complaint(self.student1, 'internet', 'D')
+        d.status = 'Resolved'
+        d.save()
+        self.assertEqual(ComplaintService.get_pending_count(), 3)
+
+    # Test 12: get_pending_count excludes Resolved
+    def test_get_pending_count_excludes_resolved(self):
+        c = ComplaintService.submit_complaint(self.student1, 'internet', 'X')
+        c.status = 'Resolved'
+        c.save()
+        self.assertEqual(ComplaintService.get_pending_count(), 0)
+
+    # Test 13: get_student_complaints returns only own
+    def test_get_student_complaints_own_only(self):
+        ComplaintService.submit_complaint(self.student1, 'internet', 'A')
+        ComplaintService.submit_complaint(self.student2, 'internet', 'B')
+        qs = ComplaintService.get_student_complaints(self.student1)
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first().student_user, self.student1)
+
+    # Test 14: get_complaint_detail raises PermissionDenied for wrong student
+    def test_get_complaint_detail_wrong_student_raises(self):
+        complaint = ComplaintService.submit_complaint(
+            self.student1, 'internet', 'Private'
+        )
+        with self.assertRaises(PermissionDenied):
+            ComplaintService.get_complaint_detail(complaint.pk, self.student2)
+
+
+class ComplaintAccessTests(TestCase):
+    def setUp(self):
+        self.student = User.objects.create_user(
+            username='stu', password='pass', role='student'
+        )
+        self.warden = User.objects.create_user(
+            username='war', password='pass', role='warden', is_staff=True
+        )
+        self.client = Client()
+
+    # Test 15: Unauthenticated redirected to login
+    def test_unauthenticated_redirected_to_login(self):
+        response = self.client.get(reverse('operations:complaint_list'))
+        self.assertRedirects(
+            response,
+            f'/accounts/login/?next={reverse("operations:complaint_list")}',
+            fetch_redirect_response=False
+        )
+
+    # Test 16: Warden cannot access student complaint submit URL
+    def test_warden_cannot_submit_student_complaint(self):
+        self.client.login(username='war', password='pass')
+        response = self.client.get(reverse('operations:complaint_submit'))
+        self.assertEqual(response.status_code, 403)
+

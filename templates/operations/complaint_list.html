@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="h3 mb-1">My Complaints</h1>
+                <p class="text-muted mb-0">Track the status of complaints you have submitted.</p>
+            </div>
+            <a href="{% url 'operations:complaint_submit' %}" class="btn btn-primary">
+                Submit New Complaint
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                {% if complaints %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                    <th class="text-end">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints %}
+                                    <tr>
+                                        <td>{{ complaint.get_category_display }}</td>
+                                        <td>
+                                            {% if complaint.status == 'Submitted' %}
+                                                <span class="badge bg-warning text-dark">Submitted</span>
+                                            {% elif complaint.status == 'In Progress' %}
+                                                <span class="badge bg-info text-dark">In Progress</span>
+                                            {% elif complaint.status == 'Resolved' %}
+                                                <span class="badge bg-success">Resolved</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ complaint.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ complaint.created_at|date:"M d, Y H:i" }}</td>
+                                        <td class="text-end">
+                                            <a href="{% url 'operations:complaint_detail' complaint.pk %}" class="btn btn-outline-primary btn-sm">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-3">You have not submitted any complaints yet.</p>
+                        <a href="{% url 'operations:complaint_submit' %}" class="btn btn-outline-primary btn-sm">
+                            Submit New Complaint
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

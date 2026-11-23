@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -77,3 +78,52 @@ class StoredFile(models.Model):
 
     def __str__(self):
         return f'{self.category}:{self.file_key} ({self.original_name})'
+
+
+class Complaint(models.Model):
+    """Student complaint entity (FR-07, AC-07.1-AC-07.4, BR-05)."""
+
+    CATEGORY_CHOICES = [
+        ('room_furniture', 'Room and Furniture'),
+        ('electricity_water', 'Electricity and Water'),
+        ('cleanliness_hygiene', 'Cleanliness and Hygiene'),
+        ('food_mess', 'Food and Mess'),
+        ('internet', 'Internet'),
+        ('security_safety', 'Security and Safety'),
+        ('behavior_conduct', 'Behavior or Conduct of Other Residents'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('Submitted', 'Submitted'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+    ]
+
+    student_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='complaints',
+    )
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES)
+    description = models.TextField()
+    attachment = models.ForeignKey(
+        StoredFile,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='complaint_attachments',
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Submitted')
+    warden_remark = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Complaint records cannot be hard-deleted (BR-05).')
+
+    def __str__(self):
+        return f'{self.get_category_display()} — {self.student_user.username} — {self.status}'
+

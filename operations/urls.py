@@ -13,4 +13,9 @@ urlpatterns = [
 
     # Shared authorization-checked file delivery (VS-08, ADR-004, NFR-01)
     path('files/<uuid:file_key>/', views.download_stored_file, name='download_file'),
+
+    # Student complaint submission and status views (VS-10, FR-07)
+    path('complaints/', views.student_complaint_list, name='complaint_list'),
+    path('complaints/submit/', views.student_complaint_submit, name='complaint_submit'),
+    path('complaints/<int:complaint_id>/', views.student_complaint_detail, name='complaint_detail'),
 ]
