@@ -8,10 +8,14 @@ Invariants (NFR-02, BR-10):
     remaining_amount = max(total_fee - paid_amount, 0)
     excess_paid      = max(paid_amount - total_fee, 0)
 """
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from django.db import transaction
 from django.db.models import Sum
+
+from operations import file_storage
+from operations.models import StoredFile
 
 from .models import FeeChange, FeeRecord, Payment
 
@@ -138,3 +142,65 @@ def add_payment(student_ref, amount, status=Payment.STATUS_PENDING, source=Payme
     if value <= 0:
         raise FeeError('Payment amount must be greater than zero.')
     Payment.objects.create(student_ref=student_ref, amount=value, status=status, source=source)
+
+
+def parse_payment_date(value):
+    """Parse a payment date (date object or YYYY-MM-DD string) or raise FeeError."""
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    text = str(value or '').strip()
+    if not text:
+        raise FeeError('Payment date is required.')
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        raise FeeError('Payment date must be a valid date (YYYY-MM-DD).')
+
+
+@transaction.atomic
+def submit_payment_proof(*, student_ref, owner_user_id, amount, payment_date, proof_file):
+    """Submit a student payment proof (VS-09, FR-04, AC-04.1, AC-04.2).
+
+    Validates amount, date, and file (JPG/PNG/PDF <= 5 MB via VS-08) and saves
+    the Payment as Pending without modifying verified paid totals.
+    """
+    value = parse_money(amount, 'Payment amount')
+    if value <= 0:
+        raise FeeError('Payment amount must be greater than zero.')
+    parsed_date = parse_payment_date(payment_date)
+    if proof_file is None:
+        raise FeeError('Payment proof file is required.')
+
+    try:
+        stored = file_storage.save_uploaded_file(
+            proof_file,
+            category=StoredFile.CATEGORY_PAYMENT_PROOF,
+            owner_user_id=owner_user_id,
+            record_ref=f'student-{student_ref}',
+        )
+    except file_storage.FileStorageError as exc:
+        raise FeeError(str(exc))
+
+    return Payment.objects.create(
+        student_ref=student_ref,
+        amount=value,
+        payment_date=parsed_date,
+        status=Payment.STATUS_PENDING,
+        source=Payment.SOURCE_PROOF,
+        proof_file_key=stored.file_key,
+        proof_file_name=stored.original_name,
+    )
+
+
+def list_student_payments(student_ref):
+    return list(Payment.objects.filter(student_ref=student_ref))
+
+
+def list_pending_payments():
+    return list(Payment.objects.filter(status=Payment.STATUS_PENDING))
+
+
+def count_pending_payments():
+    return Payment.objects.filter(status=Payment.STATUS_PENDING).count()
