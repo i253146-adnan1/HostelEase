@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Complaint #{{ complaint.pk }} — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="h3 mb-1">Complaint #{{ complaint.pk }}</h1>
+                <p class="text-muted mb-0">Submitted on {{ complaint.created_at|date:"M d, Y H:i" }}</p>
+            </div>
+            <a href="{% url 'operations:warden_complaint_list' %}" class="btn btn-outline-secondary btn-sm">
+                Back to Complaints
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-bold">Student</div>
+                    <div class="col-sm-8">{{ complaint.student_user.get_full_name|default:complaint.student_user.username }} ({{ complaint.student_user.username }})</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-bold">Category</div>
+                    <div class="col-sm-8">{{ complaint.get_category_display }}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-bold">Status</div>
+                    <div class="col-sm-8">
+                        {% if complaint.status == 'Submitted' %}
+                            <span class="badge bg-warning text-dark">Submitted</span>
+                        {% elif complaint.status == 'In Progress' %}
+                            <span class="badge bg-info text-dark">In Progress</span>
+                        {% elif complaint.status == 'Resolved' %}
+                            <span class="badge bg-success">Resolved</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ complaint.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-bold">Last Updated</div>
+                    <div class="col-sm-8">{{ complaint.updated_at|date:"M d, Y H:i" }}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-bold">Description</div>
+                    <div class="col-sm-8">{{ complaint.description|linebreaksbr }}</div>
+                </div>
+
+                {% if complaint.attachment %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Attachment</div>
+                        <div class="col-sm-8">
+                            <a href="{% url 'operations:download_file' complaint.attachment.file_key %}" class="btn btn-outline-primary btn-sm">
+                                {{ complaint.attachment.original_name }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if complaint.warden_remark %}
+                    <div class="row mb-0">
+                        <div class="col-sm-4 text-muted fw-bold">Current Warden Remark</div>
+                        <div class="col-sm-8">
+                            <div class="p-3 bg-light rounded border">
+                                {{ complaint.warden_remark|linebreaksbr }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">Update Status</h2>
+
+                {% if allowed_next %}
+                    {% for next_status in allowed_next %}
+                        <form method="post" action="{% url 'operations:warden_complaint_update' complaint.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ next_status }}">
+
+                            <div class="mb-3">
+                                <label for="warden_remark" class="form-label fw-semibold">
+                                    Warden Remark
+                                    {% if next_status == 'Resolved' %}
+                                        <span class="text-danger">* (Required to resolve)</span>
+                                    {% else %}
+                                        <span class="text-muted fw-normal">(Optional)</span>
+                                    {% endif %}
+                                </label>
+                                <textarea
+                                    id="warden_remark"
+                                    name="warden_remark"
+                                    rows="3"
+                                    class="form-control"
+                                    placeholder="{% if next_status == 'Resolved' %}Enter resolution details for the student...{% else %}Optional note for the student...{% endif %}"
+                                    {% if next_status == 'Resolved' %}required{% endif %}
+                                >{{ complaint.warden_remark }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn {% if next_status == 'Resolved' %}btn-success{% else %}btn-primary{% endif %}">
+                                Mark as {{ next_status }}
+                            </button>
+                        </form>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-success mb-0">
+                        This complaint is <strong>Resolved</strong>. Reopening is not enabled in this version.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

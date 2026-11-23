@@ -1,10 +1,22 @@
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 
 from .models import Complaint
 
 
+class ComplaintError(Exception):
+    """Domain error for invalid complaint operations or transitions."""
+
+
 class ComplaintService:
-    """Service layer for student complaint submission and read queries (VS-10)."""
+    """Service layer for student complaint submission and warden management (VS-10, VS-13)."""
+
+    ALLOWED_TRANSITIONS = {
+        'Submitted': ['In Progress'],
+        'In Progress': ['Resolved'],
+        'Resolved': [],
+    }
+    VALID_STATUSES = ('Submitted', 'In Progress', 'Resolved')
 
     @staticmethod
     def submit_complaint(student_user, category, description, stored_file=None):
@@ -28,6 +40,44 @@ class ComplaintService:
         complaint = Complaint.objects.select_related('attachment').get(pk=complaint_id)
         if complaint.student_user_id != student_user.pk:
             raise PermissionDenied('You do not have permission to view this complaint.')
+        return complaint
+
+    @classmethod
+    def list_all_complaints(cls, status_filter=None):
+        """Return all complaints for the warden, optionally filtered by status (FR-08)."""
+        qs = Complaint.objects.select_related('student_user', 'attachment').all()
+        if status_filter in cls.VALID_STATUSES:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+    @staticmethod
+    def get_warden_complaint_detail(complaint_id):
+        """Return any complaint by ID for warden management (FR-08)."""
+        return Complaint.objects.select_related('student_user', 'attachment').get(pk=complaint_id)
+
+    @classmethod
+    @transaction.atomic
+    def update_complaint_status(cls, complaint_id, new_status, remark=''):
+        """Transition a complaint's status along Submitted -> In Progress -> Resolved (FR-08, BR-04, OQ-03, OQ-12)."""
+        try:
+            complaint = Complaint.objects.select_for_update().get(pk=complaint_id)
+        except Complaint.DoesNotExist as exc:
+            raise ComplaintError('Complaint not found.') from exc
+
+        allowed = cls.ALLOWED_TRANSITIONS.get(complaint.status, [])
+        if new_status not in allowed:
+            raise ComplaintError(
+                f'Cannot transition complaint from "{complaint.status}" to "{new_status}".'
+            )
+
+        cleaned_remark = (remark or '').strip()
+        if new_status == 'Resolved' and not cleaned_remark:
+            raise ComplaintError('A remark is required when marking a complaint as Resolved.')
+
+        complaint.status = new_status
+        if cleaned_remark:
+            complaint.warden_remark = cleaned_remark
+        complaint.save(update_fields=['status', 'warden_remark', 'updated_at'])
         return complaint
 
     @staticmethod

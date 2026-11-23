@@ -18,4 +18,9 @@ urlpatterns = [
     path('complaints/', views.student_complaint_list, name='complaint_list'),
     path('complaints/submit/', views.student_complaint_submit, name='complaint_submit'),
     path('complaints/<int:complaint_id>/', views.student_complaint_detail, name='complaint_detail'),
+
+    # Warden complaint management (VS-13, FR-08)
+    path('warden/complaints/', views.warden_complaint_list, name='warden_complaint_list'),
+    path('warden/complaints/<int:complaint_id>/', views.warden_complaint_detail, name='warden_complaint_detail'),
+    path('warden/complaints/<int:complaint_id>/update/', views.warden_complaint_update_status, name='warden_complaint_update'),
 ]
