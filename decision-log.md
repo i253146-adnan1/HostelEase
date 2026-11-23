@@ -36,3 +36,20 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
    - **EC-41 (Room becomes full before approval):** `decide_change_request()` locks the preferred `Room` with `select_for_update()` inside `@transaction.atomic` and re-checks `not room.is_full`, blocking approval cleanly if the room is now full.
    - **EC-43 (Assignment changes or capacity conflicts before swap takes effect):** `decide_swap()` re-validates both students as `Active` via `StudentService.validate_active_student()` and locks their active `RoomAssignment` rows with `select_for_update()` inside `@transaction.atomic`. If either student is no longer active, lacks an active `RoomAssignment`, or both are now in the same room, approval is blocked and aborted cleanly without modifying any assignments.
    - **EC-42 (Room removed while a request targeting it is Pending — Out of Scope / Still Open):** VS-03's `Room` model does not have a soft-delete/deactivation status field (`room_delete` performs `room.delete()`). `RoomRequest.preferred_room` uses `on_delete=models.PROTECT`, which prevents database-level deletion of a `Room` referenced by any `RoomRequest`, but full soft-removal/deactivation handling for `EC-42` remains out of scope for VS-11 and is still open under OQ-24.
+
+---
+
+## Log 27 — Complaint Status Transitions & Resolution Remark (Resolves OQ-03, OQ-12)
+
+- **Date:** 2026-11-23
+- **Slice:** VS-13 (Warden Complaint Management)
+- **Related PRD items:** OQ-03, OQ-12, FR-08, AC-08.1, BR-04, BR-05, EC-16, EC-40
+- **Status:** Adopted for implementation (flagged for client/TA confirmation)
+
+### Context
+- **OQ-03 (EC-16):** Can a `Resolved` complaint be reopened?
+- **OQ-12 (EC-40):** Is a remark mandatory when marking a complaint `Resolved`?
+
+### Decision
+1. **No Reopen Action (`OQ-03`):** Complaints follow a strict forward-only lifecycle `Submitted → In Progress → Resolved`. Once `Resolved`, no reopen or backward transition is permitted.
+2. **Mandatory Remark on Resolution (`OQ-12`):** Transitioning a complaint from `In Progress` to `Resolved` requires a non-empty `warden_remark`. Remark is optional when moving from `Submitted` to `In Progress`.
