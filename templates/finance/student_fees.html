@@ -75,7 +75,13 @@
             <a href="{% url 'operations:download_file' p.proof_file_key %}" target="_blank">{{ p.proof_file_name|default:"View Proof" }}</a>
           {% else %}-{% endif %}
         </td>
-        <td>{{ p.warden_remark|default:p.note|default:"-" }}</td>
+        <td>
+          {% if p.status == 'Rejected' and p.warden_remark %}
+            <span class="text-danger fw-semibold">{{ p.warden_remark }}</span>
+          {% else %}
+            {{ p.warden_remark|default:p.note|default:"-" }}
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

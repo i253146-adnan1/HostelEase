@@ -13,6 +13,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.db import transaction
 from django.db.models import Sum
+from django.utils import timezone
 
 from operations import file_storage
 from operations.models import StoredFile
@@ -199,8 +200,69 @@ def list_student_payments(student_ref):
 
 
 def list_pending_payments():
-    return list(Payment.objects.filter(status=Payment.STATUS_PENDING))
+    return list(Payment.objects.filter(status=Payment.STATUS_PENDING).order_by('-created_at', '-id'))
 
 
 def count_pending_payments():
     return Payment.objects.filter(status=Payment.STATUS_PENDING).count()
+
+
+def get_payment(payment_id):
+    """Retrieve a Payment by primary key, or None."""
+    return Payment.objects.filter(pk=payment_id).first()
+
+
+@transaction.atomic
+def verify_payment(payment_id, warden_username=''):
+    """Verify a pending payment proof (VS-12, FR-06, BR-03, AC-05.1).
+
+    Atomically changes status to Verified, records decision timestamp and warden username,
+    and updates verified paid total, remaining, and excess paid consistently.
+    Raises FeeError if the payment does not exist or has already been reviewed.
+    """
+    payment = Payment.objects.select_for_update().filter(pk=payment_id).first()
+    if payment is None:
+        raise FeeError('Payment record not found.')
+    if payment.status != Payment.STATUS_PENDING:
+        raise FeeError(f'Payment #{payment_id} has already been reviewed (current status: {payment.status}).')
+
+    payment.status = Payment.STATUS_VERIFIED
+    payment.decided_at = timezone.now()
+    payment.decided_by = str(warden_username or '').strip()
+    payment.save(update_fields=['status', 'decided_at', 'decided_by'])
+
+    record = FeeRecord.objects.select_for_update().filter(student_ref=payment.student_ref).first()
+    payment.ledger = _ledger(record) if record else None
+    return payment
+
+
+@transaction.atomic
+def reject_payment(payment_id, remark, warden_username=''):
+    """Reject a pending payment proof (VS-12, FR-06, BR-03, AC-05.2).
+
+    Requires a non-empty remark. Atomically changes status to Rejected,
+    records remark, timestamp, and warden username.
+    Verified paid total, remaining, and excess paid remain unchanged.
+    Raises FeeError if the payment does not exist, remark is missing,
+    or the payment has already been reviewed.
+    """
+    clean_remark = str(remark or '').strip()
+    if not clean_remark:
+        raise FeeError('A rejection remark is required.')
+
+    payment = Payment.objects.select_for_update().filter(pk=payment_id).first()
+    if payment is None:
+        raise FeeError('Payment record not found.')
+    if payment.status != Payment.STATUS_PENDING:
+        raise FeeError(f'Payment #{payment_id} has already been reviewed (current status: {payment.status}).')
+
+    payment.status = Payment.STATUS_REJECTED
+    payment.warden_remark = clean_remark
+    payment.decided_at = timezone.now()
+    payment.decided_by = str(warden_username or '').strip()
+    payment.save(update_fields=['status', 'warden_remark', 'decided_at', 'decided_by'])
+
+    record = FeeRecord.objects.select_for_update().filter(student_ref=payment.student_ref).first()
+    payment.ledger = _ledger(record) if record else None
+    return payment
+
