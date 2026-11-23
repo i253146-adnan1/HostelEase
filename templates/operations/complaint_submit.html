@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Complaint — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="h3 mb-1">Submit New Complaint</h1>
+                <p class="text-muted mb-0">Report an issue to the hostel warden.</p>
+            </div>
+            <a href="{% url 'operations:complaint_list' %}" class="btn btn-outline-secondary btn-sm">
+                Back to My Complaints
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="post" action="{% url 'operations:complaint_submit' %}" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">
+                            Category <span class="text-danger">*</span>
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.category.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.description.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.attachment.id_for_label }}" class="form-label fw-bold">
+                            Attachment (Optional)
+                        </label>
+                        {{ form.attachment }}
+                        <div class="form-text">Accepted formats: JPG, PNG, PDF (max 5 MB).</div>
+                        {% if form.attachment.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.attachment.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                        <a href="{% url 'operations:complaint_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
