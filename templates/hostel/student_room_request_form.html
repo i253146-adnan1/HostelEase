@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}New Room Request — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">New Room Request</h1>
+        <p class="text-muted mb-0">Request a room change or propose a two-step room swap with another student.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'hostel:student_room_requests' %}" class="btn btn-outline-secondary btn-sm">My Requests</a>
+        <a href="{% url 'hostel:student_swap_inbox' %}" class="btn btn-outline-primary btn-sm">
+            Swap Inbox &amp; Notifications
+            {% if unread_count %}
+                <span class="badge bg-danger ms-1">{{ unread_count }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-semibold">Submit Request</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'hostel:student_room_request_create' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Request Type</label>
+                        <div class="btn-group w-100" role="group" aria-label="Request Type">
+                            <input type="radio" class="btn-check" name="request_type" id="type_change" value="CHANGE"
+                                   {% if selected_type == 'CHANGE' %}checked{% endif %} onchange="toggleRequestType('CHANGE')">
+                            <label class="btn btn-outline-primary" for="type_change">Room Change</label>
+
+                            <input type="radio" class="btn-check" name="request_type" id="type_swap" value="SWAP"
+                                   {% if selected_type == 'SWAP' %}checked{% endif %} onchange="toggleRequestType('SWAP')">
+                            <label class="btn btn-outline-primary" for="type_swap">Room Swap (Two-Step Consent)</label>
+                        </div>
+                    </div>
+
+                    <div id="change_fields" class="mb-3 {% if selected_type == 'SWAP' %}d-none{% endif %}">
+                        <label for="preferred_room_id" class="form-label fw-semibold">Preferred Available Room</label>
+                        <select class="form-select" id="preferred_room_id" name="preferred_room_id">
+                            <option value="">-- Select an available room --</option>
+                            {% for room in available_rooms %}
+                                <option value="{{ room.id }}"
+                                        {% if form_data.preferred_room_id == room.id|stringformat:"s" %}selected{% endif %}>
+                                    Room {{ room.room_number }} (Capacity: {{ room.capacity }}, Available Slots: {{ room.available_slots }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if not available_rooms %}
+                            <div class="form-text text-warning">No rooms currently have available slots.</div>
+                        {% endif %}
+                    </div>
+
+                    <div id="swap_fields" class="mb-3 {% if selected_type != 'SWAP' %}d-none{% endif %}">
+                        <label for="target_student_id" class="form-label fw-semibold">Target Student ID (Roll / Hostel ID)</label>
+                        <input type="text" class="form-control" id="target_student_id" name="target_student_id"
+                               value="{{ form_data.target_student_id|default:'' }}"
+                               placeholder="Enter target student ID">
+                        <div class="form-text">
+                            Enter the exact Student ID of the resident you wish to swap rooms with. They must accept before the warden reviews your request.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-semibold">Reason</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" required
+                                  placeholder="Explain why you are requesting this room change or swap...">{{ form_data.reason|default:'' }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-semibold">Available Rooms</div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Capacity</th>
+                            <th>Available Slots</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for room in available_rooms %}
+                            <tr>
+                                <td>Room {{ room.room_number }}</td>
+                                <td>{{ room.capacity }}</td>
+                                <td><span class="badge bg-success">{{ room.available_slots }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">No rooms with free slots right now.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleRequestType(type) {
+    const changeFields = document.getElementById('change_fields');
+    const swapFields = document.getElementById('swap_fields');
+    if (type === 'SWAP') {
+        changeFields.classList.add('d-none');
+        swapFields.classList.remove('d-none');
+    } else {
+        swapFields.classList.add('d-none');
+        changeFields.classList.remove('d-none');
+    }
+}
+</script>
+{% endblock %}

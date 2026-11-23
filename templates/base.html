@@ -13,6 +13,12 @@
             <div class="navbar-nav ms-auto align-items-center">
                 {% if user.is_authenticated %}
                     <span class="navbar-text text-white me-3">{{ user.username }} ({{ user.role }})</span>
+                    {% if user.role == 'student' %}
+                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:student_room_requests' %}">Room Requests</a>
+                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:student_swap_inbox' %}">Swap Inbox</a>
+                    {% elif user.role == 'warden' %}
+                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:warden_room_requests' %}">Room Requests</a>
+                    {% endif %}
                     <a class="btn btn-outline-light btn-sm me-2" href="{% url 'accounts:dashboard' %}">Dashboard</a>
                     <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                         {% csrf_token %}

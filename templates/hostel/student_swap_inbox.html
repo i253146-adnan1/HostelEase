@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Swap Inbox &amp; Notifications — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">Swap Inbox &amp; Notifications</h1>
+        <p class="text-muted mb-0">Respond to incoming room-swap requests and view status updates.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'hostel:student_room_requests' %}" class="btn btn-outline-secondary btn-sm">My Requests</a>
+        <a href="{% url 'hostel:student_room_request_create' %}" class="btn btn-primary btn-sm">+ New Room Request</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white fw-semibold">
+        Incoming Swap Requests Awaiting Your Consent
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>From Student</th>
+                    <th>Reason</th>
+                    <th>Received</th>
+                    <th>Decision</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for swap in incoming_swaps %}
+                <tr>
+                    <td>#{{ swap.pk }}</td>
+                    <td><strong>{{ swap.student_id }}</strong></td>
+                    <td>{{ swap.reason }}</td>
+                    <td><small class="text-muted">{{ swap.created_at|date:"M d, Y H:i" }}</small></td>
+                    <td class="d-flex gap-2">
+                        <form method="post" action="{% url 'hostel:student_swap_respond' swap.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="decision" value="accept">
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+                        <form method="post" action="{% url 'hostel:student_swap_respond' swap.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="decision" value="reject">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No incoming room-swap requests awaiting your response.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span>Swap Notifications</span>
+        {% if unread_count %}
+            <span class="badge bg-info text-dark">{{ unread_count }} newly read</span>
+        {% endif %}
+    </div>
+    <div class="list-group list-group-flush">
+        {% for note in notifications %}
+            <div class="list-group-item d-flex justify-content-between align-items-start {% if not note.is_read %}list-group-item-light fw-semibold{% endif %}">
+                <div>
+                    <div>
+                        {% if not note.is_read %}<span class="badge bg-primary me-1">New</span>{% endif %}
+                        {{ note.message }}
+                    </div>
+                    <small class="text-muted">{{ note.get_notification_type_display }} &middot; Request #{{ note.room_request_id }}</small>
+                </div>
+                <small class="text-muted">{{ note.created_at|date:"M d, Y H:i" }}</small>
+            </div>
+        {% empty %}
+            <div class="list-group-item text-center text-muted py-4">No notifications yet.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

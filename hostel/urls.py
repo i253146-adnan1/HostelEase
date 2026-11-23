@@ -40,4 +40,15 @@ urlpatterns = [
     path('warden/students/', views.warden_student_list, name='warden_student_list'),
     path('warden/students/create/', views.warden_student_create, name='warden_student_create'),
     path('warden/students/<int:pk>/', views.warden_student_detail, name='warden_student_detail'),
+
+    # Student room requests & swap notifications (VS-11)
+    path('room-requests/', views.student_room_requests, name='student_room_requests'),
+    path('room-requests/new/', views.student_room_request_create, name='student_room_request_create'),
+    path('room-requests/<int:request_id>/cancel/', views.student_room_request_cancel, name='student_room_request_cancel'),
+    path('room-requests/swaps/', views.student_swap_inbox, name='student_swap_inbox'),
+    path('room-requests/swaps/<int:request_id>/respond/', views.student_swap_respond, name='student_swap_respond'),
+
+    # Warden room request & swap queue (VS-11)
+    path('warden/room-requests/', views.warden_room_requests, name='warden_room_requests'),
+    path('warden/room-requests/<int:request_id>/decide/', views.warden_decide_room_request, name='warden_decide_room_request'),
 ]

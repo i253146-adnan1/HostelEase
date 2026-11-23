@@ -72,6 +72,34 @@ def get_student_by_id(student_id):
     return Student.objects.filter(student_id=sid).first()
 
 
+def validate_active_student(student_id: str) -> dict | None:
+    """Validate that student_id belongs to an Active student.
+
+    Looks up Student by Student.student_id (roll/hostel ID, not user.pk).
+    Returns None if not found or status != 'Active'; otherwise returns
+    {'student_id': student.student_id, 'status': student.status, 'user_id': student.user_id}.
+    """
+    sid = str(student_id or '').strip()
+    if not sid:
+        return None
+    student = Student.objects.filter(student_id=sid).first()
+    if not student or student.status != Student.STATUS_ACTIVE:
+        return None
+    return {
+        'student_id': student.student_id,
+        'status': student.status,
+        'user_id': student.user_id,
+    }
+
+
+class StudentService:
+    """Bridge interface for cross-module student lookups (AGENTS.md)."""
+
+    @staticmethod
+    def validate_active_student(student_id: str) -> dict | None:
+        return validate_active_student(student_id)
+
+
 def get_student(pk):
     """Retrieve Student record by primary key."""
     return Student.objects.filter(pk=pk).first()

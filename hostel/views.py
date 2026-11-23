@@ -415,3 +415,209 @@ def rule_delete(request, pk):
         request, Rule, pk, 'hostel:warden_rules',
         'Rule removed.', 'Rule', 'hostel:warden_rules',
     )
+
+
+# --- Room-Change & Two-Step Room-Swap Requests (VS-11) ---
+
+from django.db.models import Q
+from accounts.guards import student_required, warden_required
+from .models import RoomRequest, RoomSwapNotification
+from .student_service import StudentService
+
+
+def _get_active_student_id(request):
+    """Resolve and validate the logged-in student's roll/hostel ID via StudentService."""
+    candidate_id = getattr(request.user, 'student_id', None) or request.user.username
+    info = StudentService.validate_active_student(candidate_id)
+    if not info:
+        return None
+    return info['student_id']
+
+
+def _unread_swap_notification_count(student_id):
+    if not student_id:
+        return 0
+    return RoomSwapNotification.objects.filter(
+        recipient_student_id=student_id,
+        is_read=False,
+    ).count()
+
+
+@student_required
+@require_GET
+def student_room_requests(request):
+    """List only the logged-in student's own room requests (FR-10, NFR-01, BR-08)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    my_requests = RoomRequest.objects.filter(student_id=sid).select_related('preferred_room')
+    return render(request, 'hostel/student_room_requests.html', {
+        'requests': my_requests,
+        'open_statuses': services.OPEN_REQUEST_STATUSES,
+        'unread_count': _unread_swap_notification_count(sid),
+    })
+
+
+@student_required
+def student_room_request_create(request):
+    """Submit a room-change or two-step room-swap request (FR-10, BR-07, BR-08)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    available_rooms = services.get_available_rooms()
+    selected_type = request.POST.get('request_type', request.GET.get('type', RoomRequest.TYPE_CHANGE))
+    if selected_type not in (RoomRequest.TYPE_CHANGE, RoomRequest.TYPE_SWAP):
+        selected_type = RoomRequest.TYPE_CHANGE
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        try:
+            if selected_type == RoomRequest.TYPE_CHANGE:
+                raw_room_id = request.POST.get('preferred_room_id', '')
+                if not raw_room_id:
+                    raise ValueError('Please select a preferred room.')
+                services.submit_change_request(sid, int(raw_room_id), reason)
+                messages.success(request, 'Room change request submitted and is now Pending.')
+            else:
+                target_student_id = request.POST.get('target_student_id', '')
+                services.submit_swap_request(sid, target_student_id, reason)
+                messages.success(
+                    request,
+                    'Room swap request submitted. It is now awaiting consent from the target student.',
+                )
+            return redirect('hostel:student_room_requests')
+        except (ValueError, TypeError) as exc:
+            messages.error(request, str(exc))
+
+    return render(request, 'hostel/student_room_request_form.html', {
+        'available_rooms': available_rooms,
+        'selected_type': selected_type,
+        'form_data': request.POST if request.method == 'POST' else {},
+        'unread_count': _unread_swap_notification_count(sid),
+    })
+
+
+@student_required
+@require_POST
+def student_room_request_cancel(request, request_id):
+    """Cancel an open room request owned by the logged-in student (BR-05, BR-07)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    try:
+        services.cancel_request(request_id, sid)
+        messages.success(request, 'Room request cancelled.')
+    except PermissionError as exc:
+        return HttpResponseForbidden(str(exc))
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('hostel:student_room_requests')
+
+
+@student_required
+@require_GET
+def student_swap_inbox(request):
+    """Show incoming swap consent requests and notification feed for logged-in student."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    incoming_swaps = RoomRequest.objects.filter(
+        request_type=RoomRequest.TYPE_SWAP,
+        target_student_id=sid,
+        status=RoomRequest.STATUS_PENDING_STUDENT_CONSENT,
+    )
+    notifications_qs = RoomSwapNotification.objects.filter(recipient_student_id=sid)
+    unread_count = notifications_qs.filter(is_read=False).count()
+    notifications = list(notifications_qs)
+    notifications_qs.filter(is_read=False).update(is_read=True)
+
+    return render(request, 'hostel/student_swap_inbox.html', {
+        'incoming_swaps': incoming_swaps,
+        'notifications': notifications,
+        'unread_count': unread_count,
+    })
+
+
+@student_required
+@require_POST
+def student_swap_respond(request, request_id):
+    """Target student accepts or rejects an incoming swap request (OQ-04)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    decision = request.POST.get('decision', '').strip().lower()
+    if decision not in ('accept', 'reject'):
+        messages.error(request, 'Invalid swap response action.')
+        return redirect('hostel:student_swap_inbox')
+
+    try:
+        accept = decision == 'accept'
+        services.respond_to_swap(request_id, sid, accept=accept)
+        if accept:
+            messages.success(request, 'Swap request accepted. It has been sent to the warden for approval.')
+        else:
+            messages.info(request, 'Swap request declined.')
+    except PermissionError as exc:
+        return HttpResponseForbidden(str(exc))
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('hostel:student_swap_inbox')
+
+
+@warden_required
+@require_GET
+def warden_room_requests(request):
+    """Warden queue of CHANGE (PENDING) and SWAP (PENDING_WARDEN_APPROVAL) requests (ADR-005)."""
+    pending_requests = RoomRequest.objects.filter(
+        Q(request_type=RoomRequest.TYPE_CHANGE, status=RoomRequest.STATUS_PENDING)
+        | Q(request_type=RoomRequest.TYPE_SWAP, status=RoomRequest.STATUS_PENDING_WARDEN_APPROVAL)
+    ).select_related('preferred_room')
+
+    recent_history = RoomRequest.objects.filter(
+        status__in=[
+            RoomRequest.STATUS_APPROVED,
+            RoomRequest.STATUS_REJECTED,
+            RoomRequest.STATUS_CANCELLED,
+        ]
+    ).select_related('preferred_room')[:20]
+
+    return render(request, 'hostel/warden_room_requests.html', {
+        'pending_requests': pending_requests,
+        'recent_history': recent_history,
+        'pending_count': services.get_pending_request_count(),
+    })
+
+
+@warden_required
+@require_POST
+def warden_decide_room_request(request, request_id):
+    """Warden approves or rejects a pending room-change or room-swap request (FR-11)."""
+    req = get_object_or_404(RoomRequest, pk=request_id)
+    action = request.POST.get('action', '').strip().lower()
+    remark = request.POST.get('remark', '')
+
+    if action not in ('approve', 'reject'):
+        messages.error(request, 'Invalid decision action.')
+        return redirect('hostel:warden_room_requests')
+
+    approve = action == 'approve'
+    try:
+        if req.request_type == RoomRequest.TYPE_CHANGE:
+            services.decide_change_request(req.pk, approve=approve, remark=remark)
+        else:
+            services.decide_swap(req.pk, approve=approve, remark=remark)
+        messages.success(
+            request,
+            f'Room request #{req.pk} {"approved" if approve else "rejected"}.',
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('hostel:warden_room_requests')

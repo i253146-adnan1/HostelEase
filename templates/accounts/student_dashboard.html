@@ -77,8 +77,11 @@
         <div class="card h-100 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">Room Requests</h5>
-                <p class="card-text text-muted small">Check your room assignment or request a room change.</p>
-                <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Open Room Requests</a>
+                <p class="card-text text-muted small">Check available rooms, request a change, or respond to room swaps.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'hostel:student_room_requests' %}" class="btn btn-outline-primary btn-sm">My Room Requests</a>
+                    <a href="{% url 'hostel:student_swap_inbox' %}" class="btn btn-outline-primary btn-sm">Swap Inbox</a>
+                </div>
             </div>
         </div>
     </div>

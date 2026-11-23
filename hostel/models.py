@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 
 
 class Announcement(models.Model):
@@ -108,7 +109,10 @@ class Room(models.Model):
 
     @classmethod
     def get_pending_request_count(cls):
-        return 0
+        return RoomRequest.objects.filter(
+            Q(request_type=RoomRequest.TYPE_CHANGE, status=RoomRequest.STATUS_PENDING)
+            | Q(request_type=RoomRequest.TYPE_SWAP, status=RoomRequest.STATUS_PENDING_WARDEN_APPROVAL)
+        ).count()
 
     def __str__(self):
         return f'Room {self.room_number}'
@@ -156,4 +160,91 @@ class Student(models.Model):
 
     def __str__(self):
         return f'{self.student_id} - {self.full_name}'
+
+
+class RoomRequest(models.Model):
+    """Student room-change or two-step room-swap request (VS-11, OQ-04/OQ-05)."""
+
+    TYPE_CHANGE = 'CHANGE'
+    TYPE_SWAP = 'SWAP'
+    REQUEST_TYPE_CHOICES = [
+        (TYPE_CHANGE, 'Room Change'),
+        (TYPE_SWAP, 'Room Swap'),
+    ]
+
+    STATUS_PENDING = 'PENDING'
+    STATUS_PENDING_STUDENT_CONSENT = 'PENDING_STUDENT_CONSENT'
+    STATUS_REJECTED_BY_STUDENT = 'REJECTED_BY_STUDENT'
+    STATUS_PENDING_WARDEN_APPROVAL = 'PENDING_WARDEN_APPROVAL'
+    STATUS_APPROVED = 'APPROVED'
+    STATUS_REJECTED = 'REJECTED'
+    STATUS_CANCELLED = 'CANCELLED'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_PENDING_STUDENT_CONSENT, 'Pending Student Consent'),
+        (STATUS_REJECTED_BY_STUDENT, 'Rejected by Student'),
+        (STATUS_PENDING_WARDEN_APPROVAL, 'Pending Warden Approval'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_CANCELLED, 'Cancelled'),
+    ]
+
+    student_id = models.CharField(max_length=50, db_index=True)
+    request_type = models.CharField(max_length=10, choices=REQUEST_TYPE_CHOICES)
+    preferred_room = models.ForeignKey(
+        Room,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='change_requests',
+    )
+    target_student_id = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    reason = models.TextField()
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, db_index=True)
+    warden_remark = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    decided_by_student_at = models.DateTimeField(null=True, blank=True)
+    decided_by_warden_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at', '-id']
+
+    def __str__(self):
+        return f'RoomRequest #{self.pk} ({self.request_type} by {self.student_id} - {self.status})'
+
+
+class RoomSwapNotification(models.Model):
+    """In-app notification for two-step room-swap workflow (VS-11)."""
+
+    TYPE_SWAP_INCOMING = 'SWAP_INCOMING'
+    TYPE_SWAP_ACCEPTED_BY_TARGET = 'SWAP_ACCEPTED_BY_TARGET'
+    TYPE_SWAP_REJECTED_BY_TARGET = 'SWAP_REJECTED_BY_TARGET'
+    TYPE_SWAP_APPROVED = 'SWAP_APPROVED'
+    TYPE_SWAP_REJECTED_BY_WARDEN = 'SWAP_REJECTED_BY_WARDEN'
+    NOTIFICATION_TYPE_CHOICES = [
+        (TYPE_SWAP_INCOMING, 'Incoming Swap Request'),
+        (TYPE_SWAP_ACCEPTED_BY_TARGET, 'Swap Accepted by Target'),
+        (TYPE_SWAP_REJECTED_BY_TARGET, 'Swap Rejected by Target'),
+        (TYPE_SWAP_APPROVED, 'Swap Approved'),
+        (TYPE_SWAP_REJECTED_BY_WARDEN, 'Swap Rejected by Warden'),
+    ]
+
+    recipient_student_id = models.CharField(max_length=50, db_index=True)
+    room_request = models.ForeignKey(
+        RoomRequest,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+    )
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPE_CHOICES)
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-id']
+
+    def __str__(self):
+        return f'{self.notification_type} for {self.recipient_student_id} (read={self.is_read})'
+
 
