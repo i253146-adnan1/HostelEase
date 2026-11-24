@@ -201,6 +201,30 @@ def warden_student_detail(request, pk):
     })
 
 
+@_warden_portal_required
+@require_POST
+def warden_student_mark_left(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    try:
+        student_service.mark_student_left(student.pk)
+        messages.success(request, f'{student.full_name} ({student.student_id}) marked Left. Login disabled and room cleared.')
+    except student_service.StudentError as exc:
+        messages.error(request, str(exc))
+    return redirect('hostel:warden_student_detail', pk=student.pk)
+
+
+@_warden_portal_required
+@require_POST
+def warden_student_reactivate(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    try:
+        student_service.reactivate_student(student.pk)
+        messages.success(request, f'{student.full_name} ({student.student_id}) reactivated. Assign an available room when ready.')
+    except student_service.StudentError as exc:
+        messages.error(request, str(exc))
+    return redirect('hostel:warden_student_detail', pk=student.pk)
+
+
 # --- Hostel Information (VS-06: Announcements, Mess Menu, Rules) ---
 
 from django import forms as django_forms

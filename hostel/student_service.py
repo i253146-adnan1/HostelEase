@@ -239,3 +239,71 @@ def register_student(
         'temporary_password': temp_pwd,
         'ledger': ledger,
     }
+
+
+def _sync_account_student_profile(user, status, room_number=None):
+    """Keep optional accounts.StudentProfile in sync if present."""
+    try:
+        from accounts.models import StudentProfile
+        profile = StudentProfile.objects.filter(user=user).first()
+        if profile is not None:
+            profile.status = status
+            if room_number is not None:
+                profile.room_number = room_number
+            profile.save(update_fields=['status', 'room_number', 'updated_at'])
+    except ImportError:
+        pass
+
+
+@transaction.atomic
+def mark_student_left(student_pk):
+    """Mark an Active student Left: disable login, clear room, retain all records (VS-16, FR-13, AC-13.1)."""
+    student = Student.objects.select_for_update().filter(pk=student_pk).first()
+    if student is None:
+        raise StudentError('Student record not found.')
+    if student.status == Student.STATUS_LEFT:
+        raise StudentValidationError('Student is already marked Left.')
+
+    student.status = Student.STATUS_LEFT
+    student.save(update_fields=['status', 'updated_at'])
+
+    # Clear active room assignment while retaining historical RoomAssignment rows
+    room_service.clear_student_room(student.student_id)
+
+    # Disable future login (OQ-13)
+    user = None
+    if student.user_id:
+        user = User.objects.filter(pk=student.user_id).first()
+    if user is None:
+        user = User.objects.filter(username=student.student_id).first()
+    if user is not None:
+        user.is_active = False
+        user.save(update_fields=['is_active'])
+        _sync_account_student_profile(user, Student.STATUS_LEFT, room_number='')
+
+    return student
+
+
+@transaction.atomic
+def reactivate_student(student_pk):
+    """Reactivate a Left student: re-enable login on same record, keep room empty (VS-16, FR-13, AC-13.3)."""
+    student = Student.objects.select_for_update().filter(pk=student_pk).first()
+    if student is None:
+        raise StudentError('Student record not found.')
+    if student.status == Student.STATUS_ACTIVE:
+        raise StudentValidationError('Student is already Active.')
+
+    student.status = Student.STATUS_ACTIVE
+    student.save(update_fields=['status', 'updated_at'])
+
+    user = None
+    if student.user_id:
+        user = User.objects.filter(pk=student.user_id).first()
+    if user is None:
+        user = User.objects.filter(username=student.student_id).first()
+    if user is not None:
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        _sync_account_student_profile(user, Student.STATUS_ACTIVE, room_number='')
+
+    return student

@@ -36,10 +36,12 @@ urlpatterns = [
     path('rooms/<int:room_id>/assign/', views.room_assign, name='room_assign'),
     path('rooms/assignment/<int:assignment_id>/clear/', views.room_clear_assignment, name='room_clear_assignment'),
 
-    # Warden student registration & management (VS-02)
+    # Warden student registration & management (VS-02, VS-16)
     path('warden/students/', views.warden_student_list, name='warden_student_list'),
     path('warden/students/create/', views.warden_student_create, name='warden_student_create'),
     path('warden/students/<int:pk>/', views.warden_student_detail, name='warden_student_detail'),
+    path('warden/students/<int:pk>/mark-left/', views.warden_student_mark_left, name='warden_student_mark_left'),
+    path('warden/students/<int:pk>/reactivate/', views.warden_student_reactivate, name='warden_student_reactivate'),
 
     # Student room requests & swap notifications (VS-11)
     path('room-requests/', views.student_room_requests, name='student_room_requests'),
