@@ -9,7 +9,7 @@ from accounts.guards import login_required_guard, student_required, warden_requi
 from hostel.student_service import StudentService
 from . import feedback_service, file_storage, leave_service
 from .complaint_form import ComplaintForm
-from .complaint_service import ComplaintService
+from .complaint_service import ComplaintError, ComplaintService
 from .feedback_service import FeedbackError
 from .models import Complaint, LeaveRequest, StoredFile
 
@@ -133,6 +133,62 @@ def student_complaint_detail(request, complaint_id):
     return render(request, 'operations/complaint_detail.html', {
         'complaint': complaint,
     })
+
+
+@warden_required
+def warden_complaint_list(request):
+    """List all complaints for the warden with optional status filtering (VS-13, FR-08)."""
+    status_filter = request.GET.get('status', '')
+    if status_filter not in ComplaintService.VALID_STATUSES:
+        status_filter = ''
+
+    complaints = ComplaintService.list_all_complaints(status_filter=status_filter or None)
+    all_complaints = ComplaintService.list_all_complaints()
+    return render(request, 'operations/warden_complaint_list.html', {
+        'complaints': complaints,
+        'status_filter': status_filter,
+        'total_count': all_complaints.count(),
+        'submitted_count': all_complaints.filter(status='Submitted').count(),
+        'in_progress_count': all_complaints.filter(status='In Progress').count(),
+        'resolved_count': all_complaints.filter(status='Resolved').count(),
+    })
+
+
+@warden_required
+def warden_complaint_detail(request, complaint_id):
+    """Display complaint details and allowed status transition controls for warden (VS-13, FR-08)."""
+    try:
+        complaint = ComplaintService.get_warden_complaint_detail(complaint_id)
+    except Complaint.DoesNotExist:
+        raise Http404('Complaint not found.')
+
+    allowed_next = ComplaintService.ALLOWED_TRANSITIONS.get(complaint.status, [])
+    return render(request, 'operations/warden_complaint_detail.html', {
+        'complaint': complaint,
+        'allowed_next': allowed_next,
+    })
+
+
+@warden_required
+def warden_complaint_update_status(request, complaint_id):
+    """Handle warden status transition (Submitted -> In Progress -> Resolved) and remark (VS-13)."""
+    if request.method != 'POST':
+        return redirect('operations:warden_complaint_detail', complaint_id=complaint_id)
+
+    new_status = request.POST.get('status', '')
+    remark = request.POST.get('warden_remark', '')
+
+    try:
+        complaint = ComplaintService.update_complaint_status(
+            complaint_id=complaint_id,
+            new_status=new_status,
+            remark=remark,
+        )
+        messages.success(request, f'Complaint #{complaint.pk} updated to {complaint.status}.')
+    except ComplaintError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('operations:warden_complaint_detail', complaint_id=complaint_id)
 
 
 def _get_active_student_id(request):

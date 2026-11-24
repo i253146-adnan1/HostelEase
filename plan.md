@@ -1116,8 +1116,11 @@ The final report must cover:
 | VS-03 | Room catalogue, assignment and capacity enforcement | Muhammad Fahad Basharat | Accepted |
 | VS-07 | Feedback submission and warden rating summary | Safiullah | Accepted |
 | VS-11 | Room-change and two-step room-swap requests (Accepted 2026-11-22) | Muhammad Fahad Basharat | Accepted |
+| VS-09 | Student payment proof submission and fee/proof view (Accepted 2026-11-23) | Adnanullah | Accepted |
+| VS-12 | Warden payment verification/rejection with atomic ledger update (Accepted 2026-11-23) | Safiullah | Accepted |
+| VS-14 | Warden feedback rating summary (implemented with VS-07) | Safiullah | Accepted |
 | VS-15 | Student temporary leave request and warden decision (Accepted 2026-11-23) | Muhammad Fahad Basharat | Accepted |
-| Remaining (VS-05, VS-08 to VS-10, VS-12 to VS-14, VS-16 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
+| Remaining (VS-05, VS-08, VS-10, VS-13, VS-16 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |
 |---|---|

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Warden Complaints — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="h3 mb-1">Complaint Management</h1>
+                <p class="text-muted mb-0">Review student complaints, update status, and record resolution remarks.</p>
+            </div>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a href="{% url 'operations:warden_complaint_list' %}"
+               class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-dark{% endif %}">
+                All ({{ total_count }})
+            </a>
+            <a href="{% url 'operations:warden_complaint_list' %}?status=Submitted"
+               class="btn btn-sm {% if status_filter == 'Submitted' %}btn-warning{% else %}btn-outline-warning text-dark{% endif %}">
+                Submitted ({{ submitted_count }})
+            </a>
+            <a href="{% url 'operations:warden_complaint_list' %}?status=In Progress"
+               class="btn btn-sm {% if status_filter == 'In Progress' %}btn-info{% else %}btn-outline-info text-dark{% endif %}">
+                In Progress ({{ in_progress_count }})
+            </a>
+            <a href="{% url 'operations:warden_complaint_list' %}?status=Resolved"
+               class="btn btn-sm {% if status_filter == 'Resolved' %}btn-success{% else %}btn-outline-success{% endif %}">
+                Resolved ({{ resolved_count }})
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                {% if complaints %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                    <th>Last Updated</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints %}
+                                    <tr>
+                                        <td>#{{ complaint.pk }}</td>
+                                        <td>{{ complaint.student_user.get_full_name|default:complaint.student_user.username }}</td>
+                                        <td>{{ complaint.get_category_display }}</td>
+                                        <td>
+                                            {% if complaint.status == 'Submitted' %}
+                                                <span class="badge bg-warning text-dark">Submitted</span>
+                                            {% elif complaint.status == 'In Progress' %}
+                                                <span class="badge bg-info text-dark">In Progress</span>
+                                            {% elif complaint.status == 'Resolved' %}
+                                                <span class="badge bg-success">Resolved</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ complaint.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ complaint.created_at|date:"M d, Y H:i" }}</td>
+                                        <td>{{ complaint.updated_at|date:"M d, Y H:i" }}</td>
+                                        <td class="text-end">
+                                            <a href="{% url 'operations:warden_complaint_detail' complaint.pk %}" class="btn btn-outline-primary btn-sm">
+                                                Manage
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-0">No complaints found{% if status_filter %} with status "{{ status_filter }}"{% endif %}.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -8,10 +8,15 @@ Invariants (NFR-02, BR-10):
     remaining_amount = max(total_fee - paid_amount, 0)
     excess_paid      = max(paid_amount - total_fee, 0)
 """
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from django.db import transaction
 from django.db.models import Sum
+from django.utils import timezone
+
+from operations import file_storage
+from operations.models import StoredFile
 
 from .models import FeeChange, FeeRecord, Payment
 
@@ -138,3 +143,126 @@ def add_payment(student_ref, amount, status=Payment.STATUS_PENDING, source=Payme
     if value <= 0:
         raise FeeError('Payment amount must be greater than zero.')
     Payment.objects.create(student_ref=student_ref, amount=value, status=status, source=source)
+
+
+def parse_payment_date(value):
+    """Parse a payment date (date object or YYYY-MM-DD string) or raise FeeError."""
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    text = str(value or '').strip()
+    if not text:
+        raise FeeError('Payment date is required.')
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        raise FeeError('Payment date must be a valid date (YYYY-MM-DD).')
+
+
+@transaction.atomic
+def submit_payment_proof(*, student_ref, owner_user_id, amount, payment_date, proof_file):
+    """Submit a student payment proof (VS-09, FR-04, AC-04.1, AC-04.2).
+
+    Validates amount, date, and file (JPG/PNG/PDF <= 5 MB via VS-08) and saves
+    the Payment as Pending without modifying verified paid totals.
+    """
+    value = parse_money(amount, 'Payment amount')
+    if value <= 0:
+        raise FeeError('Payment amount must be greater than zero.')
+    parsed_date = parse_payment_date(payment_date)
+    if proof_file is None:
+        raise FeeError('Payment proof file is required.')
+
+    try:
+        stored = file_storage.save_uploaded_file(
+            proof_file,
+            category=StoredFile.CATEGORY_PAYMENT_PROOF,
+            owner_user_id=owner_user_id,
+            record_ref=f'student-{student_ref}',
+        )
+    except file_storage.FileStorageError as exc:
+        raise FeeError(str(exc))
+
+    return Payment.objects.create(
+        student_ref=student_ref,
+        amount=value,
+        payment_date=parsed_date,
+        status=Payment.STATUS_PENDING,
+        source=Payment.SOURCE_PROOF,
+        proof_file_key=stored.file_key,
+        proof_file_name=stored.original_name,
+    )
+
+
+def list_student_payments(student_ref):
+    return list(Payment.objects.filter(student_ref=student_ref))
+
+
+def list_pending_payments():
+    return list(Payment.objects.filter(status=Payment.STATUS_PENDING).order_by('-created_at', '-id'))
+
+
+def count_pending_payments():
+    return Payment.objects.filter(status=Payment.STATUS_PENDING).count()
+
+
+def get_payment(payment_id):
+    """Retrieve a Payment by primary key, or None."""
+    return Payment.objects.filter(pk=payment_id).first()
+
+
+@transaction.atomic
+def verify_payment(payment_id, warden_username=''):
+    """Verify a pending payment proof (VS-12, FR-06, BR-03, AC-05.1).
+
+    Atomically changes status to Verified, records decision timestamp and warden username,
+    and updates verified paid total, remaining, and excess paid consistently.
+    Raises FeeError if the payment does not exist or has already been reviewed.
+    """
+    payment = Payment.objects.select_for_update().filter(pk=payment_id).first()
+    if payment is None:
+        raise FeeError('Payment record not found.')
+    if payment.status != Payment.STATUS_PENDING:
+        raise FeeError(f'Payment #{payment_id} has already been reviewed (current status: {payment.status}).')
+
+    payment.status = Payment.STATUS_VERIFIED
+    payment.decided_at = timezone.now()
+    payment.decided_by = str(warden_username or '').strip()
+    payment.save(update_fields=['status', 'decided_at', 'decided_by'])
+
+    record = FeeRecord.objects.select_for_update().filter(student_ref=payment.student_ref).first()
+    payment.ledger = _ledger(record) if record else None
+    return payment
+
+
+@transaction.atomic
+def reject_payment(payment_id, remark, warden_username=''):
+    """Reject a pending payment proof (VS-12, FR-06, BR-03, AC-05.2).
+
+    Requires a non-empty remark. Atomically changes status to Rejected,
+    records remark, timestamp, and warden username.
+    Verified paid total, remaining, and excess paid remain unchanged.
+    Raises FeeError if the payment does not exist, remark is missing,
+    or the payment has already been reviewed.
+    """
+    clean_remark = str(remark or '').strip()
+    if not clean_remark:
+        raise FeeError('A rejection remark is required.')
+
+    payment = Payment.objects.select_for_update().filter(pk=payment_id).first()
+    if payment is None:
+        raise FeeError('Payment record not found.')
+    if payment.status != Payment.STATUS_PENDING:
+        raise FeeError(f'Payment #{payment_id} has already been reviewed (current status: {payment.status}).')
+
+    payment.status = Payment.STATUS_REJECTED
+    payment.warden_remark = clean_remark
+    payment.decided_at = timezone.now()
+    payment.decided_by = str(warden_username or '').strip()
+    payment.save(update_fields=['status', 'warden_remark', 'decided_at', 'decided_by'])
+
+    record = FeeRecord.objects.select_for_update().filter(student_ref=payment.student_ref).first()
+    payment.ledger = _ledger(record) if record else None
+    return payment
+

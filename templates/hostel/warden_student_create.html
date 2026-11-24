@@ -17,7 +17,7 @@
             <div class="alert alert-warning shadow-sm mb-4">
                 <h5 class="alert-heading h6 mb-1">No Rooms in Catalogue</h5>
                 <p class="mb-3 small">You must add at least one room before registering a student.</p>
-                <form method="post" action="{% url 'hostel:warden_room_create' %}" class="row g-2 align-items-center">
+                <form method="post" action="{% url 'hostel:room_create' %}" class="row g-2 align-items-center">
                     {% csrf_token %}
                     <div class="col-auto">
                         <input type="text" name="room_number" class="form-control form-control-sm" placeholder="Room Number (e.g. 101)" required>
