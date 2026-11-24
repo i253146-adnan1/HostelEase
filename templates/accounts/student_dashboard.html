@@ -3,31 +3,38 @@
 {% block title %}Student Dashboard — HostelEase{% endblock %}
 
 {% block content %}
-<div class="p-4 mb-4 bg-white rounded-3 shadow-sm">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+<div class="he-hero-banner p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h1 class="h3 mb-1">Welcome, {% if profile %}{{ profile.full_name }}{% else %}{{ user.username }}{% endif %}</h1>
-            <p class="text-muted mb-0">Student Portal — View hostel updates and manage your requests.</p>
+            <span class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 mb-2">
+                <i class="bi bi-person-badge me-1"></i> Resident Workspace
+            </span>
+            <h1 class="h3 fw-bold mb-1">Welcome, {% if profile %}{{ profile.full_name }}{% else %}{{ user.username }}{% endif %}</h1>
+            <p class="text-white-50 mb-0">Student Portal — View hostel updates and manage your requests.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'accounts:student_profile' %}" class="btn btn-primary btn-sm">View Full Profile</a>
-            <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary btn-sm">Change Password</a>
+            <a href="{% url 'accounts:student_profile' %}" class="btn btn-light btn-sm fw-semibold text-primary">
+                <i class="bi bi-person-vcard me-1"></i>View Full Profile
+            </a>
+            <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-key me-1"></i>Change Password
+            </a>
         </div>
     </div>
 </div>
 
 {% if profile %}
-<div class="card mb-4 shadow-sm">
-    <div class="card-header bg-white fw-semibold">My Summary</div>
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold py-3"><i class="bi bi-person-lines-fill text-primary me-2"></i>My Summary</div>
     <div class="card-body">
-        <div class="row g-3">
+        <div class="row g-3 align-items-center">
             <div class="col-md-3">
                 <div class="text-muted small">Full Name</div>
                 <div class="fw-semibold">{{ profile.full_name }}</div>
             </div>
             <div class="col-md-2">
                 <div class="text-muted small">Student ID</div>
-                <div class="fw-semibold">{{ profile.student_id }}</div>
+                <div class="fw-semibold font-monospace">{{ profile.student_id }}</div>
             </div>
             <div class="col-md-3">
                 <div class="text-muted small">Contact Number</div>
@@ -36,7 +43,7 @@
             <div class="col-md-2">
                 <div class="text-muted small">Room Number</div>
                 <div class="fw-semibold">
-                    {% if profile.room_number %}{{ profile.room_number }}{% else %}Not assigned{% endif %}
+                    {% if profile.room_number %}<span class="badge bg-primary bg-opacity-10 text-primary">{{ profile.room_number }}</span>{% else %}Not assigned{% endif %}
                 </div>
             </div>
             <div class="col-md-2">
@@ -50,20 +57,23 @@
 </div>
 {% else %}
 <div class="alert alert-warning" role="alert">
-    Your student profile has not been set up yet. Please contact the warden.
+    <i class="bi bi-exclamation-triangle me-2"></i>Your student profile has not been set up yet. Please contact the warden.
 </div>
 {% endif %}
 
 {% if home_summary %}
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card shadow-sm h-100">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 he-card-hover" style="border-top: 3px solid #10b981 !important;">
             <div class="card-body">
-                <div class="text-muted small">Remaining Fee</div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-muted small fw-semibold text-uppercase">Remaining Fee</div>
+                    <i class="bi bi-cash-coin text-success"></i>
+                </div>
                 {% if home_summary.ledger %}
-                    <div class="h5 mb-0">Rs. {{ home_summary.ledger.remaining_amount|floatformat:2 }}</div>
+                    <div class="h4 fw-bold mb-1">Rs. {{ home_summary.ledger.remaining_amount|floatformat:2 }}</div>
                     {% if home_summary.ledger.excess_paid > 0 %}
-                        <div class="small text-info">Excess Paid: Rs. {{ home_summary.ledger.excess_paid|floatformat:2 }}</div>
+                        <div class="small text-info fw-medium">Excess Paid: Rs. {{ home_summary.ledger.excess_paid|floatformat:2 }}</div>
                     {% else %}
                         <div class="small text-muted">Verified Paid: Rs. {{ home_summary.ledger.paid_amount|floatformat:2 }}</div>
                     {% endif %}
@@ -73,29 +83,38 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card shadow-sm h-100">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 he-card-hover" style="border-top: 3px solid #f59e0b !important;">
             <div class="card-body">
-                <div class="text-muted small">Pending Proofs &amp; Requests</div>
-                <div class="h5 mb-0">{{ home_summary.pending_proofs }} proof(s)</div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-muted small fw-semibold text-uppercase">Pending Proofs &amp; Requests</div>
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                </div>
+                <div class="h4 fw-bold mb-1">{{ home_summary.pending_proofs }} proof(s)</div>
                 <div class="small text-muted">{{ home_summary.pending_room_requests }} room request(s)</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card shadow-sm h-100">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 he-card-hover" style="border-top: 3px solid #ef4444 !important;">
             <div class="card-body">
-                <div class="text-muted small">Open Complaints</div>
-                <div class="h5 mb-0">{{ home_summary.open_complaints }}</div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-muted small fw-semibold text-uppercase">Open Complaints</div>
+                    <i class="bi bi-tools text-danger"></i>
+                </div>
+                <div class="h4 fw-bold mb-1">{{ home_summary.open_complaints }}</div>
                 <div class="small text-muted">Submitted / In Progress</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card shadow-sm h-100">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 he-card-hover" style="border-top: 3px solid #4f46e5 !important;">
             <div class="card-body">
-                <div class="text-muted small">Leave &amp; Meal Opt-Outs</div>
-                <div class="h6 mb-0">Leave: {{ home_summary.open_leave_status|default:"None" }}</div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-muted small fw-semibold text-uppercase">Leave &amp; Meal Opt-Outs</div>
+                    <i class="bi bi-calendar2-week text-primary"></i>
+                </div>
+                <div class="h5 fw-bold mb-1">Leave: {{ home_summary.open_leave_status|default:"None" }}</div>
                 <div class="small text-muted">Active Meal Opt-Outs: {{ home_summary.active_optouts }}</div>
             </div>
         </div>
@@ -105,28 +124,34 @@
 
 <div class="row g-3">
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Fee &amp; Payments</h5>
-                <p class="card-text text-muted small">View your fee summary and submit payment proofs.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-credit-card text-primary me-2"></i>Fee &amp; Payments</h5>
+                    <p class="card-text text-muted small">View your fee summary and submit payment proofs.</p>
+                </div>
                 <a href="{% url 'finance_student:my_fees' %}" class="btn btn-outline-primary btn-sm">Open Fee &amp; Payments</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Complaints</h5>
-                <p class="card-text text-muted small">Submit and track your hostel maintenance complaints.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-exclamation-circle text-primary me-2"></i>Complaints</h5>
+                    <p class="card-text text-muted small">Submit and track your hostel maintenance complaints.</p>
+                </div>
                 <a href="{% url 'operations:complaint_list' %}" class="btn btn-outline-primary btn-sm">Open Complaints</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Room Requests</h5>
-                <p class="card-text text-muted small">Check available rooms, request a change, or respond to room swaps.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-door-closed text-primary me-2"></i>Room Requests</h5>
+                    <p class="card-text text-muted small">Check available rooms, request a change, or respond to room swaps.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{% url 'hostel:student_room_requests' %}" class="btn btn-outline-primary btn-sm">My Room Requests</a>
                     <a href="{% url 'hostel:student_swap_inbox' %}" class="btn btn-outline-primary btn-sm">Swap Inbox</a>
@@ -135,19 +160,23 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Leave Requests</h5>
-                <p class="card-text text-muted small">Submit and monitor your hostel leave requests.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-calendar2-week text-primary me-2"></i>Leave Requests</h5>
+                    <p class="card-text text-muted small">Submit and monitor your hostel leave requests.</p>
+                </div>
                 <a href="{% url 'operations:student_leave_requests' %}" class="btn btn-outline-primary btn-sm">Open Leave Requests</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Hostel Information</h5>
-                <p class="card-text text-muted small">Read announcements, weekly mess menu, and hostel rules.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-megaphone text-primary me-2"></i>Hostel Information</h5>
+                    <p class="card-text text-muted small">Read announcements, weekly mess menu, and hostel rules.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{% url 'hostel:student_announcements' %}" class="btn btn-outline-primary btn-sm">Announcements</a>
                     <a href="{% url 'hostel:student_menu' %}" class="btn btn-outline-primary btn-sm">Mess Menu</a>
@@ -157,19 +186,23 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Meal Opt-Outs</h5>
-                <p class="card-text text-muted small">Opt out of upcoming mess meals when away.</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-cup-straw text-primary me-2"></i>Meal Opt-Outs</h5>
+                    <p class="card-text text-muted small">Opt out of upcoming mess meals when away.</p>
+                </div>
                 <a href="{% url 'operations:student_meal_optouts' %}" class="btn btn-outline-primary btn-sm">Open Meal Opt-Outs</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Hostel Feedback</h5>
-                <p class="card-text text-muted small">Rate hostel facilities (food, rooms, washrooms, environment).</p>
+        <div class="card h-100 he-card-hover">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title fw-bold"><i class="bi bi-star text-primary me-2"></i>Hostel Feedback</h5>
+                    <p class="card-text text-muted small">Rate hostel facilities (food, rooms, washrooms, environment).</p>
+                </div>
                 <a href="{% url 'operations:student_feedback' %}" class="btn btn-outline-primary btn-sm">Submit Feedback</a>
             </div>
         </div>

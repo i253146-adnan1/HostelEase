@@ -4,43 +4,427 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}HostelEase{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --he-bg: #f4f6fb;
+            --he-surface: #ffffff;
+            --he-sidebar: #0f172a;
+            --he-sidebar-hover: rgba(255, 255, 255, 0.08);
+            --he-sidebar-active: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            --he-primary: #4f46e5;
+            --he-primary-dark: #4338ca;
+            --he-border: #e2e8f0;
+            --he-text: #0f172a;
+            --he-muted: #64748b;
+            --he-radius: 14px;
+            --he-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+            --he-shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--he-bg);
+            color: var(--he-text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* Layout shell */
+        .he-shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .he-sidebar {
+            width: 264px;
+            flex-shrink: 0;
+            background: var(--he-sidebar);
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .he-sidebar-brand {
+            padding: 1.25rem 1.25rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.15rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .he-brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #0ea5e9);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.05rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .he-nav-section {
+            padding: 0.9rem 0.9rem 0.25rem;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .he-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin: 0.15rem 0.65rem;
+            padding: 0.55rem 0.8rem;
+            border-radius: 10px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+
+        .he-nav-link:hover {
+            background: var(--he-sidebar-hover);
+            color: #ffffff;
+        }
+
+        .he-nav-link.active {
+            background: var(--he-sidebar-active);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .he-main-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .he-topbar {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--he-border);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .he-content {
+            padding: 1.75rem 1.5rem 2.5rem;
+            max-width: 1320px;
+            width: 100%;
+            margin: 0 auto;
+            animation: heFadeIn 0.2s ease-out;
+        }
+
+        @keyframes heFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Public navbar */
+        .he-public-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--he-border);
+        }
+
+        /* Global SaaS component polish */
+        .card {
+            border: 1px solid var(--he-border) !important;
+            border-radius: var(--he-radius) !important;
+            box-shadow: var(--he-shadow-sm);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .he-card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--he-shadow-md);
+        }
+
+        .card-header {
+            border-bottom: 1px solid var(--he-border);
+            border-top-left-radius: var(--he-radius) !important;
+            border-top-right-radius: var(--he-radius) !important;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--he-primary);
+            border-color: var(--he-primary);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--he-primary-dark);
+            border-color: var(--he-primary-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--he-primary);
+            border-color: #c7d2fe;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--he-primary);
+            border-color: var(--he-primary);
+            color: #fff;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border-color: #cbd5e1;
+            padding: 0.55rem 0.85rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .table-responsive {
+            border-radius: var(--he-radius);
+            border: 1px solid var(--he-border);
+            box-shadow: var(--he-shadow-sm);
+            background: #fff;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            border-bottom: 1px solid var(--he-border);
+            padding: 0.85rem 1rem;
+        }
+
+        .table tbody td {
+            padding: 0.85rem 1rem;
+            border-color: #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 0.4em 0.7em;
+            border-radius: 999px;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border-width: 1px;
+        }
+
+        .alert-error {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .he-hero-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+            color: #ffffff;
+            border-radius: 18px;
+            box-shadow: var(--he-shadow-md);
+        }
+
+        .he-role-pill {
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            text-transform: capitalize;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/">HostelEase</a>
-            <div class="navbar-nav ms-auto align-items-center">
-                {% if user.is_authenticated %}
-                    <span class="navbar-text text-white me-3">{{ user.username }} ({{ user.role }})</span>
-                    {% if user.role == 'student' %}
-                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:student_room_requests' %}">Room Requests</a>
-                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:student_swap_inbox' %}">Swap Inbox</a>
-                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'operations:student_leave_requests' %}">Leave Requests</a>
-                    {% elif user.role == 'warden' %}
-                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'hostel:warden_room_requests' %}">Room Requests</a>
-                        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'operations:warden_leave_requests' %}">Leave Requests</a>
-                    {% endif %}
-                    <a class="btn btn-outline-light btn-sm me-2" href="{% url 'accounts:dashboard' %}">Dashboard</a>
-                    <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                    </form>
+<body>
+{% if user.is_authenticated %}
+<div class="he-shell">
+    <!-- Desktop Sidebar -->
+    <aside class="he-sidebar d-none d-lg-flex">
+        <a class="he-sidebar-brand" href="{% url 'accounts:dashboard' %}">
+            <span class="he-brand-icon"><i class="bi bi-building-check"></i></span>
+            <span>HostelEase</span>
+        </a>
+        <div class="py-2 flex-grow-1">
+            {% if user.role == 'warden' %}
+                <div class="he-nav-section">Overview</div>
+                <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+
+                <div class="he-nav-section">Residents &amp; Rooms</div>
+                <a class="he-nav-link" href="{% url 'hostel:warden_student_list' %}"><i class="bi bi-people"></i> Students</a>
+                <a class="he-nav-link" href="{% url 'hostel:room_list' %}"><i class="bi bi-door-open"></i> Rooms</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_room_requests' %}"><i class="bi bi-arrow-left-right"></i> Room Requests</a>
+
+                <div class="he-nav-section">Finance</div>
+                <a class="he-nav-link" href="{% url 'finance:list' %}"><i class="bi bi-wallet2"></i> Fee Ledger</a>
+                <a class="he-nav-link" href="{% url 'finance:pending_payments' %}"><i class="bi bi-receipt"></i> Pending Proofs</a>
+
+                <div class="he-nav-section">Operations</div>
+                <a class="he-nav-link" href="{% url 'operations:warden_complaint_list' %}"><i class="bi bi-tools"></i> Complaints</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_leave_requests' %}"><i class="bi bi-calendar-check"></i> Leave Requests</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_visitor_log' %}"><i class="bi bi-person-badge"></i> Visitor Log</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_meal_optout_summary' %}"><i class="bi bi-cup-hot"></i> Meal Opt-Outs</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_feedback_summary' %}"><i class="bi bi-star"></i> Feedback</a>
+
+                <div class="he-nav-section">Hostel Info</div>
+                <a class="he-nav-link" href="{% url 'hostel:warden_announcements' %}"><i class="bi bi-megaphone"></i> Announcements</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_menu' %}"><i class="bi bi-journal-text"></i> Mess Menu</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_rules' %}"><i class="bi bi-shield-check"></i> Rules</a>
+            {% else %}
+                <div class="he-nav-section">My Portal</div>
+                <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-house-door"></i> Home</a>
+                <a class="he-nav-link" href="{% url 'accounts:student_profile' %}"><i class="bi bi-person-vcard"></i> My Profile</a>
+                <a class="he-nav-link" href="{% url 'finance_student:my_fees' %}"><i class="bi bi-credit-card"></i> Fees &amp; Proofs</a>
+
+                <div class="he-nav-section">Requests</div>
+                <a class="he-nav-link" href="{% url 'hostel:student_room_requests' %}"><i class="bi bi-door-closed"></i> Room Requests</a>
+                <a class="he-nav-link" href="{% url 'hostel:student_swap_inbox' %}"><i class="bi bi-arrow-repeat"></i> Swap Inbox</a>
+                <a class="he-nav-link" href="{% url 'operations:complaint_list' %}"><i class="bi bi-exclamation-circle"></i> Complaints</a>
+                <a class="he-nav-link" href="{% url 'operations:student_leave_requests' %}"><i class="bi bi-calendar2-week"></i> Leave Requests</a>
+                <a class="he-nav-link" href="{% url 'operations:student_meal_optouts' %}"><i class="bi bi-cup-straw"></i> Meal Opt-Outs</a>
+
+                <div class="he-nav-section">Hostel Updates</div>
+                <a class="he-nav-link" href="{% url 'hostel:student_announcements' %}"><i class="bi bi-megaphone"></i> Announcements</a>
+                <a class="he-nav-link" href="{% url 'hostel:student_menu' %}"><i class="bi bi-journal-text"></i> Mess Menu</a>
+                <a class="he-nav-link" href="{% url 'hostel:student_rules' %}"><i class="bi bi-shield-check"></i> Rules</a>
+                <a class="he-nav-link" href="{% url 'operations:student_feedback' %}"><i class="bi bi-star"></i> Feedback</a>
+            {% endif %}
+        </div>
+        <div class="p-3 border-top border-secondary border-opacity-25 small text-secondary">
+            <a class="he-nav-link mx-0" href="{% url 'accounts:change_password' %}"><i class="bi bi-key"></i> Change Password</a>
+        </div>
+    </aside>
+
+    <div class="he-main-wrap">
+        <header class="he-topbar d-flex align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-secondary btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#heMobileNav" aria-label="Toggle navigation">
+                    <i class="bi bi-list"></i>
+                </button>
+                <a class="fw-bold text-dark text-decoration-none d-lg-none" href="{% url 'accounts:dashboard' %}">HostelEase</a>
+                <span class="he-role-pill d-none d-sm-inline-block">{{ user.role }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small me-1 d-none d-md-inline"><i class="bi bi-person-circle me-1"></i>{{ user.username }} ({{ user.role }})</span>
+                <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid me-1"></i>Dashboard</a>
+                <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Mobile Offcanvas Sidebar -->
+        <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="heMobileNav" style="background:#0f172a;width:270px;">
+            <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
+                <h5 class="offcanvas-title fw-bold">HostelEase</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-2">
+                <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+                {% if user.role == 'warden' %}
+                    <a class="he-nav-link" href="{% url 'hostel:warden_student_list' %}"><i class="bi bi-people"></i> Students</a>
+                    <a class="he-nav-link" href="{% url 'hostel:room_list' %}"><i class="bi bi-door-open"></i> Rooms</a>
+                    <a class="he-nav-link" href="{% url 'finance:list' %}"><i class="bi bi-wallet2"></i> Fee Ledger</a>
+                    <a class="he-nav-link" href="{% url 'finance:pending_payments' %}"><i class="bi bi-receipt"></i> Pending Proofs</a>
+                    <a class="he-nav-link" href="{% url 'operations:warden_complaint_list' %}"><i class="bi bi-tools"></i> Complaints</a>
+                    <a class="he-nav-link" href="{% url 'operations:warden_leave_requests' %}"><i class="bi bi-calendar-check"></i> Leave Requests</a>
+                    <a class="he-nav-link" href="{% url 'operations:warden_visitor_log' %}"><i class="bi bi-person-badge"></i> Visitor Log</a>
+                    <a class="he-nav-link" href="{% url 'operations:warden_meal_optout_summary' %}"><i class="bi bi-cup-hot"></i> Meal Opt-Outs</a>
+                    <a class="he-nav-link" href="{% url 'operations:warden_feedback_summary' %}"><i class="bi bi-star"></i> Feedback</a>
+                    <a class="he-nav-link" href="{% url 'hostel:warden_announcements' %}"><i class="bi bi-megaphone"></i> Announcements</a>
                 {% else %}
-                    <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}">Login</a>
+                    <a class="he-nav-link" href="{% url 'accounts:student_profile' %}"><i class="bi bi-person-vcard"></i> My Profile</a>
+                    <a class="he-nav-link" href="{% url 'finance_student:my_fees' %}"><i class="bi bi-credit-card"></i> Fees &amp; Proofs</a>
+                    <a class="he-nav-link" href="{% url 'hostel:student_room_requests' %}"><i class="bi bi-door-closed"></i> Room Requests</a>
+                    <a class="he-nav-link" href="{% url 'operations:complaint_list' %}"><i class="bi bi-exclamation-circle"></i> Complaints</a>
+                    <a class="he-nav-link" href="{% url 'operations:student_leave_requests' %}"><i class="bi bi-calendar2-week"></i> Leave Requests</a>
+                    <a class="he-nav-link" href="{% url 'operations:student_meal_optouts' %}"><i class="bi bi-cup-straw"></i> Meal Opt-Outs</a>
+                    <a class="he-nav-link" href="{% url 'hostel:student_announcements' %}"><i class="bi bi-megaphone"></i> Announcements</a>
+                    <a class="he-nav-link" href="{% url 'operations:student_feedback' %}"><i class="bi bi-star"></i> Feedback</a>
                 {% endif %}
             </div>
         </div>
-    </nav>
 
-    <main class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+{% else %}
+<nav class="navbar navbar-expand-lg he-public-nav mb-4 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2 text-dark" href="/">
+            <span class="he-brand-icon"><i class="bi bi-building-check"></i></span>
+            <span>HostelEase</span>
+        </a>
+        <div class="ms-auto">
+            <a class="btn btn-primary px-3" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+        </div>
+    </div>
+</nav>
+{% endif %}
 
-        {% block content %}{% endblock %}
-    </main>
+<main class="{% if user.is_authenticated %}he-content{% else %}container pb-5{% endif %}">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+{% if user.is_authenticated %}
+    </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('.he-nav-link').forEach(function (link) {
+    if (link.getAttribute('href') === window.location.pathname) {
+        link.classList.add('active');
+    }
+});
+</script>
 </body>
 </html>
