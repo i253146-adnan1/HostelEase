@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'hostel',
     'finance',
     'operations',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

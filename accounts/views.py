@@ -6,6 +6,8 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from dashboard.services import get_warden_pending_summary
+
 from .guards import login_required_guard, student_required
 from .models import StudentProfile
 
@@ -61,7 +63,12 @@ def logout_view(request):
 def dashboard_view(request):
     """Route authenticated users to their role-specific dashboard."""
     if request.user.role == 'warden':
-        return render(request, 'accounts/warden_dashboard.html')
+        summary = get_warden_pending_summary()
+        return render(
+            request,
+            'accounts/warden_dashboard.html',
+            {'pending_summary': summary},
+        )
     if request.user.role == 'student':
         profile = _get_own_student_profile(request.user)
         return render(request, 'accounts/student_dashboard.html', {'profile': profile})

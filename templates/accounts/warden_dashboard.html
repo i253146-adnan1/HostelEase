@@ -13,6 +13,67 @@
     </div>
 </div>
 
+<div class="mb-4" id="pending-items-overview">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h5 mb-0">Pending Items Overview</h2>
+        <span class="badge bg-dark" id="total-pending-count">Total Pending: {{ pending_summary.total_pending|default:0 }}</span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-3 col-sm-6">
+            <div class="card h-100 shadow-sm border-warning">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Pending Payment Proofs</h6>
+                        <p class="display-6 fw-bold mb-1" id="count-pending-payments">{{ pending_summary.pending_payment_proofs|default:0 }}</p>
+                        <p class="text-muted small mb-2">Status: Pending</p>
+                    </div>
+                    <a href="{% url 'finance:pending_payments' %}" class="btn btn-outline-primary btn-sm">Review Proofs</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card h-100 shadow-sm border-info">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Open Complaints</h6>
+                        <p class="display-6 fw-bold mb-1" id="count-pending-complaints">{{ pending_summary.pending_complaints|default:0 }}</p>
+                        <p class="text-muted small mb-2">Status: Submitted / In Progress</p>
+                    </div>
+                    <a href="{% url 'operations:warden_complaint_list' %}" class="btn btn-outline-primary btn-sm">Manage Complaints</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Pending Room Requests</h6>
+                        <p class="display-6 fw-bold mb-1" id="count-pending-rooms">{{ pending_summary.pending_room_requests|default:0 }}</p>
+                        <p class="text-muted small mb-2">Status: Pending</p>
+                    </div>
+                    <a href="{% url 'hostel:warden_room_requests' %}" class="btn btn-outline-primary btn-sm">Review Requests</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card h-100 shadow-sm border-secondary">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Pending Leave Requests</h6>
+                        <p class="display-6 fw-bold mb-1" id="count-pending-leaves">{{ pending_summary.pending_leave_requests|default:0 }}</p>
+                        <p class="text-muted small mb-2">Status: Pending</p>
+                    </div>
+                    {% if pending_summary.leave_module_available %}
+                        <span class="text-muted small">Active via Leave Requests</span>
+                    {% else %}
+                        <span class="text-muted small">Leave module pending (VS-15)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-3">
     <div class="col-md-4">
         <div class="card h-100 shadow-sm">
