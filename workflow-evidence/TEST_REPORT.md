@@ -1,9 +1,9 @@
 # HostelEase — Lightweight Vertical-Slice Test Report & Quality Gates (D4)
 
-**Date:** 22 November 2026  
+**Date:** 24 November 2026  
 **Branch:** `main`  
 **Test Command:** `venv\Scripts\python.exe manage.py test -v 1`  
-**Latest Verified Result:** `Ran 115 tests in 115.399s` — **`OK`** (`System check identified no issues (0 silenced).`)
+**Latest Verified Result:** `Ran 190 tests in 165.377s` — **`OK`** (`System check identified no issues (0 silenced).`)
 
 ---
 
@@ -36,8 +36,15 @@ All 8 test modules are kept lightweight and focused on meaningful **Functional**
 | **VS-05** Student Profile Boundary | Pass (FR-03, NFR-01) | Pass (`accounts/tests.py`) | Pass (Own-record isolation, no roommate exposure) | Pass | Pending full VS-09–VS-20 |
 | **VS-06** Hostel Information | Pass (FR-12, AC-12.1–12.6) | Pass (`hostel/test_hostel_info.py`) | Pass (Warden CRUD, student read-only) | Pass | Pending full VS-09–VS-20 |
 | **VS-07** Feedback & Summary | Pass (FR-15, BR-11, OQ-19) | Pass (`operations/tests.py`) | Pass (Immutable & non-deletable `Feedback`) | Pass | Pending full VS-09–VS-20 |
-| **VS-08** Shared Local File Storage | Pass (FR-04/07, C-02, ADR-004) | Pass (`operations/test_file_storage.py`) | Pass (Local `PRIVATE_UPLOAD_ROOT`, no cloud storage) | Pass | Pending full VS-09–VS-20 |
-| **VS-09–VS-20** Remaining Slices | Scheduled | Not Started | Not Started | Not Started | Gate 5 opens after VS-20 |
+| **VS-08** Shared Local File Storage | Pass (FR-04/07, C-02, ADR-004) | Pass (`operations/test_file_storage.py`) | Pass (Local `PRIVATE_UPLOAD_ROOT`, no cloud storage) | Pass | Pending VS-16–VS-20 |
+| **VS-09** Payment-Proof Submission | Pass (FR-04, C-01/02) | Pass (`finance/test_payment_proofs.py`) | Pass (Uses VS-08, no payment gateway) | Pass | Pending VS-16–VS-20 |
+| **VS-10** Student Complaints | Pass (FR-07, C-02) | Pass (`operations/test_warden_complaints.py`) | Pass (8 categories, optional VS-08 attachment) | Pass | Pending VS-16–VS-20 |
+| **VS-11** Room & Swap Requests | Pass (FR-10, BR-06) | Pass (`hostel` tests) | Pass (Two-step swap, capacity check) | Pass | Pending VS-16–VS-20 |
+| **VS-12** Payment Verification | Pass (FR-05, NFR-02) | Pass (`finance` tests) | Pass (Atomic ledger update, remark on reject) | Pass | Pending VS-16–VS-20 |
+| **VS-13** Warden Complaint Mgmt | Pass (FR-08, BR-04) | Pass (`operations/test_warden_complaints.py`) | Pass (Submitted→In Progress→Resolved) | Pass | Pending VS-16–VS-20 |
+| **VS-14** Warden Feedback Summary | Pass (FR-15, AC-15.4) | Pass (`operations/tests.py`) | Pass (1–5 star aggregation) | Pass | Pending VS-16–VS-20 |
+| **VS-15** Temporary Leave Requests | Pass (FR-17, BR-12, OQ-30) | Pass (`operations/test_leave_requests.py`) | Pass (Active/room/login untouched on decide) | Pass (`test_cycle5_integration.py`) | Pending VS-16–VS-20 |
+| **VS-16–VS-20** Remaining Slices | Scheduled | Not Started | Not Started | Not Started | Gate 5 opens after VS-20 |
 
 ---
 

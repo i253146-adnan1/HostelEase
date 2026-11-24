@@ -49,7 +49,7 @@
                     <a href="{% url 'finance:list' %}" class="btn btn-outline-primary btn-sm">Fees &amp; Payments</a>
                     <a href="{% url 'finance:pending_payments' %}" class="btn btn-outline-primary btn-sm">Pending Payment Proofs</a>
                     <a href="{% url 'operations:warden_complaint_list' %}" class="btn btn-outline-primary btn-sm">Complaints</a>
-                    <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Leave Requests (Coming Soon)</a>
+                    <a href="{% url 'operations:warden_leave_requests' %}" class="btn btn-outline-primary btn-sm">Leave Requests</a>
                     <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Visitor Log (Coming Soon)</a>
                     <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Meal Opt-Outs (Coming Soon)</a>
                     <a href="{% url 'operations:warden_feedback_summary' %}" class="btn btn-outline-primary btn-sm">Feedback Summary</a>

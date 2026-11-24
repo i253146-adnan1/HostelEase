@@ -69,7 +69,7 @@
             <div class="card-body">
                 <h5 class="card-title">Complaints</h5>
                 <p class="card-text text-muted small">Submit and track your hostel maintenance complaints.</p>
-                <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Open Complaints</a>
+                <a href="{% url 'operations:complaint_list' %}" class="btn btn-outline-primary btn-sm">Open Complaints</a>
             </div>
         </div>
     </div>
@@ -90,7 +90,7 @@
             <div class="card-body">
                 <h5 class="card-title">Leave Requests</h5>
                 <p class="card-text text-muted small">Submit and monitor your hostel leave requests.</p>
-                <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Open Leave Requests</a>
+                <a href="{% url 'operations:student_leave_requests' %}" class="btn btn-outline-primary btn-sm">Open Leave Requests</a>
             </div>
         </div>
     </div>

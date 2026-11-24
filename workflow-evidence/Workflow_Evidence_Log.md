@@ -13,5 +13,12 @@ See [TEST_REPORT.md](TEST_REPORT.md) for the consolidated Quality Gates (Gates 1
 | VS-06 Hostel Information | FR-12, AC-12.1–12.6 | Muhammad Fahad Basharat | AFK | `hostel/test_hostel_info.py` pass | Accepted | v02 |
 | VS-07 Feedback & Summary | FR-15, BR-11, BR-05 | Safiullah | HITL + AFK | `operations/tests.py` pass (see `VS-07.md`) | Accepted | v04 |
 | VS-08 Shared Local File Storage | FR-04/07, C-02, NFR-01, ADR-004 | Adnanullah | HITL + AFK | `operations/test_file_storage.py` pass (see `VS-08.md`) | Accepted | v04 |
+| VS-09 Student Payment-Proof Submission | FR-04, BR-02/03, C-01/02 | Adnanullah | HITL + AFK | `finance/test_payment_proofs.py` pass (see `VS-09.md`) | Accepted | v05 |
+| VS-10 Student Complaint Submission | FR-07, AC-07.1–07.4 | Farmanullah | AFK | `operations/test_warden_complaints.py` pass | Accepted | v05 |
+| VS-11 Room & Swap Requests | FR-10, BR-06 | Muhammad Fahad Basharat | HITL + AFK | `hostel` room request tests pass (see `VS-11.md`) | Accepted | v05 |
+| VS-12 Warden Payment Verification/Rejection | FR-05, NFR-02, BR-03 | Safiullah | HITL + AFK | `finance` verification tests pass (see `VS-12.md`) | Accepted | v05 |
+| VS-13 Warden Complaint Management | FR-08, AC-08.1, BR-04 | Farmanullah | HITL + AFK | `operations/test_warden_complaints.py` pass | Accepted | v05 |
+| VS-14 Warden Feedback Summary | FR-15, AC-15.4 | Safiullah | AFK | `operations/tests.py` pass (see `VS-07.md`) | Accepted | v05 |
+| VS-15 Temporary Leave Requests | FR-17, BR-12, OQ-30 | Muhammad Fahad Basharat | HITL + AFK | `operations/test_leave_requests.py` & `test_cycle5_integration.py` pass (see `VS-15.md`) | Accepted | v05 |
 
-**Latest Full Suite Verification (22 Nov 2026):** `venv\Scripts\python.exe manage.py test -v 1` → `Ran 115 tests in 115.399s — OK`.
+**Latest Full Suite Verification (24 Nov 2026):** `venv\Scripts\python.exe manage.py test -v 1` → `Ran 190 tests in 165.377s — OK`.

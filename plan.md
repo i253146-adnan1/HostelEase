@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v04 — Cycle 3 integrated and verified  
+**Plan version:** v05 — Cycle 4 & Cycle 5 integrated and verified  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -995,6 +995,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v02 | 21 Nov 2026 | Slices VS-00, VS-01, VS-04, VS-06, and VS-02 implemented and accepted; test coverage updated | Implementation progress and workflow evidence | Team |
 | v03 | 22 Nov 2026 | Cycle 2 integration complete: VS-03 merged & accepted; restored VS-04 finance routes & VS-06 hostel-info routes/views/tests; synced hostel migrations & warden dashboard links | All unit, integration, and Cycle 2 E2E tests passing | Team |
 | v04 | 22 Nov 2026 | Cycle 3 complete: VS-05 (Student Profile), VS-07 (Feedback), and VS-08 (Shared Local File Storage) implemented, integrated, and accepted | `operations` 20 tests OK + full suite verified | Team |
+| v05 | 24 Nov 2026 | Cycle 4 (VS-09–VS-12) & Cycle 5 (VS-13–VS-15) integrated and verified; dashboard links wired for Complaints & Leave Requests | 190 tests OK + Cycle 5 integration tests passing | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1118,6 +1119,11 @@ The final report must cover:
 | VS-11 | Room-change and two-step room-swap requests (Accepted 2026-11-22) | Muhammad Fahad Basharat | Accepted |
 | VS-09 | Student payment proof submission and fee/proof view (Accepted 2026-11-23) | Adnanullah | Accepted |
 | VS-12 | Warden payment verification/rejection with atomic ledger update (Accepted 2026-11-23) | Safiullah | Accepted |
+| VS-10 | Student complaint submission and status view | Farmanullah | Accepted |
+| VS-13 | Warden complaint management | Farmanullah | Accepted |
+| VS-14 | Warden feedback summary | Safiullah | Accepted |
+| VS-15 | Student temporary leave request and warden decision | Muhammad Fahad Basharat | Accepted |
+| Remaining (VS-16 to VS-20) | Cycle 6 & Cycle 7 slices | Designated leads | Scheduled / Not Started |
 | VS-14 | Warden feedback rating summary (implemented with VS-07) | Safiullah | Accepted |
 | VS-15 | Student temporary leave request and warden decision (Accepted 2026-11-23) | Muhammad Fahad Basharat | Accepted |
 | Remaining (VS-05, VS-08, VS-10, VS-13, VS-16 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
