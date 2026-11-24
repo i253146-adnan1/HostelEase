@@ -18,4 +18,12 @@ urlpatterns = [
     path('complaints/', views.student_complaint_list, name='complaint_list'),
     path('complaints/submit/', views.student_complaint_submit, name='complaint_submit'),
     path('complaints/<int:complaint_id>/', views.student_complaint_detail, name='complaint_detail'),
+
+    # Student temporary leave requests (VS-15, FR-17, BR-12, OQ-30)
+    path('leave-requests/', views.student_leave_requests, name='student_leave_requests'),
+    path('leave-requests/new/', views.student_leave_request_create, name='student_leave_request_create'),
+
+    # Warden leave request review queue (VS-15, FR-17, AC-17.4)
+    path('warden/leave-requests/', views.warden_leave_requests, name='warden_leave_requests'),
+    path('warden/leave-requests/<int:request_id>/decide/', views.warden_decide_leave_request, name='warden_decide_leave_request'),
 ]

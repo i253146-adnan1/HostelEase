@@ -1,14 +1,17 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.dateparse import parse_date
+from django.views.decorators.http import require_GET, require_POST
 
 from accounts.guards import login_required_guard, student_required, warden_required
-from . import feedback_service, file_storage
+from hostel.student_service import StudentService
+from . import feedback_service, file_storage, leave_service
 from .complaint_form import ComplaintForm
 from .complaint_service import ComplaintService
 from .feedback_service import FeedbackError
-from .models import Complaint, StoredFile
+from .models import Complaint, LeaveRequest, StoredFile
 
 
 @student_required
@@ -130,4 +133,94 @@ def student_complaint_detail(request, complaint_id):
     return render(request, 'operations/complaint_detail.html', {
         'complaint': complaint,
     })
+
+
+def _get_active_student_id(request):
+    """Resolve logged-in user to an Active Student.student_id via StudentService (VS-15)."""
+    candidate_id = getattr(request.user, 'student_id', None) or request.user.username
+    info = StudentService.validate_active_student(candidate_id)
+    if not info:
+        return None
+    return info['student_id']
+
+
+@student_required
+@require_GET
+def student_leave_requests(request):
+    """List only the logged-in student's own leave requests (FR-17, NFR-01)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    my_requests = leave_service.list_student_leave_requests(sid)
+    return render(request, 'operations/student_leave_requests.html', {
+        'requests': my_requests,
+    })
+
+
+@student_required
+def student_leave_request_create(request):
+    """Submit a temporary leave request for the logged-in active student (FR-17, AC-17.1-17.3)."""
+    sid = _get_active_student_id(request)
+    if not sid:
+        return HttpResponseForbidden('Active student record required.')
+
+    if request.method == 'POST':
+        raw_departure = request.POST.get('departure_date', '').strip()
+        raw_return = request.POST.get('return_date', '').strip()
+        reason = request.POST.get('reason', '')
+
+        departure_date = parse_date(raw_departure) if raw_departure else None
+        return_date = parse_date(raw_return) if raw_return else None
+
+        try:
+            if not departure_date or not return_date:
+                raise ValueError('Please enter valid departure and return dates.')
+            leave_service.submit_leave_request(sid, departure_date, return_date, reason)
+            messages.success(request, 'Leave request submitted and is now Pending.')
+            return redirect('operations:student_leave_requests')
+        except ValueError as exc:
+            messages.error(request, str(exc))
+
+    return render(request, 'operations/student_leave_request_form.html', {
+        'form_data': request.POST if request.method == 'POST' else {},
+    })
+
+
+@warden_required
+@require_GET
+def warden_leave_requests(request):
+    """Warden queue of PENDING leave requests and recent decisions (FR-17, AC-17.4)."""
+    pending_requests = leave_service.list_pending_leave_requests()
+    recent_history = leave_service.list_decided_leave_requests()[:20]
+    return render(request, 'operations/warden_leave_requests.html', {
+        'pending_requests': pending_requests,
+        'recent_history': recent_history,
+        'pending_count': leave_service.get_pending_count(),
+    })
+
+
+@warden_required
+@require_POST
+def warden_decide_leave_request(request, request_id):
+    """Warden approves or rejects a PENDING leave request (FR-17, AC-17.4, BR-12)."""
+    leave_req = get_object_or_404(LeaveRequest, pk=request_id)
+    action = request.POST.get('action', '').strip().lower()
+    remark = request.POST.get('remark', '')
+
+    if action not in ('approve', 'reject'):
+        messages.error(request, 'Invalid decision action.')
+        return redirect('operations:warden_leave_requests')
+
+    decision = 'APPROVE' if action == 'approve' else 'REJECT'
+    try:
+        leave_service.decide_leave_request(leave_req.pk, decision, remark=remark)
+        messages.success(
+            request,
+            f'Leave request #{leave_req.pk} {"approved" if action == "approve" else "rejected"}.',
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('operations:warden_leave_requests')
 

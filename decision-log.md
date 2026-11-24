@@ -36,3 +36,30 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
    - **EC-41 (Room becomes full before approval):** `decide_change_request()` locks the preferred `Room` with `select_for_update()` inside `@transaction.atomic` and re-checks `not room.is_full`, blocking approval cleanly if the room is now full.
    - **EC-43 (Assignment changes or capacity conflicts before swap takes effect):** `decide_swap()` re-validates both students as `Active` via `StudentService.validate_active_student()` and locks their active `RoomAssignment` rows with `select_for_update()` inside `@transaction.atomic`. If either student is no longer active, lacks an active `RoomAssignment`, or both are now in the same room, approval is blocked and aborted cleanly without modifying any assignments.
    - **EC-42 (Room removed while a request targeting it is Pending — Out of Scope / Still Open):** VS-03's `Room` model does not have a soft-delete/deactivation status field (`room_delete` performs `room.delete()`). `RoomRequest.preferred_room` uses `on_delete=models.PROTECT`, which prevents database-level deletion of a `Room` referenced by any `RoomRequest`, but full soft-removal/deactivation handling for `EC-42` remains out of scope for VS-11 and is still open under OQ-24.
+
+---
+
+## Log 27 — One Open Leave Request per Student & No Student Cancellation (Resolves OQ-30)
+
+- **Date:** 2026-11-23
+- **Slice:** VS-15 (Student Temporary Leave Request and Warden Decision)
+- **Lead:** Muhammad Fahad Basharat
+- **Related PRD items:** OQ-30, FR-17, BR-05, BR-12, F-08, EC-47, EC-48, AC-17.1–AC-17.4, ADR-005
+- **Status:** Adopted for implementation (cancellation scope flagged for client/TA confirmation)
+
+### Context
+- **OQ-30:** Is only one open leave request allowed per student, like room requests?
+- **EC-48 / AC-17.3:** Student already has a `Pending` or `Approved` leave request.
+- **AGENTS.md & plan.md:** `AGENTS.md` already instructs enforcing one open (`Pending`/`Approved`) leave request per student unless `OQ-30` is resolved otherwise, and `plan.md` records that the team selected this behaviour.
+- **Scope check (AC-17.1–AC-17.4 vs VS-11):** Unlike Room Requests in VS-11 (`AC-10.3`), `AC-17.1–AC-17.4` do not describe any student-initiated cancellation or withdrawal of a leave request.
+
+### Decision
+1. **One Open Leave Request per Student (Resolves OQ-30):**
+   - One open leave request per student is enforced, where open means status `Pending` or `Approved` — this aligns `AGENTS.md`'s existing instruction with PRD `OQ-30` and closes it formally.
+   - A student with an existing `PENDING` or `APPROVED` `LeaveRequest` cannot submit another (`EC-48` / `AC-17.3`). A student with only `REJECTED` history may submit a new leave request.
+2. **No Student-Initiated Cancel Action (Flagged for Client/TA Confirmation):**
+   - `AC-17.1–AC-17.4` do not describe any student-initiated cancellation/withdrawal of a leave request (unlike Room Requests in VS-11). Therefore this slice does **not** implement a cancel action for leave requests.
+   - **Flagged for Client/TA:** Worth raising with the client/TA if a student-initiated cancel capability is later wanted (for example, cancelling a `PENDING` or `APPROVED` leave request before departure).
+3. **No Side Effects on Student Status, Room, or Login (BR-12 / AC-17.4) & Record Retention (BR-05):**
+   - Warden approval or rejection updates only the `LeaveRequest` record (`status`, `warden_remark`, `decided_by_warden_at`) and never modifies `Student.status`, `RoomAssignment`, or `User`/session access.
+   - Leave request records are never hard-deleted (`BR-05`).

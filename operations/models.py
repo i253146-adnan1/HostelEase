@@ -127,3 +127,43 @@ class Complaint(models.Model):
     def __str__(self):
         return f'{self.get_category_display()} — {self.student_user.username} — {self.status}'
 
+
+class LeaveRequest(models.Model):
+    """Student temporary leave request entity (VS-15, FR-17, BR-05, BR-12, OQ-30).
+
+    Module Boundary: References Student.student_id as a logical string (no cross-module FK).
+    """
+
+    STATUS_PENDING = 'PENDING'
+    STATUS_APPROVED = 'APPROVED'
+    STATUS_REJECTED = 'REJECTED'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+
+    student_id = models.CharField(max_length=50, db_index=True)
+    departure_date = models.DateField()
+    return_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        db_index=True,
+    )
+    warden_remark = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    decided_by_warden_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at', '-id']
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Leave request records cannot be hard-deleted (BR-05).')
+
+    def __str__(self):
+        return f'LeaveRequest #{self.pk} ({self.student_id}: {self.departure_date} to {self.return_date} - {self.status})'
+
