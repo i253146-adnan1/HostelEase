@@ -167,3 +167,31 @@ class LeaveRequest(models.Model):
     def __str__(self):
         return f'LeaveRequest #{self.pk} ({self.student_id}: {self.departure_date} to {self.return_date} - {self.status})'
 
+
+class VisitorLogEntry(models.Model):
+    """Warden-only visitor log entry (VS-17, FR-18, BR-13, BR-05, OQ-32).
+
+    Module Boundary:
+    - References Student.student_id as a logical CharField (no cross-module FK).
+    - Warden-only visibility; zero student-facing routes or APIs (BR-13).
+    """
+
+    visitor_name = models.CharField(max_length=150)
+    student_id = models.CharField(max_length=50, db_index=True)
+    purpose = models.CharField(max_length=255)
+    check_in_time = models.DateTimeField()
+    check_out_time = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-check_in_time', '-created_at', '-id']
+
+    def delete(self, *args, **kwargs):
+        # Conservative OQ-32 default under BR-05: retain visitor-log entries
+        # pending client/TA confirmation of a retention policy (not a permanent decision).
+        raise PermissionError('Visitor log entries cannot be hard-deleted (OQ-32 / BR-05 default).')
+
+    def __str__(self):
+        return f'{self.visitor_name} visiting {self.student_id} ({self.check_in_time:%Y-%m-%d %H:%M})'
+

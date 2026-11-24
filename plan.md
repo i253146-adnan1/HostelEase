@@ -1120,7 +1120,8 @@ The final report must cover:
 | VS-12 | Warden payment verification/rejection with atomic ledger update (Accepted 2026-11-23) | Safiullah | Accepted |
 | VS-14 | Warden feedback rating summary (implemented with VS-07) | Safiullah | Accepted |
 | VS-15 | Student temporary leave request and warden decision (Accepted 2026-11-23) | Muhammad Fahad Basharat | Accepted |
-| Remaining (VS-05, VS-08, VS-10, VS-13, VS-16 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
+| VS-17 | Warden visitor log (Accepted 2026-11-24) | Muhammad Fahad Basharat | Accepted |
+| Remaining (VS-05, VS-08, VS-10, VS-13, VS-16, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |
 |---|---|
