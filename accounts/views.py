@@ -13,11 +13,80 @@ from .models import StudentProfile
 
 
 def _get_own_student_profile(user):
-    """Return the StudentProfile belonging to the given user, or None."""
+    """Return the StudentProfile belonging to the given user, or fallback to hostel.Student."""
+    profile = StudentProfile.objects.filter(user=user).first()
+    if profile is not None:
+        return profile
     try:
-        return StudentProfile.objects.get(user=user)
-    except StudentProfile.DoesNotExist:
+        from hostel import room_service, student_service
+        from hostel.models import Student
+
+        student = Student.objects.filter(user_id=user.pk).first()
+        if student is None:
+            student = student_service.get_student_by_id(getattr(user, 'student_id', None) or user.username)
+        if student is None:
+            return None
+        room = room_service.get_student_room(student.student_id)
+        return {
+            'full_name': student.full_name,
+            'student_id': student.student_id,
+            'contact_number': student.contact_number,
+            'guardian_name': student.guardian_name,
+            'guardian_contact': student.guardian_contact_number,
+            'room_number': room['room_number'] if room else '',
+            'status': student.status,
+            'is_active': student.status == Student.STATUS_ACTIVE,
+        }
+    except ImportError:
         return None
+
+
+def _get_student_home_summary(user):
+    """Aggregate consolidated own-record summary for VS-20 student home (read-only via services)."""
+    summary = {
+        'ledger': None,
+        'pending_proofs': 0,
+        'open_complaints': 0,
+        'open_leave_status': None,
+        'active_optouts': 0,
+        'pending_room_requests': 0,
+    }
+    student_id = getattr(user, 'student_id', None) or user.username
+
+    try:
+        from hostel import student_service
+        from hostel.models import RoomRequest, Student
+        from finance import services as finance_services
+
+        student = Student.objects.filter(user_id=user.pk).first() or student_service.get_student_by_id(student_id)
+        if student is not None:
+            summary['ledger'] = finance_services.get_ledger(student.pk)
+            payments = finance_services.list_student_payments(student.pk)
+            summary['pending_proofs'] = sum(1 for p in payments if p.status == 'Pending')
+        summary['pending_room_requests'] = RoomRequest.objects.filter(
+            student_id=student_id,
+            status__in=['PENDING_WARDEN', 'AWAITING_PEER'],
+        ).count()
+    except ImportError:
+        pass
+
+    try:
+        from operations import leave_service, meal_service
+        from operations.complaint_service import ComplaintService
+
+        complaints = ComplaintService.get_student_complaints(user)
+        summary['open_complaints'] = sum(1 for c in complaints if c.status in ('Submitted', 'In Progress'))
+
+        leaves = leave_service.list_student_leave_requests(student_id)
+        open_leave = next((l for l in leaves if l.status in ('PENDING', 'APPROVED')), None)
+        summary['open_leave_status'] = open_leave.get_status_display() if open_leave else None
+
+        opt_outs = meal_service.list_student_opt_outs(student_id)
+        summary['active_optouts'] = sum(1 for o in opt_outs if o.status == 'Active')
+    except ImportError:
+        pass
+
+    return summary
 
 
 def login_view(request):
@@ -71,7 +140,12 @@ def dashboard_view(request):
         )
     if request.user.role == 'student':
         profile = _get_own_student_profile(request.user)
-        return render(request, 'accounts/student_dashboard.html', {'profile': profile})
+        home_summary = _get_student_home_summary(request.user)
+        return render(
+            request,
+            'accounts/student_dashboard.html',
+            {'profile': profile, 'home_summary': home_summary},
+        )
     return HttpResponseForbidden('Invalid user role.')
 
 
@@ -79,7 +153,12 @@ def dashboard_view(request):
 def student_dashboard(request):
     """Render the student dashboard scoped strictly to the logged-in student."""
     profile = _get_own_student_profile(request.user)
-    return render(request, 'accounts/student_dashboard.html', {'profile': profile})
+    home_summary = _get_student_home_summary(request.user)
+    return render(
+        request,
+        'accounts/student_dashboard.html',
+        {'profile': profile, 'home_summary': home_summary},
+    )
 
 
 @student_required

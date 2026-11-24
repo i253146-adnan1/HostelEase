@@ -20,5 +20,10 @@ See [TEST_REPORT.md](TEST_REPORT.md) for the consolidated Quality Gates (Gates 1
 | VS-13 Warden Complaint Management | FR-08, AC-08.1, BR-04 | Farmanullah | HITL + AFK | `operations/test_warden_complaints.py` pass | Accepted | v05 |
 | VS-14 Warden Feedback Summary | FR-15, AC-15.4 | Safiullah | AFK | `operations/tests.py` pass (see `VS-07.md`) | Accepted | v05 |
 | VS-15 Temporary Leave Requests | FR-17, BR-12, OQ-30 | Muhammad Fahad Basharat | HITL + AFK | `operations/test_leave_requests.py` & `test_cycle5_integration.py` pass (see `VS-15.md`) | Accepted | v05 |
+| VS-16 Student Lifecycle | FR-13, BR-09 | Safiullah | HITL + AFK | `hostel/test_student_lifecycle.py` pass (see `VS-16.md`) | Accepted | v06 |
+| VS-17 Warden Visitor Log | FR-18, BR-13, OQ-32 | Muhammad Fahad Basharat | HITL + AFK | `operations` visitor tests pass | Accepted | v07 |
+| VS-18 Meal Opt-Outs | FR-19, EC-50/51, ADR-005 | Adnanullah | HITL + AFK | `operations/test_meal_optouts.py` pass (see `VS-18.md`) | Accepted | v07 |
+| VS-19 Warden Pending Dashboard | FR-14, ADR-005 | Farmanullah | HITL + AFK | `dashboard` tests pass | Accepted | v08 |
+| VS-20 Consolidated Student Home | FR-03–FR-19, NFR-01 | Adnanullah | HITL + AFK | `accounts/test_student_home_vs20.py` pass (see `VS-20.md`) | Accepted | v08 |
 
-**Latest Full Suite Verification (24 Nov 2026):** `venv\Scripts\python.exe manage.py test -v 1` → `Ran 190 tests in 165.377s — OK`.
+**Latest Full Suite Verification (24 Nov 2026):** `venv\Scripts\python.exe manage.py test --noinput -v 1` → `Ran 220 tests in 195.102s — OK`.

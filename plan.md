@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v07 — Cycle 6 VS-17 & VS-18 implemented and verified  
+**Plan version:** v08 — All 21 vertical slices (VS-00 to VS-20) integrated and verified  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -998,6 +998,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v05 | 24 Nov 2026 | Cycle 4 (VS-09–VS-12) & Cycle 5 (VS-13–VS-15) integrated and verified; dashboard links wired for Complaints & Leave Requests | 190 tests OK + Cycle 5 integration tests passing | Team |
 | v06 | 24 Nov 2026 | Cycle 6 VS-16 (Student Left/reactivation lifecycle) implemented, tested, and merged into main | `hostel.test_student_lifecycle` 5 tests OK | Team |
 | v07 | 24 Nov 2026 | Cycle 6 VS-17 (Visitor Log) & VS-18 (Meal Opt-Outs) implemented and verified on branch `vs-18` | `operations.test_meal_optouts` 7 tests OK | Team |
+| v08 | 24 Nov 2026 | Cycle 6 VS-19 (Warden Dashboard) & Cycle 7 VS-20 (Consolidated Student Home) integrated and verified; all 21 slices (VS-00–VS-20) accepted | Full suite: `Ran 220 tests in 195.102s — OK` | Team |
 
 ### 12.3 Plan-change triggers
 

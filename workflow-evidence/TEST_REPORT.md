@@ -2,8 +2,8 @@
 
 **Date:** 24 November 2026  
 **Branch:** `main`  
-**Test Command:** `venv\Scripts\python.exe manage.py test -v 1`  
-**Latest Verified Result:** `Ran 190 tests in 165.377s` — **`OK`** (`System check identified no issues (0 silenced).`)
+**Test Command:** `venv\Scripts\python.exe manage.py test --noinput -v 1`  
+**Latest Verified Result:** `Ran 220 tests in 195.102s` — **`OK`** (`System check identified no issues (0 silenced).`)
 
 ---
 
@@ -43,8 +43,12 @@ All 8 test modules are kept lightweight and focused on meaningful **Functional**
 | **VS-12** Payment Verification | Pass (FR-05, NFR-02) | Pass (`finance` tests) | Pass (Atomic ledger update, remark on reject) | Pass | Pending VS-16–VS-20 |
 | **VS-13** Warden Complaint Mgmt | Pass (FR-08, BR-04) | Pass (`operations/test_warden_complaints.py`) | Pass (Submitted→In Progress→Resolved) | Pass | Pending VS-16–VS-20 |
 | **VS-14** Warden Feedback Summary | Pass (FR-15, AC-15.4) | Pass (`operations/tests.py`) | Pass (1–5 star aggregation) | Pass | Pending VS-16–VS-20 |
-| **VS-15** Temporary Leave Requests | Pass (FR-17, BR-12, OQ-30) | Pass (`operations/test_leave_requests.py`) | Pass (Active/room/login untouched on decide) | Pass (`test_cycle5_integration.py`) | Pending VS-16–VS-20 |
-| **VS-16–VS-20** Remaining Slices | Scheduled | Not Started | Not Started | Not Started | Gate 5 opens after VS-20 |
+| **VS-15** Temporary Leave Requests | Pass (FR-17, BR-12, OQ-30) | Pass (`operations/test_leave_requests.py`) | Pass (Active/room/login untouched on decide) | Pass (`test_cycle5_integration.py`) | Pass |
+| **VS-16** Student Left/Reactivation | Pass (FR-13, BR-09) | Pass (`hostel/test_student_lifecycle.py`) | Pass (Login disabled, room cleared, history kept) | Pass | Pass |
+| **VS-17** Warden Visitor Log | Pass (FR-18, BR-13, OQ-32) | Pass (`operations` visitor tests) | Pass (Warden-only, zero student routes) | Pass | Pass |
+| **VS-18** Meal Opt-Outs | Pass (FR-19, EC-50/51, ADR-005) | Pass (`operations/test_meal_optouts.py`) | Pass (Future only, separate from dashboard) | Pass | Pass |
+| **VS-19** Warden Pending Dashboard | Pass (FR-14, NFR-01, ADR-005) | Pass (`dashboard` tests) | Pass (Read-only 4-module counts, meal opt-outs excluded) | Pass | Pass |
+| **VS-20** Consolidated Student Home | Pass (FR-03–FR-19, NFR-01) | Pass (`accounts/test_student_home_vs20.py`) | Pass (Own-record isolation, empty states, no visitor log) | Pass (220 tests OK) | Pass |
 
 ---
 

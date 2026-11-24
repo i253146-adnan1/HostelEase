@@ -54,6 +54,55 @@
 </div>
 {% endif %}
 
+{% if home_summary %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Remaining Fee</div>
+                {% if home_summary.ledger %}
+                    <div class="h5 mb-0">Rs. {{ home_summary.ledger.remaining_amount|floatformat:2 }}</div>
+                    {% if home_summary.ledger.excess_paid > 0 %}
+                        <div class="small text-info">Excess Paid: Rs. {{ home_summary.ledger.excess_paid|floatformat:2 }}</div>
+                    {% else %}
+                        <div class="small text-muted">Verified Paid: Rs. {{ home_summary.ledger.paid_amount|floatformat:2 }}</div>
+                    {% endif %}
+                {% else %}
+                    <div class="h6 text-muted mb-0">No fee record</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Pending Proofs &amp; Requests</div>
+                <div class="h5 mb-0">{{ home_summary.pending_proofs }} proof(s)</div>
+                <div class="small text-muted">{{ home_summary.pending_room_requests }} room request(s)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Open Complaints</div>
+                <div class="h5 mb-0">{{ home_summary.open_complaints }}</div>
+                <div class="small text-muted">Submitted / In Progress</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Leave &amp; Meal Opt-Outs</div>
+                <div class="h6 mb-0">Leave: {{ home_summary.open_leave_status|default:"None" }}</div>
+                <div class="small text-muted">Active Meal Opt-Outs: {{ home_summary.active_optouts }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row g-3">
     <div class="col-md-4">
         <div class="card h-100 shadow-sm">
