@@ -96,6 +96,11 @@ class StudentService:
     """Bridge interface for cross-module student lookups (AGENTS.md)."""
 
     @staticmethod
+    def student_exists(student_id: str) -> bool:
+        """Return True if a Student record with this student_id exists (any status)."""
+        return exists(student_id)
+
+    @staticmethod
     def validate_active_student(student_id: str) -> dict | None:
         return validate_active_student(student_id)
 

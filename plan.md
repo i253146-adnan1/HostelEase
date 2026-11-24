@@ -1123,12 +1123,10 @@ The final report must cover:
 | VS-10 | Student complaint submission and status view | Farmanullah | Accepted |
 | VS-13 | Warden complaint management | Farmanullah | Accepted |
 | VS-14 | Warden feedback summary | Safiullah | Accepted |
-| VS-15 | Student temporary leave request and warden decision | Muhammad Fahad Basharat | Accepted |
-| VS-16 | Student Left/reactivation lifecycle | Safiullah | Accepted |
-| Remaining (VS-17 to VS-20) | Cycle 6 & Cycle 7 slices | Designated leads | Scheduled / Not Started |
-| VS-14 | Warden feedback rating summary (implemented with VS-07) | Safiullah | Accepted |
 | VS-15 | Student temporary leave request and warden decision (Accepted 2026-11-23) | Muhammad Fahad Basharat | Accepted |
-| Remaining (VS-05, VS-08, VS-10, VS-13, VS-16 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
+| VS-16 | Student Left/reactivation lifecycle | Safiullah | Accepted |
+| VS-17 | Warden visitor log (Accepted 2026-11-24) | Muhammad Fahad Basharat | Accepted |
+| Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 
 | Status | Meaning |
 |---|---|

@@ -80,3 +80,23 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
 3. **No Side Effects on Student Status, Room, or Login (BR-12 / AC-17.4) & Record Retention (BR-05):**
    - Warden approval or rejection updates only the `LeaveRequest` record (`status`, `warden_remark`, `decided_by_warden_at`) and never modifies `Student.status`, `RoomAssignment`, or `User`/session access.
    - Leave request records are never hard-deleted (`BR-05`).
+
+---
+
+## Log 29 — Visitor-Log Retention & Student Existence Validation (Resolves OQ-32)
+
+- **Date:** 2026-11-24
+- **Slice:** VS-17 (Warden Visitor Log)
+- **Lead:** Muhammad Fahad Basharat
+- **Related PRD items:** OQ-32, FR-18, BR-05, BR-13, NFR-01, F-09, EC-49, AC-18.1–AC-18.4
+- **Status:** Adopted for implementation (flagged for client/TA confirmation)
+
+### Context
+- **OQ-32:** Are visitor log entries covered by the never-delete rule (BR-05), and is there a retention limit?
+- **FR-18 / AC-18.1–AC-18.4 / EC-49:** Require the referenced student ID to match an existing student record, without specifying whether the student must currently be `Active`.
+
+### Decision
+1. **Retention & No Delete (`OQ-32`):**
+   - Visitor-log entries are retained; no delete operation is offered in this slice. This is the conservative default under BR-05 pending a confirmed retention period — flagged for client/TA confirmation, not a final answer to how long entries are kept.
+2. **Student Existence-Only Validation (Additional Confirmation Point):**
+   - FR-18/AC-18.1–AC-18.4 require the referenced student to exist, but do not state the student must be `Active` (unlike VS-11's swap target or VS-15's leave requester). This slice validates student *existence* only, not `Active` status, since a visitor could plausibly be recorded against a student who has since been marked `Left`. Flagged for confirmation with the client/TA rather than silently assuming `Active`-only.

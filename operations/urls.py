@@ -31,4 +31,9 @@ urlpatterns = [
     # Warden leave request review queue (VS-15, FR-17, AC-17.4)
     path('warden/leave-requests/', views.warden_leave_requests, name='warden_leave_requests'),
     path('warden/leave-requests/<int:request_id>/decide/', views.warden_decide_leave_request, name='warden_decide_leave_request'),
+
+    # Warden-only Visitor Log (VS-17, FR-18, BR-13 — zero student-facing routes)
+    path('warden/visitors/', views.warden_visitor_log, name='warden_visitor_log'),
+    path('warden/visitors/create/', views.warden_visitor_create, name='warden_visitor_create'),
+    path('warden/visitors/<int:entry_id>/checkout/', views.warden_visitor_checkout, name='warden_visitor_checkout'),
 ]

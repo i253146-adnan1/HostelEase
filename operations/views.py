@@ -2,16 +2,17 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_datetime
 from django.views.decorators.http import require_GET, require_POST
 
 from accounts.guards import login_required_guard, student_required, warden_required
 from hostel.student_service import StudentService
-from . import feedback_service, file_storage, leave_service
+from . import feedback_service, file_storage, leave_service, visitor_service
 from .complaint_form import ComplaintForm
 from .complaint_service import ComplaintError, ComplaintService
 from .feedback_service import FeedbackError
 from .models import Complaint, LeaveRequest, StoredFile
+from .visitor_service import VisitorLogError
 
 
 @student_required
@@ -279,4 +280,80 @@ def warden_decide_leave_request(request, request_id):
         messages.error(request, str(exc))
 
     return redirect('operations:warden_leave_requests')
+
+
+def _parse_datetime_input(raw_value):
+    """Parse an HTML datetime-local or ISO-8601 string into a datetime, or None."""
+    text = str(raw_value or '').strip()
+    if not text:
+        return None
+    return parse_datetime(text)
+
+
+@warden_required
+def warden_visitor_log(request):
+    """Display the warden-only Visitor Log list and creation form (VS-17, FR-18, BR-13)."""
+    entries = visitor_service.list_visitor_entries()
+    return render(request, 'operations/warden_visitor_log.html', {
+        'entries': entries,
+        'form_data': {},
+    })
+
+
+@warden_required
+def warden_visitor_create(request):
+    """Create a new visitor log entry (warden-only; VS-17, FR-18, AC-18.1, AC-18.2, EC-49)."""
+    if request.method != 'POST':
+        return redirect('operations:warden_visitor_log')
+
+    visitor_name = request.POST.get('visitor_name', '')
+    student_id = request.POST.get('student_id', '')
+    purpose = request.POST.get('purpose', '')
+    raw_check_in = request.POST.get('check_in_time', '')
+    check_in_time = _parse_datetime_input(raw_check_in)
+
+    if raw_check_in.strip() and check_in_time is None:
+        messages.error(request, 'Invalid check-in date/time format.')
+        return render(request, 'operations/warden_visitor_log.html', {
+            'entries': visitor_service.list_visitor_entries(),
+            'form_data': request.POST,
+        })
+
+    try:
+        visitor_service.create_visitor_entry(
+            visitor_name=visitor_name,
+            student_id=student_id,
+            purpose=purpose,
+            check_in_time=check_in_time,
+        )
+        messages.success(request, 'Visitor log entry recorded successfully.')
+        return redirect('operations:warden_visitor_log')
+    except VisitorLogError as exc:
+        messages.error(request, str(exc))
+        return render(request, 'operations/warden_visitor_log.html', {
+            'entries': visitor_service.list_visitor_entries(),
+            'form_data': request.POST,
+        })
+
+
+@warden_required
+def warden_visitor_checkout(request, entry_id):
+    """Record check-out time for an existing visitor log entry (warden-only; VS-17, FR-18, AC-18.3)."""
+    if request.method != 'POST':
+        return redirect('operations:warden_visitor_log')
+
+    raw_check_out = request.POST.get('check_out_time', '')
+    check_out_time = _parse_datetime_input(raw_check_out)
+
+    if raw_check_out.strip() and check_out_time is None:
+        messages.error(request, 'Invalid check-out date/time format.')
+        return redirect('operations:warden_visitor_log')
+
+    try:
+        visitor_service.record_check_out(entry_id=entry_id, check_out_time=check_out_time)
+        messages.success(request, 'Visitor check-out time recorded.')
+    except VisitorLogError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('operations:warden_visitor_log')
 
