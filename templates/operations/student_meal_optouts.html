@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Meal Opt-Outs — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Meal Opt-Outs</h1>
+    <p class="text-muted mb-0">Opt out of upcoming mess meals or cancel before the meal date passes.</p>
+  </div>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:dashboard' %}">Back to Dashboard</a>
+</div>
+
+<div class="card shadow-sm mb-4" style="max-width: 540px;">
+  <div class="card-body">
+    <h2 class="h5 mb-3">New Meal Opt-Out</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label" for="id_meal_date">Meal Date *</label>
+        <input class="form-control" type="date" id="id_meal_date" name="meal_date" min="{{ today|date:'Y-m-d' }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_meal_type">Meal Type *</label>
+        <select class="form-select" id="id_meal_type" name="meal_type" required>
+          <option value="">-- Select Meal --</option>
+          {% for val, label in meal_choices %}
+            <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Opt Out</button>
+    </form>
+  </div>
+</div>
+
+<h2 class="h5 mb-2">My Meal Opt-Outs</h2>
+{% if opt_outs %}
+<div class="table-responsive bg-white rounded shadow-sm">
+  <table class="table table-striped mb-0 align-middle">
+    <thead>
+      <tr>
+        <th>Meal Date</th>
+        <th>Meal</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in opt_outs %}
+      <tr>
+        <td>{{ o.meal_date|date:"Y-m-d" }}</td>
+        <td>{{ o.meal_type }}</td>
+        <td>
+          {% if o.status == 'Active' %}<span class="badge bg-success">Active</span>
+          {% else %}<span class="badge bg-secondary">Cancelled</span>{% endif %}
+        </td>
+        <td>
+          {% if o.status == 'Active' and o.meal_date >= today %}
+            <form method="post" action="{% url 'operations:student_cancel_meal_optout' o.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
+            </form>
+          {% else %}
+            <span class="text-muted small">-</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">You have no meal opt-outs yet.</div>
+{% endif %}
+{% endblock %}
