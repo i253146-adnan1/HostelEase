@@ -195,3 +195,46 @@ class VisitorLogEntry(models.Model):
     def __str__(self):
         return f'{self.visitor_name} visiting {self.student_id} ({self.check_in_time:%Y-%m-%d %H:%M})'
 
+
+class MealOptOut(models.Model):
+    """Student meal opt-out record (VS-18, FR-19, BR-05, EC-50, EC-51, OQ-33)."""
+
+    MEAL_BREAKFAST = 'Breakfast'
+    MEAL_LUNCH = 'Lunch'
+    MEAL_DINNER = 'Dinner'
+    MEAL_CHOICES = [
+        (MEAL_BREAKFAST, 'Breakfast'),
+        (MEAL_LUNCH, 'Lunch'),
+        (MEAL_DINNER, 'Dinner'),
+    ]
+
+    STATUS_ACTIVE = 'Active'
+    STATUS_CANCELLED = 'Cancelled'
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_CANCELLED, 'Cancelled'),
+    ]
+
+    student_id = models.CharField(max_length=50, db_index=True)
+    meal_date = models.DateField(db_index=True)
+    meal_type = models.CharField(max_length=20, choices=MEAL_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ACTIVE, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-meal_date', 'meal_type', '-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student_id', 'meal_date', 'meal_type'],
+                condition=models.Q(status='Active'),
+                name='unique_active_meal_optout_per_student_date_meal',
+            )
+        ]
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Meal opt-out records cannot be hard-deleted (BR-05).')
+
+    def __str__(self):
+        return f'{self.student_id} — {self.meal_date} {self.meal_type} ({self.status})'
+

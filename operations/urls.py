@@ -36,4 +36,9 @@ urlpatterns = [
     path('warden/visitors/', views.warden_visitor_log, name='warden_visitor_log'),
     path('warden/visitors/create/', views.warden_visitor_create, name='warden_visitor_create'),
     path('warden/visitors/<int:entry_id>/checkout/', views.warden_visitor_checkout, name='warden_visitor_checkout'),
+
+    # Meal Opt-Outs (VS-18, FR-19)
+    path('meal-optouts/', views.student_meal_optouts, name='student_meal_optouts'),
+    path('meal-optouts/<int:opt_out_id>/cancel/', views.student_cancel_meal_optout, name='student_cancel_meal_optout'),
+    path('warden/meal-optouts/', views.warden_meal_optout_summary, name='warden_meal_optout_summary'),
 ]

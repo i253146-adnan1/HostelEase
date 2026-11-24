@@ -357,3 +357,66 @@ def warden_visitor_checkout(request, entry_id):
 
     return redirect('operations:warden_visitor_log')
 
+
+# --- Meal Opt-Outs (VS-18, FR-19, AC-19.1-AC-19.5) ---
+
+from django.utils import timezone as dj_timezone
+from . import meal_service
+from .meal_service import MealOptOutError
+from .models import MealOptOut
+
+
+@student_required
+def student_meal_optouts(request):
+    """Allow student to opt out of future meals and view/cancel own opt-outs."""
+    student_id = getattr(request.user, 'student_id', None) or request.user.username
+    if request.method == 'POST':
+        try:
+            meal_service.create_opt_out(
+                student_id=student_id,
+                meal_date=request.POST.get('meal_date', ''),
+                meal_type=request.POST.get('meal_type', ''),
+            )
+            messages.success(request, 'Meal opt-out saved.')
+            return redirect('operations:student_meal_optouts')
+        except MealOptOutError as exc:
+            messages.error(request, str(exc))
+
+    return render(request, 'operations/student_meal_optouts.html', {
+        'opt_outs': meal_service.list_student_opt_outs(student_id),
+        'meal_choices': MealOptOut.MEAL_CHOICES,
+        'today': dj_timezone.localdate(),
+    })
+
+
+@student_required
+@require_POST
+def student_cancel_meal_optout(request, opt_out_id):
+    """Cancel an Active opt-out owned by the logged-in student before meal date passes."""
+    student_id = getattr(request.user, 'student_id', None) or request.user.username
+    try:
+        meal_service.cancel_opt_out(opt_out_id=opt_out_id, student_id=student_id)
+        messages.success(request, 'Meal opt-out cancelled.')
+    except MealOptOutError as exc:
+        messages.error(request, str(exc))
+    return redirect('operations:student_meal_optouts')
+
+
+@warden_required
+def warden_meal_optout_summary(request):
+    """Warden-only meal opt-out count summary per date and meal type (AC-19.5)."""
+    filter_date = request.GET.get('date', '').strip()
+    summary_rows = []
+    if filter_date:
+        try:
+            summary_rows = meal_service.get_warden_opt_out_summary(filter_date=filter_date)
+        except MealOptOutError as exc:
+            messages.error(request, str(exc))
+    else:
+        summary_rows = meal_service.get_warden_opt_out_summary()
+
+    return render(request, 'operations/warden_meal_optout_summary.html', {
+        'summary_rows': summary_rows,
+        'filter_date': filter_date,
+    })
+
