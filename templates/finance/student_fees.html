@@ -3,12 +3,9 @@
 {% block title %}My Fees &amp; Payment Proofs — HostelEase{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="h3 mb-0">My Fees &amp; Payment Proofs</h1>
-    {% if student %}<p class="text-muted mb-0">{{ student.full_name }} ({{ student.student_id }})</p>{% endif %}
-  </div>
-  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:dashboard' %}">Back to Dashboard</a>
+<div class="mb-3">
+  <h1 class="h3 mb-0">My Fees &amp; Payment Proofs</h1>
+  {% if student %}<p class="text-muted mb-0">{{ student.full_name }} ({{ student.student_id }})</p>{% endif %}
 </div>
 
 {% if ledger %}
