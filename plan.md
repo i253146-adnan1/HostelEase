@@ -1149,7 +1149,7 @@ The final report must cover:
 | VS-16 | Student Left/reactivation lifecycle | Safiullah | Accepted |
 | VS-17 | Warden visitor log (Accepted 2026-11-24) | Muhammad Fahad Basharat | Accepted |
 | Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
-| VS-21 | UI Enhancement | Adnanullah | Planned / In Progress |
+| VS-21 | UI Enhancement | Adnanullah | Accepted |
 
 | Status | Meaning |
 |---|---|
