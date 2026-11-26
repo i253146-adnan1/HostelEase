@@ -3,15 +3,12 @@
 {% block title %}Warden Leave Requests — HostelEase{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-        <h1 class="h3 mb-1">Leave Request Queue</h1>
-        <p class="text-muted mb-0">
-            Review Pending student temporary leave requests.
-            <span class="badge bg-warning text-dark ms-1">{{ pending_count }} Pending</span>
-        </p>
-    </div>
-    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+<div class="mb-4">
+    <h1 class="h3 mb-1">Leave Request Queue</h1>
+    <p class="text-muted mb-0">
+        Review Pending student temporary leave requests.
+        <span class="badge bg-warning text-dark ms-1">{{ pending_count }} Pending</span>
+    </p>
 </div>
 
 <div class="card shadow-sm mb-4">
