@@ -9,6 +9,7 @@
         <p class="text-muted mb-0">Read-only view of your hostel record. Contact the warden for profile updates.</p>
     </div>
     <div class="d-flex gap-2">
+        <a href="{% url 'accounts:avatar_settings' %}" class="btn btn-outline-secondary btn-sm">Display Picture</a>
         <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary btn-sm">Change Password</a>
     </div>
 </div>

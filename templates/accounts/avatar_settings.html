@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Display Picture — HostelEase{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Profile / Display Picture</h1>
+        <p class="text-muted mb-0">Upload, update, or remove your profile avatar.</p>
+    </div>
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm bg-white">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold py-3">
+                <i class="bi bi-person-circle text-primary me-2"></i>Your Avatar
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-4 flex-wrap mb-4">
+                    <div id="avatarPreviewContainer" class="he-user-avatar" style="width:96px;height:96px;font-size:2rem;border:2px solid #cbd5e1;">
+                        {% if user.avatar %}
+                            <img id="avatarPreviewImg" src="{{ user.avatar.url }}" alt="{{ user.username }} avatar" class="he-user-avatar-img">
+                        {% else %}
+                            <span id="avatarPreviewInitials" class="he-user-avatar-initials">{{ user.username|slice:":1"|upper }}</span>
+                            <img id="avatarPreviewImg" src="" alt="{{ user.username }} avatar" class="he-user-avatar-img d-none">
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">{{ user.username }}</div>
+                        <div class="text-muted small text-capitalize">{{ user.role }} Account</div>
+                        <div class="text-muted small mt-1">Allowed formats: JPG/JPEG, PNG, WEBP &middot; Max size: 2 MB</div>
+                    </div>
+                </div>
+
+                <form method="post" action="{% url 'accounts:avatar_upload' %}" enctype="multipart/form-data" class="mb-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="avatarFileInput" class="form-label fw-semibold">Choose Display Picture</label>
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="avatarFileInput"
+                            name="avatar"
+                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                            required
+                        >
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>Save Photo
+                        </button>
+                    </div>
+                </form>
+
+                {% if user.avatar %}
+                <form method="post" action="{% url 'accounts:avatar_remove' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash me-1"></i>Remove Photo
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('avatarFileInput');
+    const previewImg = document.getElementById('avatarPreviewImg');
+    const previewInitials = document.getElementById('avatarPreviewInitials');
+    if (!fileInput || !previewImg) return;
+
+    fileInput.addEventListener('change', function (e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            previewImg.src = ev.target.result;
+            previewImg.classList.remove('d-none');
+            if (previewInitials) {
+                previewInitials.classList.add('d-none');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+{% endblock %}

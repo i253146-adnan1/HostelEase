@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -10,6 +11,7 @@ from dashboard.services import get_warden_pending_summary
 
 from .guards import login_required_guard, student_required
 from .models import StudentProfile
+from .services import remove_user_avatar, update_user_avatar
 
 
 def _get_own_student_profile(user):
@@ -196,3 +198,34 @@ def change_password_view(request):
         return redirect('accounts:dashboard')
 
     return render(request, 'accounts/change_password.html')
+
+
+@login_required_guard
+def avatar_settings_view(request):
+    """Render the Profile / Display Picture settings page for the logged-in user."""
+    return render(request, 'accounts/avatar_settings.html')
+
+
+@login_required_guard
+@require_POST
+def avatar_upload_view(request):
+    """Upload or replace the logged-in user's own display picture."""
+    try:
+        update_user_avatar(request.user, request.FILES.get('avatar'))
+    except ValidationError as exc:
+        messages.error(request, ' '.join(exc.messages))
+        return render(request, 'accounts/avatar_settings.html')
+
+    messages.success(request, 'Display picture updated successfully.')
+    return redirect('accounts:avatar_settings')
+
+
+@login_required_guard
+@require_POST
+def avatar_remove_view(request):
+    """Remove the logged-in user's own display picture."""
+    if remove_user_avatar(request.user):
+        messages.success(request, 'Display picture removed.')
+    else:
+        messages.info(request, 'No display picture to remove.')
+    return redirect('accounts:avatar_settings')
