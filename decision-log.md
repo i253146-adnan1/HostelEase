@@ -121,3 +121,29 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
    - All existing Django template context variables, form input `name` attributes, form `method`/`action` targets, and URL route names/paths must be preserved intact so that all existing backend handlers and automated tests continue to pass without modification.
 3. **Role-Based UI Visibility Preserved (`BR-07`, `BR-13`, `NFR-01`):**
    - Navigation bars, action buttons, and template sections must strictly preserve existing role-based UI visibility rules—students must never see warden-only controls, other students' records, or any visitor-log links or UI (`BR-13`).
+
+---
+
+## Log 31 — VS-22 User Display Picture (Profile Avatar) Architecture & Storage Decisions
+
+- **Date:** 2026-11-26
+- **Slice:** VS-22 (User Display Picture / Profile Avatar)
+- **Lead:** Adnanullah
+- **Related PRD items:** FR-20, AC-20.1–AC-20.4, NFR-01, ADR-003, ADR-004
+- **Status:** Adopted for implementation
+
+### Context
+- Following the integration of `VS-21` (UI Enhancement), `VS-22` is added to the project plan to allow any authenticated Student or Warden to upload, update, or remove their own profile display picture (DP), displaying circular avatar thumbnails in the navigation/dashboard UI with a clean fallback to user initials or a default icon when unset.
+
+### Decision
+1. **Local Filesystem Storage via `ImageField` (`ADR-004`):**
+   - Store user display pictures using Django's `ImageField` under `MEDIA_ROOT / avatars/` on the local filesystem, with the relative file path persisted in PostgreSQL. No cloud object storage is introduced (`ADR-004`).
+2. **Local Media Serving in `DEBUG` Mode:**
+   - Configure `MEDIA_URL` and `MEDIA_ROOT` in Django settings and serve `MEDIA_URL` via `django.conf.urls.static.static()` when `DEBUG = True` so uploaded avatars render cleanly in local development.
+3. **`Pillow` Dependency & File Validation:**
+   - Add `Pillow` to `requirements.txt` to enable Django `ImageField` image validation and handling.
+   - Restrict uploaded display pictures to `JPG/JPEG`, `PNG`, and `WEBP` formats with a maximum file size of `2 MB`.
+4. **Automatic File Cleanup on Replacement or Removal:**
+   - When a user uploads a new display picture to replace an existing one or explicitly removes their display picture, automatically delete the previous file from `MEDIA_ROOT / avatars/` so orphaned files do not accumulate on disk.
+5. **Strict Per-User Ownership & Authentication (`ADR-003`, `NFR-01`):**
+   - Protect all display picture upload, update, and removal endpoints with `@login_required` (redirecting unauthenticated requests with `302` to login) and scope all mutations strictly to `request.user` so no user can view-mutate or delete another user's display picture.

@@ -105,6 +105,7 @@ Each requirement lists its source (flow, edge cases, decision log row). Decision
 | FR-17 | The system shall allow a student to submit a temporary leave request (departure date, return date, reason), and the warden to approve or reject it; the student's Active status is unaffected. | F-08; EC-47, EC-48; TA feedback (D2 demo) |
 | FR-18 | The system shall allow the warden to record a visitor log entry (visitor name, student visited, purpose, check-in/check-out time); visible only to the warden. | F-09; EC-49; TA feedback (D2 demo) |
 | FR-19 | The system shall allow a student to opt out of a specific meal (breakfast/lunch/dinner) on a future date, cancel it before that date, and the warden to see opt-out counts per date and meal type. | F-10; EC-50, EC-51; TA feedback (D2 demo) |
+| FR-20 | The system shall allow any authenticated Student or Warden to upload, update, or remove their own profile display picture (JPG/JPEG, PNG, or WEBP, up to 2 MB), render circular avatar thumbnails in the navigation/dashboard UI with a clean fallback to initials/default icon when unset, and enforce strict per-user ownership and automatic file cleanup on replacement or removal. | VS-22; Log 31 |
 
 ## 8. Non-Functional Requirements
 
@@ -521,6 +522,12 @@ Every edge case describes a situation. The expected response is given by an acce
 - **AC-19.4** (FR-19, EC-51) **Given** an opt-out whose meal date has already passed, **When** the student tries to cancel it, **Then** the cancellation is not allowed.
 - **AC-19.5** (FR-19) **Given** saved opt-outs, **When** the warden opens the meal opt-out summary, **Then** the total count is shown per date and meal type.
 
+### FR-20 User display picture (profile avatar)
+- **AC-20.1** (FR-20) **Given** an authenticated Student or Warden, **When** they upload a valid image (`JPG/JPEG`, `PNG`, or `WEBP`, ≤ 2 MB) as their profile display picture, **Then** the avatar is saved under local media storage and rendered as a circular thumbnail in the navigation/dashboard UI.
+- **AC-20.2** (FR-20) **Given** an authenticated user uploading a profile display picture, **When** the file format is unsupported (not `JPG/JPEG`, `PNG`, or `WEBP`) or exceeds `2 MB`, **Then** the upload is rejected with a clear validation error and the existing avatar (if any) remains unchanged.
+- **AC-20.3** (FR-20) **Given** an authenticated user with an existing display picture, **When** they replace it with a new image or remove it, **Then** the previous avatar file is automatically deleted from local storage, and when no display picture is set the UI falls back cleanly to user initials or a default icon.
+- **AC-20.4** (FR-20, NFR-01) **Given** the profile display picture endpoints, **When** an unauthenticated user sends a request, **Then** the request is redirected (`302`) to the login page; and **When** an authenticated user uploads, updates, or removes a display picture, **Then** only their own account's display picture can be modified or deleted.
+
 ### Non-functional requirements
 - **AC-NFR-01** (NFR-01) Using a student account, every attempt to open another student's record, the visitor log, or a warden-only page, from the menu or by entering the page address, is denied.
 - **AC-NFR-02** (NFR-02) After each verification and each fee change, remaining equals the larger of (total minus verified payments) and zero, and any excess paid is shown as "Excess paid".
@@ -598,6 +605,7 @@ These are not decided. Do not treat them as requirements.
 | G-08 Review and decide student temporary leave requests | FR-17 |
 | G-09 Maintain a visitor log | FR-18 |
 | G-10 See meal opt-out counts for planning | FR-19 |
+| G-11 Personalize user profile with a display picture | FR-20 |
 
 **Need to acceptance criteria**
 
@@ -615,3 +623,4 @@ These are not decided. Do not treat them as requirements.
 | Manage temporary leave | Run administration from one place / students self-manage | FR-17 | AC-17.x |
 | Track visitors | Run administration from one place | FR-18 | AC-18.x |
 | Plan meals via opt-outs | Both | FR-19 | AC-19.x |
+| Personalize profile with display picture | Both | FR-20 | AC-20.x |

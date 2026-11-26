@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v09 — VS-00 to VS-20 integrated and verified; VS-21 (UI Enhancement) added as Planned / In Progress  
+**Plan version:** v10 — VS-00 to VS-21 integrated and verified; VS-22 (User Display Picture / Profile Avatar) added as Planned / In Progress  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -578,6 +578,23 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 - **Checks:** Full existing Django test suite passes without regressions; visual/template inspection across Student and Warden views; verification of preserved form `name` attributes, context variables, URLs, and role-based visibility boundaries.
 - **HITL:** HITL review of visual polish and regression test results.
 
+### VS-22 — User Display Picture (Profile Avatar)
+
+- **Priority:** P2
+- **Lead:** Adnanullah
+- **Scheduled date:** 26 November 2026
+- **Maximum duration:** 1 working day
+- **Requirements:** FR-20 (preserving NFR-01, BR-07, BR-13); AC-20.1–AC-20.4; ADR-003, ADR-004.
+- **Dependencies:** VS-01, VS-08, VS-21.
+- **Scope:** Allow any authenticated Student or Warden to upload, update, or remove their own profile display picture (DP), render circular avatar thumbnails in the navigation/dashboard UI with a clean fallback to user initials/default icon when unset, and enforce strict per-user ownership (`@login_required`) and file validation (`JPG/JPEG`, `PNG`, `WEBP`, ≤ 2 MB) with automatic local file cleanup on replacement or removal.
+- **Acceptance criteria:**
+  - Authenticated Student or Warden can upload or update their own profile display picture (`JPG/JPEG`, `PNG`, `WEBP`, ≤ 2 MB); unsupported formats or files exceeding 2 MB are rejected with clear validation feedback.
+  - Authenticated users can remove their own display picture; replaced or removed avatar files are automatically cleaned up from local storage (`MEDIA_ROOT/avatars/`).
+  - Circular avatar thumbnails render in the navigation/dashboard UI when a DP is set, falling back cleanly to user initials or a default icon when unset.
+  - Strict authorization is enforced: logged-in users can only modify or delete their own DP (`@login_required`), and unauthenticated requests are redirected (`302`) to login.
+- **Checks:** Automated unit and integration tests for format/size validation, upload/update/remove lifecycle, automatic local file cleanup, initials/default icon fallback rendering, and `@login_required` + per-user ownership boundaries.
+- **HITL:** HITL review of avatar rendering across Student and Warden UI, file cleanup behaviour, and regression test results.
+
 ---
 
 ## 6. Dependency map
@@ -608,6 +625,7 @@ flowchart TD
     T["VS-19 Dashboard"]
     U["VS-20 Student Views"]
     W["VS-21 UI Enhancement"]
+    X["VS-22 User Display Picture"]
     V["Integration + E2E Validation"]
 
     A --> B
@@ -655,7 +673,10 @@ flowchart TD
     S --> U
     T --> W
     U --> W
-    W --> V
+    B --> X
+    I --> X
+    W --> X
+    X --> V
     O --> V
     R --> V
 ```
@@ -1019,6 +1040,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v07 | 24 Nov 2026 | Cycle 6 VS-17 (Visitor Log) & VS-18 (Meal Opt-Outs) implemented and verified on branch `vs-18` | `operations.test_meal_optouts` 7 tests OK | Team |
 | v08 | 24 Nov 2026 | Cycle 6 VS-19 (Warden Dashboard) & Cycle 7 VS-20 (Consolidated Student Home) integrated and verified; all 21 slices (VS-00–VS-20) accepted | Full suite: `Ran 220 tests in 195.102s — OK` | Team |
 | v09 | 26 Nov 2026 | Added VS-21 (UI Enhancement) as Planned / In Progress for presentation-only visual polish, brand SVG logo update, and consistent action buttons | Post-integration UI polish scope documented in `PRD.md` (`NFR-05`, `AC-NFR-05`) and `decision-log.md` (`Log 30`) | Team |
+| v10 | 26 Nov 2026 | Added VS-22 (User Display Picture / Profile Avatar) as Planned / In Progress for per-user avatar upload, update, removal, and circular UI thumbnails with initials fallback | Profile avatar scope documented in `PRD.md` (`FR-20`, `AC-20.1–AC-20.4`) and `decision-log.md` (`Log 31`) | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1150,6 +1172,7 @@ The final report must cover:
 | VS-17 | Warden visitor log (Accepted 2026-11-24) | Muhammad Fahad Basharat | Accepted |
 | Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 | VS-21 | UI Enhancement | Adnanullah | Accepted |
+| VS-22 | User Display Picture (Profile Avatar) | Adnanullah | Planned / In Progress |
 
 | Status | Meaning |
 |---|---|
