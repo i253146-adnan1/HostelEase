@@ -100,3 +100,24 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
    - Visitor-log entries are retained; no delete operation is offered in this slice. This is the conservative default under BR-05 pending a confirmed retention period — flagged for client/TA confirmation, not a final answer to how long entries are kept.
 2. **Student Existence-Only Validation (Additional Confirmation Point):**
    - FR-18/AC-18.1–AC-18.4 require the referenced student to exist, but do not state the student must be `Active` (unlike VS-11's swap target or VS-15's leave requester). This slice validates student *existence* only, not `Active` status, since a visitor could plausibly be recorded against a student who has since been marked `Left`. Flagged for confirmation with the client/TA rather than silently assuming `Active`-only.
+
+---
+
+## Log 30 — VS-21 UI Enhancement & Presentation-Only Scope Boundaries
+
+- **Date:** 2026-11-26
+- **Slice:** VS-21 (UI Enhancement)
+- **Lead:** Adnanullah
+- **Related PRD items:** NFR-05, AC-NFR-05, NFR-01, BR-07, BR-13
+- **Status:** Adopted for implementation
+
+### Context
+- With `VS-00` through `VS-20` integrated and verified on `main`, a dedicated UI enhancement slice (`VS-21`) is added to unify visual polish across the application—updating the brand SVG logo, standardizing action buttons, and improving layout consistency across Student and Warden templates—without introducing functional regressions or altering module boundaries.
+
+### Decision
+1. **Presentation-Only Scope:**
+   - `VS-21` is strictly confined to presentation assets (HTML templates, CSS, and SVG). No Django models, views, service functions, URL patterns, or database migrations may be modified under this slice.
+2. **Contract Preservation:**
+   - All existing Django template context variables, form input `name` attributes, form `method`/`action` targets, and URL route names/paths must be preserved intact so that all existing backend handlers and automated tests continue to pass without modification.
+3. **Role-Based UI Visibility Preserved (`BR-07`, `BR-13`, `NFR-01`):**
+   - Navigation bars, action buttons, and template sections must strictly preserve existing role-based UI visibility rules—students must never see warden-only controls, other students' records, or any visitor-log links or UI (`BR-13`).

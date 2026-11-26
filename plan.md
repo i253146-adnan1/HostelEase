@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v08 — All 21 vertical slices (VS-00 to VS-20) integrated and verified  
+**Plan version:** v09 — VS-00 to VS-20 integrated and verified; VS-21 (UI Enhancement) added as Planned / In Progress  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -561,6 +561,23 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 - **Checks:** Student journey using two test accounts, object-level access tests, fee calculations and empty states.
 - **HITL:** HITL for end-to-end privacy and correctness; AFK may assist with layout refinements.
 
+### VS-21 — UI Enhancement
+
+- **Priority:** P2
+- **Lead:** Adnanullah
+- **Scheduled date:** 26 November 2026
+- **Maximum duration:** 1 working day
+- **Requirements:** NFR-05 (preserving NFR-01, BR-07, BR-13); AC-NFR-05.
+- **Dependencies:** VS-00 through VS-20 (all functional slices integrated).
+- **Scope:** Presentation-only UI/UX enhancement across shared base templates, public/auth pages, and Student and Warden templates: brand SVG logo update, consistent action buttons and visual hierarchy, and layout/visual polish. Must preserve all existing Django template context variables, form input `name` attributes, URLs/route names, and role-based UI visibility rules (`BR-07`, `BR-13`, `NFR-01`). No backend logic, models, views, or URL patterns are modified.
+- **Acceptance criteria:**
+  - Brand SVG logo is updated and rendered consistently across navigation/header templates.
+  - Action buttons, cards, tables, and form controls follow a consistent visual hierarchy across Student and Warden templates.
+  - All existing template context variables, form input `name` attributes, and URLs are preserved so existing workflows and tests pass unchanged.
+  - Role-based UI visibility rules (`BR-07`, `BR-13`, `NFR-01`) are strictly preserved (no warden-only or visitor-log UI exposed to students).
+- **Checks:** Full existing Django test suite passes without regressions; visual/template inspection across Student and Warden views; verification of preserved form `name` attributes, context variables, URLs, and role-based visibility boundaries.
+- **HITL:** HITL review of visual polish and regression test results.
+
 ---
 
 ## 6. Dependency map
@@ -590,6 +607,7 @@ flowchart TD
     S["VS-18 Meal Opt-outs"]
     T["VS-19 Dashboard"]
     U["VS-20 Student Views"]
+    W["VS-21 UI Enhancement"]
     V["Integration + E2E Validation"]
 
     A --> B
@@ -635,10 +653,11 @@ flowchart TD
     P --> U
     Q --> U
     S --> U
-    T --> V
+    T --> W
+    U --> W
+    W --> V
     O --> V
     R --> V
-    U --> V
 ```
 
 ### Interface-first parallel work
@@ -999,6 +1018,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v06 | 24 Nov 2026 | Cycle 6 VS-16 (Student Left/reactivation lifecycle) implemented, tested, and merged into main | `hostel.test_student_lifecycle` 5 tests OK | Team |
 | v07 | 24 Nov 2026 | Cycle 6 VS-17 (Visitor Log) & VS-18 (Meal Opt-Outs) implemented and verified on branch `vs-18` | `operations.test_meal_optouts` 7 tests OK | Team |
 | v08 | 24 Nov 2026 | Cycle 6 VS-19 (Warden Dashboard) & Cycle 7 VS-20 (Consolidated Student Home) integrated and verified; all 21 slices (VS-00–VS-20) accepted | Full suite: `Ran 220 tests in 195.102s — OK` | Team |
+| v09 | 26 Nov 2026 | Added VS-21 (UI Enhancement) as Planned / In Progress for presentation-only visual polish, brand SVG logo update, and consistent action buttons | Post-integration UI polish scope documented in `PRD.md` (`NFR-05`, `AC-NFR-05`) and `decision-log.md` (`Log 30`) | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1129,6 +1149,7 @@ The final report must cover:
 | VS-16 | Student Left/reactivation lifecycle | Safiullah | Accepted |
 | VS-17 | Warden visitor log (Accepted 2026-11-24) | Muhammad Fahad Basharat | Accepted |
 | Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
+| VS-21 | UI Enhancement | Adnanullah | Planned / In Progress |
 
 | Status | Meaning |
 |---|---|

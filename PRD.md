@@ -114,6 +114,7 @@ Each requirement lists its source (flow, edge cases, decision log row). Decision
 | NFR-02 | Fee consistency: after every payment verification and every total-fee change, remaining = the larger of (total fee minus verified payments) and zero, and any amount paid above the total is shown as "Excess paid". | Check the fee record after each verification and each fee change. |
 | NFR-03 | Usability (provisional, team target): with 2 first-time test users, each completes "register a student" and "verify a payment proof" without help in under 10 minutes. | Trial with 2 test users who have not used the system before. |
 | NFR-04 | Performance (provisional, team target): the login page, student fee page and warden dashboard show their content within 3 seconds, measured from request to visible content, on a normal broadband connection. | Timed check of the three pages. |
+| NFR-05 | UI/UX consistency and presentation integrity: shared branding (updated SVG logo), consistent action buttons, and coherent layout/visual polish across public, student, and warden templates without altering template context variables, form input `name` attributes, URLs, or role-based UI visibility rules (BR-07, BR-13, NFR-01). | Inspect rendered public, student, and warden pages for consistent SVG branding, button styling, and layout; verify all form `name` attributes, URLs, and role-based visibility boundaries remain intact and all existing tests pass. |
 
 NFR-03 and NFR-04 targets were set by the team; the client has not given them (see Assumptions and OQ-17). The rule that records are never deleted is stated once, in BR-05.
 
@@ -525,6 +526,7 @@ Every edge case describes a situation. The expected response is given by an acce
 - **AC-NFR-02** (NFR-02) After each verification and each fee change, remaining equals the larger of (total minus verified payments) and zero, and any excess paid is shown as "Excess paid".
 - **AC-NFR-03** (NFR-03) With 2 first-time test users, each completes "register a student" and "verify a payment proof" without help in under 10 minutes.
 - **AC-NFR-04** (NFR-04) The login page, student fee page and warden dashboard each show their content within 3 seconds, measured from request to visible content, on a normal broadband connection.
+- **AC-NFR-05** (NFR-05, BR-07, BR-13, NFR-01) All public, student, and warden pages render the updated brand SVG logo, consistent action buttons, and polished layout while preserving all template context variables, form input `name` attributes, URLs, and role-based UI visibility rules (no warden-only or visitor-log UI exposed to students).
 
 ---
 
@@ -609,6 +611,7 @@ These are not decided. Do not treat them as requirements.
 | Students see their own data | Students check status themselves | FR-02, FR-03, FR-15, NFR-01 | AC-02.x, AC-03.x, AC-15.x, AC-NFR-01 |
 | See pending work | Run administration from one place | FR-14 | AC-14.x |
 | Easy to use and responsive | Both | NFR-03, NFR-04 | AC-NFR-03, AC-NFR-04 |
+| Consistent, clear UI across roles | Both | NFR-05 | AC-NFR-05 |
 | Manage temporary leave | Run administration from one place / students self-manage | FR-17 | AC-17.x |
 | Track visitors | Run administration from one place | FR-18 | AC-18.x |
 | Plan meals via opt-outs | Both | FR-19 | AC-19.x |
