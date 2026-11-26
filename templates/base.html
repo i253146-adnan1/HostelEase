@@ -336,11 +336,78 @@
             background: #eff6ff;
             color: #1d4ed8;
             border: 1px solid #bfdbfe;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            padding: 0.25rem 0.7rem;
+            padding: 0.28rem 0.85rem;
             border-radius: 999px;
             text-transform: capitalize;
+        }
+
+        .he-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .he-user-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .he-user-role {
+            font-size: 0.74rem;
+            color: #64748b;
+            line-height: 1.2;
+            text-transform: capitalize;
+        }
+
+        .he-topbar-divider {
+            width: 1px;
+            height: 24px;
+            background: #cbd5e1;
+            margin: 0 0.25rem;
+        }
+
+        .he-pill-btn {
+            border-radius: 999px !important;
+            padding: 0.38rem 0.95rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .he-pill-dashboard {
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+        }
+
+        .he-pill-dashboard:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        .he-pill-logout {
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            background: #ffffff;
+        }
+
+        .he-pill-logout:hover {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -430,12 +497,24 @@
                 <a class="fw-bold text-dark text-decoration-none d-lg-none" href="{% url 'accounts:dashboard' %}">HostelEase</a>
                 <span class="he-role-pill d-none d-sm-inline-block">{{ user.role }}</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-muted small me-1 d-none d-md-inline"><i class="bi bi-person-circle me-1"></i>{{ user.username }} ({{ user.role }})</span>
-                <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid me-1"></i>Dashboard</a>
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-none d-md-flex align-items-center gap-2">
+                    <span class="he-user-avatar" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"/>
+                            <path d="M12 14C7.58172 14 4 16.6863 4 20C4 20.5523 4.44772 21 5 21H19C19.5523 21 20 20.5523 20 20C20 16.6863 16.4183 14 12 14Z"/>
+                        </svg>
+                    </span>
+                    <div class="d-flex flex-column">
+                        <span class="he-user-name">{{ user.username }}</span>
+                        <span class="he-user-role">{{ user.role }} Account</span>
+                    </div>
+                </div>
+                <span class="he-topbar-divider d-none d-md-inline-block"></span>
+                <a class="btn he-pill-btn he-pill-dashboard" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid"></i>Dashboard</a>
                 <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+                    <button type="submit" class="btn he-pill-btn he-pill-logout"><i class="bi bi-box-arrow-right"></i>Logout</button>
                 </form>
             </div>
         </header>
