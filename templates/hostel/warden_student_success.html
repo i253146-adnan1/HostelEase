@@ -24,8 +24,11 @@
                     </div>
                     <div class="row g-2 align-items-center mb-3">
                         <div class="col-sm-4 text-muted">Temporary Password:</div>
-                        <div class="col-sm-8">
-                            <span class="font-monospace fw-bold fs-5 text-primary bg-white px-2 py-1 border rounded">{{ temporary_password }}</span>
+                        <div class="col-sm-8 d-flex align-items-center gap-2 flex-wrap">
+                            <span id="student-temp-password" class="font-monospace fw-bold fs-5 text-primary bg-white px-2 py-1 border rounded">{{ temporary_password }}</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="navigator.clipboard.writeText('ID: {{ student.student_id|escapejs }} | Password: {{ temporary_password|escapejs }}'); this.textContent='Copied!';">
+                                <i class="bi bi-clipboard me-1"></i>Copy Credentials
+                            </button>
                         </div>
                     </div>
                     <div class="alert alert-info py-2 px-3 small mb-0">

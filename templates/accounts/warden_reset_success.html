@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Sub-Warden Password Reset — HostelEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 text-center">
+                <div class="text-success mb-3">
+                    <i class="bi bi-key-fill" style="font-size:2.8rem;"></i>
+                </div>
+                <h1 class="h4 fw-bold mb-2">Temporary Reset Password Generated</h1>
+                <p class="text-muted mb-4">Share this temporary password with <strong>{{ target_warden.username }}</strong>. It expires in 24 hours.</p>
+
+                <div class="card bg-light border-warning border-2 text-start p-4 mb-4">
+                    <div class="row g-2 mb-2">
+                        <div class="col-sm-4 text-muted">Sub-Warden ID:</div>
+                        <div class="col-sm-8"><span class="badge bg-dark fs-6">{{ target_warden.username }}</span></div>
+                    </div>
+                    <div class="row g-2 mb-2 align-items-center">
+                        <div class="col-sm-4 text-muted">Temporary Password:</div>
+                        <div class="col-sm-8 d-flex align-items-center gap-2 flex-wrap">
+                            <span id="reset-temp-password" class="font-monospace fw-bold fs-5 text-primary bg-white px-2 py-1 border rounded">{{ temporary_password }}</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="navigator.clipboard.writeText('Username: {{ target_warden.username|escapejs }} | Password: {{ temporary_password|escapejs }}'); this.textContent='Copied!';">
+                                <i class="bi bi-clipboard me-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-sm-4 text-muted">Expires At:</div>
+                        <div class="col-sm-8 small fw-semibold">{{ expires_at|date:"M d, Y H:i T" }}</div>
+                    </div>
+                </div>
+
+                <a href="{% url 'accounts:warden_list' %}" class="btn btn-primary">Back to Wardens Management</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

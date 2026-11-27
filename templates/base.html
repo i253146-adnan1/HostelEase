@@ -465,7 +465,10 @@
                 <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-house-door"></i> {{ warden_i18n.t.nav_dashboard|default:"Dashboard" }}</a>
 
                 <div class="he-nav-section">{{ warden_i18n.t.nav_residents_rooms|default:"Residents & Rooms" }}</div>
+                <a class="he-nav-link" href="{% url 'hostel:warden_student_create' %}"><i class="bi bi-person-plus"></i> {{ warden_i18n.t.add_student|default:"Add Student" }}</a>
                 <a class="he-nav-link" href="{% url 'hostel:warden_student_list' %}"><i class="bi bi-people"></i> {{ warden_i18n.t.nav_students|default:"Students" }}</a>
+                <a class="he-nav-link" href="{% url 'accounts:warden_create' %}"><i class="bi bi-shield-plus"></i> {{ warden_i18n.t.add_warden|default:"Add Warden" }}</a>
+                <a class="he-nav-link" href="{% url 'accounts:warden_list' %}"><i class="bi bi-person-badge"></i> {{ warden_i18n.t.wardens_management|default:"Wardens Management" }}</a>
                 <a class="he-nav-link" href="{% url 'hostel:room_list' %}"><i class="bi bi-door-open"></i> {{ warden_i18n.t.nav_rooms|default:"Rooms" }}</a>
                 <a class="he-nav-link" href="{% url 'hostel:warden_room_requests' %}"><i class="bi bi-arrow-left-right"></i> {{ warden_i18n.t.nav_room_requests|default:"Room Requests" }}</a>
 
@@ -505,6 +508,9 @@
             {% endif %}
         </div>
         <div class="he-sidebar-footer">
+            {% if user.role == 'warden' %}
+            <a class="he-nav-link mx-0" href="{% url 'accounts:warden_profile' %}"><i class="bi bi-person-vcard"></i> {{ warden_i18n.t.my_profile|default:"My Profile" }}</a>
+            {% endif %}
             <a class="he-nav-link mx-0" href="{% url 'accounts:avatar_settings' %}"><i class="bi bi-person-circle"></i> {{ warden_i18n.t.display_picture|default:"Display Picture" }}</a>
             <a class="he-nav-link mx-0" href="{% url 'accounts:change_password' %}"><i class="bi bi-key"></i> {{ warden_i18n.t.change_password|default:"Change Password" }}</a>
             <div class="he-tagline">Better Management.<br>Happier Students.</div>

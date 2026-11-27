@@ -12,6 +12,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--username', required=True, help='Username for the warden account.')
         parser.add_argument('--password', required=True, help='Password for the warden account.')
+        parser.add_argument('--email', default='', help='Email address for the warden account.')
+        parser.add_argument('--mobile', default='', help='Mobile number for the warden account.')
+        parser.add_argument('--name', default='', help='Full name for the warden account.')
+        parser.add_argument('--main', action='store_true', help='Mark as Main Warden.')
 
     def handle(self, *args, **options):
         username = options['username'].strip()
@@ -27,6 +31,10 @@ class Command(BaseCommand):
             username=username,
             password=password,
             role='warden',
+            full_name=options['name'].strip(),
+            email=options['email'].strip(),
+            mobile_number=options['mobile'].strip(),
+            is_main_warden=options['main'],
             is_staff=True,
             is_superuser=False,
         )

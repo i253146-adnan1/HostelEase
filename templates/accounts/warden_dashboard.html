@@ -26,6 +26,9 @@
                 <button type="submit" name="lang" value="en" class="btn {% if not warden_i18n.is_urdu %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">English</button>
                 <button type="submit" name="lang" value="ur" class="btn {% if warden_i18n.is_urdu %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">اردو</button>
             </form>
+            <a href="{% url 'accounts:warden_profile' %}" class="btn btn-outline-primary btn-sm bg-white">
+                <i class="bi bi-person-vcard me-1"></i>{{ warden_i18n.t.my_profile|default:"My Profile" }}
+            </a>
             <a href="{% url 'accounts:avatar_settings' %}" class="btn btn-outline-secondary btn-sm bg-white">
                 <i class="bi bi-person-circle me-1"></i>{{ warden_i18n.t.display_picture|default:"Display Picture" }}
             </a>
@@ -131,7 +134,10 @@
                 <h5 class="card-title fw-bold mb-1">{{ warden_i18n.t.students_rooms_title|default:"Students & Rooms" }}</h5>
                 <p class="card-text text-muted small mb-3">{{ warden_i18n.t.students_rooms_desc|default:"Manage student accounts, room capacity, and allocations." }}</p>
                 <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'hostel:warden_student_create' %}" class="he-action-pill"><i class="bi bi-person-plus text-success"></i>{{ warden_i18n.t.add_student|default:"Add Student" }}</a>
                     <a href="{% url 'hostel:warden_student_list' %}" class="he-action-pill"><i class="bi bi-people text-success"></i>{{ warden_i18n.t.student_management|default:"Student Management" }}</a>
+                    <a href="{% url 'accounts:warden_create' %}" class="he-action-pill"><i class="bi bi-shield-plus text-success"></i>{{ warden_i18n.t.add_warden|default:"Add Warden" }}</a>
+                    <a href="{% url 'accounts:warden_list' %}" class="he-action-pill"><i class="bi bi-person-badge text-success"></i>{{ warden_i18n.t.wardens_management|default:"Wardens Management" }}</a>
                     <a href="{% url 'hostel:room_list' %}" class="he-action-pill"><i class="bi bi-door-open text-success"></i>{{ warden_i18n.t.room_management|default:"Room Management" }}</a>
                     <a href="{% url 'hostel:warden_room_requests' %}" class="he-action-pill"><i class="bi bi-arrow-left-right text-success"></i>{{ warden_i18n.t.room_swap_requests|default:"Room & Swap Requests" }}</a>
                 </div>

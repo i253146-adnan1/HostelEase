@@ -1058,6 +1058,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v09 | 26 Nov 2026 | Added VS-21 (UI Enhancement) as Planned / In Progress for presentation-only visual polish, brand SVG logo update, and consistent action buttons | Post-integration UI polish scope documented in `PRD.md` (`NFR-05`, `AC-NFR-05`) and `decision-log.md` (`Log 30`) | Team |
 | v10 | 26 Nov 2026 | Added VS-22 (User Display Picture / Profile Avatar) as Planned / In Progress for per-user avatar upload, update, removal, and circular UI thumbnails with initials fallback | Profile avatar scope documented in `PRD.md` (`FR-20`, `AC-20.1–AC-20.4`) and `decision-log.md` (`Log 31`) | Team |
 | v11 | 27 Nov 2026 | Added VS-23 (Urdu Language Support on Warden Dashboard) as Not Started for presentation-only English/Urdu toggle, Urdu dashboard/nav labels, and RTL layout via server-side session preference | Post-VS-22 localization scope documented in `PRD.md` (`FR-21`, `AC-21.1–AC-21.3`, `G-12`), `architecture.md` (Section 12), `AGENTS.md`, and `decision-log.md` (`Log 32`) | Team |
+| v12 | 27 Nov 2026 | Auth & User Management Overhaul: Main Warden seed (`adnan`), sub-warden creation without session overwrite, Main Warden-only self-service Forgot Password, Main Warden sub-warden password reset with 24h expiry, and Warden Profile editing | `accounts/migrations/0004_*`, `accounts/management/commands/seed_main_warden.py`, `accounts/test_auth_overhaul.py` | Team |
 
 ### 12.3 Plan-change triggers
 

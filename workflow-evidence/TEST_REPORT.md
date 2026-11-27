@@ -49,7 +49,8 @@ All 8 test modules are kept lightweight and focused on meaningful **Functional**
 | **VS-18** Meal Opt-Outs | Pass (FR-19, EC-50/51, ADR-005) | Pass (`operations/test_meal_optouts.py`) | Pass (Future only, separate from dashboard) | Pass | Pass |
 | **VS-19** Warden Pending Dashboard | Pass (FR-14, NFR-01, ADR-005) | Pass (`dashboard` tests) | Pass (Read-only 4-module counts, meal opt-outs excluded) | Pass | Pass |
 | **VS-20** Consolidated Student Home | Pass (FR-03–FR-19, NFR-01) | Pass (`accounts/test_student_home_vs20.py`) | Pass (Own-record isolation, empty states, no visitor log) | Pass (220 tests OK) | Pass |
-| **VS-23** Urdu Language Support on Warden Dashboard | Pass (FR-21, AC-21.1–AC-21.3, ADR-001, ADR-003) | Pass (`dashboard.tests.WardenDashboardVS23Tests`) | Pass (`en`/`ur` session toggle, `dir="rtl"`, English fallback, warden-only access) | Pass (`dashboard` + `accounts`: 41 tests OK) | Pending HITL |
+| **VS-23** Urdu Language Support on Warden Dashboard | Pass (FR-21, AC-21.1–AC-21.3, ADR-001, ADR-003) | Pass (`dashboard.tests.WardenDashboardVS23Tests`) | Pass (`en`/`ur` session toggle, `dir="rtl"`, English fallback, warden-only access) | Pass (`dashboard` + `accounts`: 41 tests OK) | Accepted |
+| **Auth Overhaul** Main Warden Seed, Add Warden, Password Reset & Warden Profile | Pass (ADR-003, NFR-01) | Pass (`accounts/test_auth_overhaul.py`) | Pass (Main Warden `adnan` seed, no auto-login on Add Warden/Student, Main Warden-only Forgot Password, 24h sub-warden reset expiry, Warden Profile) | Pass (`accounts` + `dashboard` + `hostel`) | Accepted |
 
 ---
 
