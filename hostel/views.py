@@ -176,7 +176,9 @@ def warden_student_create(request):
                 temporary_password=request.POST.get('temporary_password', ''),
                 created_by=request.user.username,
             )
-            return render(request, 'hostel/warden_student_success.html', result)
+            context = {k: v for k, v in result.items() if k != 'user'}
+            context['created_user'] = result.get('user')
+            return render(request, 'hostel/warden_student_success.html', context)
         except student_service.StudentError as exc:
             messages.error(request, str(exc))
             return render(request, 'hostel/warden_student_create.html', {

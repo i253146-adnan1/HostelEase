@@ -212,6 +212,8 @@ def change_password_view(request):
         request.user.password_reset_expires_at = None
         request.user.save()
         update_session_auth_hash(request, request.user)
+        # Drain any stale forced-password-change warning before adding success message
+        list(messages.get_messages(request))
         messages.success(request, 'Your password has been updated successfully.')
         return redirect('accounts:dashboard')
 

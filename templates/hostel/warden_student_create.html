@@ -8,7 +8,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-1">Register New Student</h1>
-                <p class="text-muted mb-0">Create resident profile, auth credentials, room allocation, and initial fee record (FR-01).</p>
+                <p class="text-muted mb-0">Create resident profile, auth credentials, room allocation, and initial fee record.</p>
             </div>
             <a href="{% url 'hostel:warden_student_list' %}" class="btn btn-outline-secondary btn-sm">Back to Students</a>
         </div>
@@ -141,11 +141,11 @@
                                         {% if form_data.room|stringformat:"s" == r.id|stringformat:"s" or form_data.room == r.room_number %}selected{% endif %}
                                         {% if r.is_full %}class="text-danger"{% endif %}
                                     >
-                                        Room {{ r.room_number }} (Occupancy: {{ r.occupancy }}/{{ r.capacity }}{% if r.is_full %} — FULL{% else %} — {{ r.available_spots }} spots left{% endif %})
+                                        Room {{ r.room_number }} (Occupancy: {{ r.occupancy }}/{{ r.capacity }}{% if r.is_full %} — FULL{% else %} — {{ r.available_slots }} spots left{% endif %})
                                     </option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text">Rooms at full capacity will reject assignment (BR-06).</div>
+                            <div class="form-text">Rooms at full capacity will reject assignment.</div>
                         </div>
                     </div>
 
@@ -177,7 +177,7 @@
                                 name="opening_paid"
                                 value="{{ form_data.opening_paid|default:'0.00' }}"
                             >
-                            <div class="form-text">For advance / historical payments already verified (OQ-26).</div>
+                            <div class="form-text">For advance / historical payments already verified.</div>
                         </div>
                         <div class="col-12">
                             <label for="id_temporary_password" class="form-label">Temporary Password (Optional)</label>
@@ -189,7 +189,7 @@
                                 value="{{ form_data.temporary_password|default:'' }}"
                                 placeholder="Leave blank to auto-generate a secure temporary password"
                             >
-                            <div class="form-text">The temporary password will be displayed once on the next screen for you to hand over to the student. The student is required to change it upon first login (AC-02.4).</div>
+                            <div class="form-text">The temporary password will be displayed once on the next screen for you to hand over to the student. The student is required to change it upon first login.</div>
                         </div>
                     </div>
 

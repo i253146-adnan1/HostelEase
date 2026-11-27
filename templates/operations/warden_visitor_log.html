@@ -25,7 +25,7 @@
                                    id="id_visitor_name"
                                    name="visitor_name"
                                    value="{{ form_data.visitor_name|default:'' }}"
-                                   placeholder="e.g. Tariq Mahmood"
+                                   placeholder="Visitor full name"
                                    required>
                         </div>
                         <div class="col-md-3">
@@ -104,7 +104,7 @@
                                             {% if not entry.check_out_time %}
                                                 <form method="post"
                                                       action="{% url 'operations:warden_visitor_checkout' entry.pk %}"
-                                                      class="d-inline-flex align-items-center gap-2">
+                                                      class="d-inline-flex flex-wrap justify-content-end align-items-center gap-2">
                                                     {% csrf_token %}
                                                     <input type="datetime-local"
                                                            name="check_out_time"

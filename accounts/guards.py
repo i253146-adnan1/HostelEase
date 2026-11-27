@@ -3,8 +3,7 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponseForbidden
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 
@@ -63,7 +62,7 @@ def _role_required(required_role, forbidden_message):
         @wraps(view_func)
         def _wrapped(request, *args, **kwargs):
             if getattr(request.user, 'role', None) != required_role:
-                return HttpResponseForbidden(forbidden_message)
+                return render(request, '403.html', {'message': forbidden_message}, status=403)
             return view_func(request, *args, **kwargs)
 
         return _wrapped

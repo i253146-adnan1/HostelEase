@@ -29,7 +29,7 @@
                                 id="id_username"
                                 name="username"
                                 value="{{ username|default:'' }}"
-                                placeholder="e.g. warden or STU-101"
+                                placeholder="Username or Student ID"
                                 required
                                 autofocus
                             >
@@ -53,7 +53,7 @@
                         <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
                     </button>
                     <div class="text-center mt-3">
-                        <a href="{% url 'accounts:forgot_password' %}" class="small text-decoration-none">Forgot Password? (Main Warden Only)</a>
+                        <a href="{% url 'accounts:forgot_password' %}" class="small text-decoration-none d-inline-block">Forgot Password? (Main Warden Only)</a>
                     </div>
                 </form>
             </div>
