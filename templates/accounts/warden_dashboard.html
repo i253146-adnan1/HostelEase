@@ -8,14 +8,14 @@
         <div class="col-lg-7 d-flex align-items-center gap-3">
             <span class="he-user-avatar" style="width:52px;height:52px;font-size:1.2rem;border:2px solid #bfdbfe;">
                 {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" alt="{{ user.username }} avatar" class="he-user-avatar-img">
+                    <img src="{{ user.avatar.url }}" alt="{{ user.full_name|default:user.username }} avatar" class="he-user-avatar-img">
                 {% else %}
-                    <span class="he-user-avatar-initials">{{ user.username|slice:":1"|upper }}</span>
+                    <span class="he-user-avatar-initials">{{ user.full_name|default:user.username|slice:":1"|upper }}</span>
                 {% endif %}
             </span>
             <div>
                 <div class="text-uppercase small fw-bold text-primary mb-1" style="letter-spacing:0.08em;">Welcome to HostelEase</div>
-                <h1 class="h2 fw-bold mb-1">Welcome, <span class="text-primary">{{ user.username }}</span></h1>
+                <h1 class="h2 fw-bold mb-1">Welcome, <span class="text-primary">{{ user.full_name|default:user.username }}</span></h1>
                 <p class="text-muted mb-0">Warden Portal — Manage hostel operations and student records with ease.</p>
             </div>
         </div>
