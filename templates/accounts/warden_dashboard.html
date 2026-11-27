@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Warden Dashboard — HostelEase{% endblock %}
+{% block title %}{{ warden_i18n.t.page_title|default:"Warden Dashboard — HostelEase" }}{% endblock %}
 
 {% block content %}
 <div class="he-hero-banner p-4 mb-4">
     <div class="row align-items-center g-3">
-        <div class="col-lg-8 d-flex align-items-center gap-3">
+        <div class="col-lg-7 d-flex align-items-center gap-3">
             <span class="he-user-avatar" style="width:52px;height:52px;font-size:1.2rem;border:2px solid #bfdbfe;">
                 {% if user.avatar %}
                     <img src="{{ user.avatar.url }}" alt="{{ user.username }} avatar" class="he-user-avatar-img">
@@ -14,17 +14,23 @@
                 {% endif %}
             </span>
             <div>
-                <div class="text-uppercase small fw-bold text-primary mb-1" style="letter-spacing:0.08em;">Welcome to HostelEase</div>
-                <h1 class="h2 fw-bold mb-1">Welcome, <span class="text-primary">{{ user.username }}</span></h1>
-                <p class="text-muted mb-0">Warden Portal — Manage hostel operations and student records with ease.</p>
+                <div class="text-uppercase small fw-bold text-primary mb-1" style="letter-spacing:0.08em;">{{ warden_i18n.t.welcome_eyebrow|default:"Welcome to HostelEase" }}</div>
+                <h1 class="h2 fw-bold mb-1">{{ warden_i18n.t.welcome_prefix|default:"Welcome," }} <span class="text-primary">{{ user.username }}</span></h1>
+                <p class="text-muted mb-0">{{ warden_i18n.t.portal_subtitle|default:"Warden Portal — Manage hostel operations and student records with ease." }}</p>
             </div>
         </div>
-        <div class="col-lg-4 text-lg-end d-flex justify-content-lg-end gap-2 flex-wrap">
+        <div class="col-lg-5 text-lg-end d-flex justify-content-lg-end align-items-center gap-2 flex-wrap">
+            <form method="post" action="{% url 'dashboard:set_warden_language' %}" class="d-inline-flex btn-group btn-group-sm" role="group" aria-label="Dashboard language" id="warden-language-toggle">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" name="lang" value="en" class="btn {% if not warden_i18n.is_urdu %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">English</button>
+                <button type="submit" name="lang" value="ur" class="btn {% if warden_i18n.is_urdu %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">اردو</button>
+            </form>
             <a href="{% url 'accounts:avatar_settings' %}" class="btn btn-outline-secondary btn-sm bg-white">
-                <i class="bi bi-person-circle me-1"></i>Display Picture
+                <i class="bi bi-person-circle me-1"></i>{{ warden_i18n.t.display_picture|default:"Display Picture" }}
             </a>
             <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary btn-sm bg-white">
-                <i class="bi bi-key me-1"></i>Change Password
+                <i class="bi bi-key me-1"></i>{{ warden_i18n.t.change_password|default:"Change Password" }}
             </a>
         </div>
     </div>
@@ -32,8 +38,8 @@
 
 <div class="mb-4" id="pending-items-overview">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h5 fw-bold mb-0"><i class="bi bi-activity me-2 text-primary"></i>Pending Items Overview</h2>
-        <span class="badge bg-dark px-3 py-2" id="total-pending-count">Total Pending: {{ pending_summary.total_pending|default:0 }}</span>
+        <h2 class="h5 fw-bold mb-0"><i class="bi bi-activity me-2 text-primary"></i>{{ warden_i18n.t.pending_overview|default:"Pending Items Overview" }}</h2>
+        <span class="badge bg-dark px-3 py-2" id="total-pending-count">{{ warden_i18n.t.total_pending|default:"Total Pending:" }} {{ pending_summary.total_pending|default:0 }}</span>
     </div>
     <div class="row g-3">
         <div class="col-md-3 col-sm-6">
@@ -41,13 +47,13 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-0">Pending Payment Proofs</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold mb-0">{{ warden_i18n.t.pending_payment_proofs|default:"Pending Payment Proofs" }}</h6>
                             <i class="bi bi-receipt text-warning fs-5"></i>
                         </div>
                         <p class="display-6 fw-bold mb-1" id="count-pending-payments">{{ pending_summary.pending_payment_proofs|default:0 }}</p>
-                        <p class="text-muted small mb-3">Status: Pending</p>
+                        <p class="text-muted small mb-3">{{ warden_i18n.t.status_pending|default:"Status: Pending" }}</p>
                     </div>
-                    <a href="{% url 'finance:pending_payments' %}" class="btn btn-outline-primary btn-sm w-100">Review Proofs</a>
+                    <a href="{% url 'finance:pending_payments' %}" class="btn btn-outline-primary btn-sm w-100">{{ warden_i18n.t.review_proofs|default:"Review Proofs" }}</a>
                 </div>
             </div>
         </div>
@@ -56,13 +62,13 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-0">Open Complaints</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold mb-0">{{ warden_i18n.t.open_complaints|default:"Open Complaints" }}</h6>
                             <i class="bi bi-tools text-info fs-5"></i>
                         </div>
                         <p class="display-6 fw-bold mb-1" id="count-pending-complaints">{{ pending_summary.pending_complaints|default:0 }}</p>
-                        <p class="text-muted small mb-3">Status: Submitted / In Progress</p>
+                        <p class="text-muted small mb-3">{{ warden_i18n.t.status_complaints|default:"Status: Submitted / In Progress" }}</p>
                     </div>
-                    <a href="{% url 'operations:warden_complaint_list' %}" class="btn btn-outline-primary btn-sm w-100">Manage Complaints</a>
+                    <a href="{% url 'operations:warden_complaint_list' %}" class="btn btn-outline-primary btn-sm w-100">{{ warden_i18n.t.manage_complaints|default:"Manage Complaints" }}</a>
                 </div>
             </div>
         </div>
@@ -71,13 +77,13 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-0">Pending Room Requests</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold mb-0">{{ warden_i18n.t.pending_room_requests|default:"Pending Room Requests" }}</h6>
                             <i class="bi bi-door-open text-primary fs-5"></i>
                         </div>
                         <p class="display-6 fw-bold mb-1" id="count-pending-rooms">{{ pending_summary.pending_room_requests|default:0 }}</p>
-                        <p class="text-muted small mb-3">Status: Pending</p>
+                        <p class="text-muted small mb-3">{{ warden_i18n.t.status_pending|default:"Status: Pending" }}</p>
                     </div>
-                    <a href="{% url 'hostel:warden_room_requests' %}" class="btn btn-outline-primary btn-sm w-100">Review Requests</a>
+                    <a href="{% url 'hostel:warden_room_requests' %}" class="btn btn-outline-primary btn-sm w-100">{{ warden_i18n.t.review_requests|default:"Review Requests" }}</a>
                 </div>
             </div>
         </div>
@@ -86,16 +92,16 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-0">Pending Leave Requests</h6>
+                            <h6 class="text-muted text-uppercase small fw-bold mb-0">{{ warden_i18n.t.pending_leave_requests|default:"Pending Leave Requests" }}</h6>
                             <i class="bi bi-calendar-check text-success fs-5"></i>
                         </div>
                         <p class="display-6 fw-bold mb-1" id="count-pending-leaves">{{ pending_summary.pending_leave_requests|default:0 }}</p>
-                        <p class="text-muted small mb-3">Status: Pending</p>
+                        <p class="text-muted small mb-3">{{ warden_i18n.t.status_pending|default:"Status: Pending" }}</p>
                     </div>
                     {% if pending_summary.leave_module_available %}
-                        <a href="{% url 'operations:warden_leave_requests' %}" class="btn btn-outline-primary btn-sm w-100">Active via Leave Requests</a>
+                        <a href="{% url 'operations:warden_leave_requests' %}" class="btn btn-outline-primary btn-sm w-100">{{ warden_i18n.t.active_leave_requests|default:"Active via Leave Requests" }}</a>
                     {% else %}
-                        <span class="text-muted small">Leave module pending (VS-15)</span>
+                        <span class="text-muted small">{{ warden_i18n.t.leave_module_pending|default:"Leave module pending (VS-15)" }}</span>
                     {% endif %}
                 </div>
             </div>
@@ -108,12 +114,12 @@
         <div class="card h-100 he-card-hover he-card-blue">
             <div class="card-body p-4">
                 <span class="he-circle-icon mb-3" style="background:linear-gradient(135deg,#3b82f6,#2563eb);"><i class="bi bi-megaphone"></i></span>
-                <h5 class="card-title fw-bold mb-1">Hostel Information</h5>
-                <p class="card-text text-muted small mb-3">Publish announcements, mess menu, and hostel rules.</p>
+                <h5 class="card-title fw-bold mb-1">{{ warden_i18n.t.hostel_info_title|default:"Hostel Information" }}</h5>
+                <p class="card-text text-muted small mb-3">{{ warden_i18n.t.hostel_info_desc|default:"Publish announcements, mess menu, and hostel rules." }}</p>
                 <div class="d-flex flex-column gap-2">
-                    <a href="{% url 'hostel:warden_announcements' %}" class="he-action-pill"><i class="bi bi-megaphone text-primary"></i>Announcements</a>
-                    <a href="{% url 'hostel:warden_menu' %}" class="he-action-pill"><i class="bi bi-journal-text text-primary"></i>Mess Menu</a>
-                    <a href="{% url 'hostel:warden_rules' %}" class="he-action-pill"><i class="bi bi-shield-check text-primary"></i>Hostel Rules</a>
+                    <a href="{% url 'hostel:warden_announcements' %}" class="he-action-pill"><i class="bi bi-megaphone text-primary"></i>{{ warden_i18n.t.announcements|default:"Announcements" }}</a>
+                    <a href="{% url 'hostel:warden_menu' %}" class="he-action-pill"><i class="bi bi-journal-text text-primary"></i>{{ warden_i18n.t.mess_menu|default:"Mess Menu" }}</a>
+                    <a href="{% url 'hostel:warden_rules' %}" class="he-action-pill"><i class="bi bi-shield-check text-primary"></i>{{ warden_i18n.t.hostel_rules|default:"Hostel Rules" }}</a>
                 </div>
             </div>
         </div>
@@ -122,12 +128,12 @@
         <div class="card h-100 he-card-hover he-card-emerald">
             <div class="card-body p-4">
                 <span class="he-circle-icon mb-3" style="background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 6px 14px rgba(16,185,129,0.22);"><i class="bi bi-people"></i></span>
-                <h5 class="card-title fw-bold mb-1">Students &amp; Rooms</h5>
-                <p class="card-text text-muted small mb-3">Manage student accounts, room capacity, and allocations.</p>
+                <h5 class="card-title fw-bold mb-1">{{ warden_i18n.t.students_rooms_title|default:"Students & Rooms" }}</h5>
+                <p class="card-text text-muted small mb-3">{{ warden_i18n.t.students_rooms_desc|default:"Manage student accounts, room capacity, and allocations." }}</p>
                 <div class="d-flex flex-column gap-2">
-                    <a href="{% url 'hostel:warden_student_list' %}" class="he-action-pill"><i class="bi bi-people text-success"></i>Student Management</a>
-                    <a href="{% url 'hostel:room_list' %}" class="he-action-pill"><i class="bi bi-door-open text-success"></i>Room Management</a>
-                    <a href="{% url 'hostel:warden_room_requests' %}" class="he-action-pill"><i class="bi bi-arrow-left-right text-success"></i>Room &amp; Swap Requests</a>
+                    <a href="{% url 'hostel:warden_student_list' %}" class="he-action-pill"><i class="bi bi-people text-success"></i>{{ warden_i18n.t.student_management|default:"Student Management" }}</a>
+                    <a href="{% url 'hostel:room_list' %}" class="he-action-pill"><i class="bi bi-door-open text-success"></i>{{ warden_i18n.t.room_management|default:"Room Management" }}</a>
+                    <a href="{% url 'hostel:warden_room_requests' %}" class="he-action-pill"><i class="bi bi-arrow-left-right text-success"></i>{{ warden_i18n.t.room_swap_requests|default:"Room & Swap Requests" }}</a>
                 </div>
             </div>
         </div>
@@ -136,16 +142,16 @@
         <div class="card h-100 he-card-hover he-card-indigo">
             <div class="card-body p-4">
                 <span class="he-circle-icon mb-3" style="background:linear-gradient(135deg,#818cf8,#6366f1);box-shadow:0 6px 14px rgba(99,102,241,0.22);"><i class="bi bi-credit-card"></i></span>
-                <h5 class="card-title fw-bold mb-1">Finance &amp; Operations</h5>
-                <p class="card-text text-muted small mb-3">Review payment proofs, complaints, leave, visitors, and meals.</p>
+                <h5 class="card-title fw-bold mb-1">{{ warden_i18n.t.finance_ops_title|default:"Finance & Operations" }}</h5>
+                <p class="card-text text-muted small mb-3">{{ warden_i18n.t.finance_ops_desc|default:"Review payment proofs, complaints, leave, visitors, and meals." }}</p>
                 <div class="d-flex flex-column gap-2">
-                    <a href="{% url 'finance:list' %}" class="he-action-pill"><i class="bi bi-wallet2 text-primary"></i>Fees &amp; Payments</a>
-                    <a href="{% url 'finance:pending_payments' %}" class="he-action-pill"><i class="bi bi-receipt text-primary"></i>Pending Payment Proofs</a>
-                    <a href="{% url 'operations:warden_complaint_list' %}" class="he-action-pill"><i class="bi bi-tools text-primary"></i>Complaints</a>
-                    <a href="{% url 'operations:warden_leave_requests' %}" class="he-action-pill"><i class="bi bi-calendar-check text-primary"></i>Leave Requests</a>
-                    <a href="{% url 'operations:warden_visitor_log' %}" class="he-action-pill"><i class="bi bi-person-badge text-primary"></i>Visitor Log</a>
-                    <a href="{% url 'operations:warden_meal_optout_summary' %}" class="he-action-pill"><i class="bi bi-cup-hot text-primary"></i>Meal Opt-Outs</a>
-                    <a href="{% url 'operations:warden_feedback_summary' %}" class="he-action-pill"><i class="bi bi-star text-primary"></i>Feedback Summary</a>
+                    <a href="{% url 'finance:list' %}" class="he-action-pill"><i class="bi bi-wallet2 text-primary"></i>{{ warden_i18n.t.fees_payments|default:"Fees & Payments" }}</a>
+                    <a href="{% url 'finance:pending_payments' %}" class="he-action-pill"><i class="bi bi-receipt text-primary"></i>{{ warden_i18n.t.pending_payment_proofs|default:"Pending Payment Proofs" }}</a>
+                    <a href="{% url 'operations:warden_complaint_list' %}" class="he-action-pill"><i class="bi bi-tools text-primary"></i>{{ warden_i18n.t.complaints|default:"Complaints" }}</a>
+                    <a href="{% url 'operations:warden_leave_requests' %}" class="he-action-pill"><i class="bi bi-calendar-check text-primary"></i>{{ warden_i18n.t.leave_requests|default:"Leave Requests" }}</a>
+                    <a href="{% url 'operations:warden_visitor_log' %}" class="he-action-pill"><i class="bi bi-person-badge text-primary"></i>{{ warden_i18n.t.visitor_log|default:"Visitor Log" }}</a>
+                    <a href="{% url 'operations:warden_meal_optout_summary' %}" class="he-action-pill"><i class="bi bi-cup-hot text-primary"></i>{{ warden_i18n.t.meal_optouts|default:"Meal Opt-Outs" }}</a>
+                    <a href="{% url 'operations:warden_feedback_summary' %}" class="he-action-pill"><i class="bi bi-star text-primary"></i>{{ warden_i18n.t.feedback_summary|default:"Feedback Summary" }}</a>
                 </div>
             </div>
         </div>

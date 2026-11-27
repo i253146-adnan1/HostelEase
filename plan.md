@@ -1190,7 +1190,7 @@ The final report must cover:
 | Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 | VS-21 | UI Enhancement | Adnanullah | Accepted |
 | VS-22 | User Display Picture (Profile Avatar) | Adnanullah | Accepted |
-| VS-23 | Urdu Language Support on Warden Dashboard | Adnanullah | Not Started |
+| VS-23 | Urdu Language Support on Warden Dashboard | Adnanullah | Implemented (Pending HITL Review) |
 
 | Status | Meaning |
 |---|---|
