@@ -10,7 +10,7 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 # Local-development fallback so the project runs/tests without a SECRET_KEY entry
 # in .env. Always set a real SECRET_KEY in .env for anything beyond local use.
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'hostelease-local-dev-insecure-key-change-me'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '.vercel.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,6 +65,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
         'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '5432'),
+        'OPTIONS': {'sslmode': 'require'}
+        if os.environ.get('DB_HOST', 'localhost') not in ('localhost', '127.0.0.1')
+        else {},
     }
 }
 
