@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ warden_i18n.lang|default:'en' }}" dir="{{ warden_i18n.dir|default:'ltr' }}">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -420,18 +420,7 @@
             border-color: #ef4444;
             color: #dc2626;
         }
-
-        [dir="rtl"] body {
-            font-family: 'Noto Nastaliq Urdu', 'Inter', Tahoma, sans-serif;
-        }
-
-        [dir="rtl"] .he-sidebar {
-            box-shadow: -4px 0 24px rgba(11, 31, 58, 0.08);
-        }
     </style>
-    {% if warden_i18n.is_urdu %}
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
-    {% endif %}
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -461,32 +450,32 @@
         </a>
         <div class="py-2 flex-grow-1">
             {% if user.role == 'warden' %}
-                <div class="he-nav-section">{{ warden_i18n.t.nav_overview|default:"Overview" }}</div>
-                <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-house-door"></i> {{ warden_i18n.t.nav_dashboard|default:"Dashboard" }}</a>
+                <div class="he-nav-section">Overview</div>
+                <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-house-door"></i> Dashboard</a>
 
-                <div class="he-nav-section">{{ warden_i18n.t.nav_residents_rooms|default:"Residents & Rooms" }}</div>
-                <a class="he-nav-link" href="{% url 'hostel:warden_student_create' %}"><i class="bi bi-person-plus"></i> {{ warden_i18n.t.add_student|default:"Add Student" }}</a>
-                <a class="he-nav-link" href="{% url 'hostel:warden_student_list' %}"><i class="bi bi-people"></i> {{ warden_i18n.t.nav_students|default:"Students" }}</a>
-                <a class="he-nav-link" href="{% url 'accounts:warden_create' %}"><i class="bi bi-shield-plus"></i> {{ warden_i18n.t.add_warden|default:"Add Warden" }}</a>
-                <a class="he-nav-link" href="{% url 'accounts:warden_list' %}"><i class="bi bi-person-badge"></i> {{ warden_i18n.t.wardens_management|default:"Wardens Management" }}</a>
-                <a class="he-nav-link" href="{% url 'hostel:room_list' %}"><i class="bi bi-door-open"></i> {{ warden_i18n.t.nav_rooms|default:"Rooms" }}</a>
-                <a class="he-nav-link" href="{% url 'hostel:warden_room_requests' %}"><i class="bi bi-arrow-left-right"></i> {{ warden_i18n.t.nav_room_requests|default:"Room Requests" }}</a>
+                <div class="he-nav-section">Residents &amp; Rooms</div>
+                <a class="he-nav-link" href="{% url 'hostel:warden_student_create' %}"><i class="bi bi-person-plus"></i> Add Student</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_student_list' %}"><i class="bi bi-people"></i> Students</a>
+                <a class="he-nav-link" href="{% url 'accounts:warden_create' %}"><i class="bi bi-shield-plus"></i> Add Warden</a>
+                <a class="he-nav-link" href="{% url 'accounts:warden_list' %}"><i class="bi bi-person-badge"></i> Wardens Management</a>
+                <a class="he-nav-link" href="{% url 'hostel:room_list' %}"><i class="bi bi-door-open"></i> Rooms</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_room_requests' %}"><i class="bi bi-arrow-left-right"></i> Room Requests</a>
 
-                <div class="he-nav-section">{{ warden_i18n.t.nav_finance|default:"Finance" }}</div>
-                <a class="he-nav-link" href="{% url 'finance:list' %}"><i class="bi bi-wallet2"></i> {{ warden_i18n.t.nav_fee_ledger|default:"Fee Ledger" }}</a>
-                <a class="he-nav-link" href="{% url 'finance:pending_payments' %}"><i class="bi bi-receipt"></i> {{ warden_i18n.t.nav_pending_proofs|default:"Pending Proofs" }}</a>
+                <div class="he-nav-section">Finance</div>
+                <a class="he-nav-link" href="{% url 'finance:list' %}"><i class="bi bi-wallet2"></i> Fee Ledger</a>
+                <a class="he-nav-link" href="{% url 'finance:pending_payments' %}"><i class="bi bi-receipt"></i> Pending Proofs</a>
 
-                <div class="he-nav-section">{{ warden_i18n.t.nav_operations|default:"Operations" }}</div>
-                <a class="he-nav-link" href="{% url 'operations:warden_complaint_list' %}"><i class="bi bi-tools"></i> {{ warden_i18n.t.complaints|default:"Complaints" }}</a>
-                <a class="he-nav-link" href="{% url 'operations:warden_leave_requests' %}"><i class="bi bi-calendar-check"></i> {{ warden_i18n.t.leave_requests|default:"Leave Requests" }}</a>
-                <a class="he-nav-link" href="{% url 'operations:warden_visitor_log' %}"><i class="bi bi-person-badge"></i> {{ warden_i18n.t.visitor_log|default:"Visitor Log" }}</a>
-                <a class="he-nav-link" href="{% url 'operations:warden_meal_optout_summary' %}"><i class="bi bi-cup-hot"></i> {{ warden_i18n.t.meal_optouts|default:"Meal Opt-Outs" }}</a>
-                <a class="he-nav-link" href="{% url 'operations:warden_feedback_summary' %}"><i class="bi bi-star"></i> {{ warden_i18n.t.nav_feedback|default:"Feedback" }}</a>
+                <div class="he-nav-section">Operations</div>
+                <a class="he-nav-link" href="{% url 'operations:warden_complaint_list' %}"><i class="bi bi-tools"></i> Complaints</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_leave_requests' %}"><i class="bi bi-calendar-check"></i> Leave Requests</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_visitor_log' %}"><i class="bi bi-person-badge"></i> Visitor Log</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_meal_optout_summary' %}"><i class="bi bi-cup-hot"></i> Meal Opt-Outs</a>
+                <a class="he-nav-link" href="{% url 'operations:warden_feedback_summary' %}"><i class="bi bi-star"></i> Feedback</a>
 
-                <div class="he-nav-section">{{ warden_i18n.t.nav_hostel_info|default:"Hostel Info" }}</div>
-                <a class="he-nav-link" href="{% url 'hostel:warden_announcements' %}"><i class="bi bi-megaphone"></i> {{ warden_i18n.t.announcements|default:"Announcements" }}</a>
-                <a class="he-nav-link" href="{% url 'hostel:warden_menu' %}"><i class="bi bi-journal-text"></i> {{ warden_i18n.t.mess_menu|default:"Mess Menu" }}</a>
-                <a class="he-nav-link" href="{% url 'hostel:warden_rules' %}"><i class="bi bi-shield-check"></i> {{ warden_i18n.t.nav_rules|default:"Rules" }}</a>
+                <div class="he-nav-section">Hostel Info</div>
+                <a class="he-nav-link" href="{% url 'hostel:warden_announcements' %}"><i class="bi bi-megaphone"></i> Announcements</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_menu' %}"><i class="bi bi-journal-text"></i> Mess Menu</a>
+                <a class="he-nav-link" href="{% url 'hostel:warden_rules' %}"><i class="bi bi-shield-check"></i> Rules</a>
             {% else %}
                 <div class="he-nav-section">My Portal</div>
                 <a class="he-nav-link" href="{% url 'accounts:dashboard' %}"><i class="bi bi-house-door"></i> Home</a>
@@ -509,10 +498,10 @@
         </div>
         <div class="he-sidebar-footer">
             {% if user.role == 'warden' %}
-            <a class="he-nav-link mx-0" href="{% url 'accounts:warden_profile' %}"><i class="bi bi-person-vcard"></i> {{ warden_i18n.t.my_profile|default:"My Profile" }}</a>
+            <a class="he-nav-link mx-0" href="{% url 'accounts:warden_profile' %}"><i class="bi bi-person-vcard"></i> My Profile</a>
             {% endif %}
-            <a class="he-nav-link mx-0" href="{% url 'accounts:avatar_settings' %}"><i class="bi bi-person-circle"></i> {{ warden_i18n.t.display_picture|default:"Display Picture" }}</a>
-            <a class="he-nav-link mx-0" href="{% url 'accounts:change_password' %}"><i class="bi bi-key"></i> {{ warden_i18n.t.change_password|default:"Change Password" }}</a>
+            <a class="he-nav-link mx-0" href="{% url 'accounts:avatar_settings' %}"><i class="bi bi-person-circle"></i> Display Picture</a>
+            <a class="he-nav-link mx-0" href="{% url 'accounts:change_password' %}"><i class="bi bi-key"></i> Change Password</a>
             <div class="he-tagline">Better Management.<br>Happier Students.</div>
         </div>
     </aside>
@@ -541,10 +530,10 @@
                     </div>
                 </a>
                 <span class="he-topbar-divider d-none d-md-inline-block"></span>
-                <a class="btn he-pill-btn he-pill-dashboard" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid"></i>{{ warden_i18n.t.nav_dashboard|default:"Dashboard" }}</a>
+                <a class="btn he-pill-btn he-pill-dashboard" href="{% url 'accounts:dashboard' %}"><i class="bi bi-grid"></i>Dashboard</a>
                 <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn he-pill-btn he-pill-logout"><i class="bi bi-box-arrow-right"></i>{{ warden_i18n.t.nav_logout|default:"Logout" }}</button>
+                    <button type="submit" class="btn he-pill-btn he-pill-logout"><i class="bi bi-box-arrow-right"></i>Logout</button>
                 </form>
             </div>
         </header>

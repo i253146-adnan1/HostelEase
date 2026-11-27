@@ -11,7 +11,6 @@ from django.utils.crypto import get_random_string
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from dashboard.i18n import get_warden_dashboard_i18n
 from dashboard.services import get_warden_pending_summary
 
 from .guards import login_required_guard, student_required, warden_required
@@ -156,10 +155,7 @@ def dashboard_view(request):
         return render(
             request,
             'accounts/warden_dashboard.html',
-            {
-                'pending_summary': summary,
-                'warden_i18n': get_warden_dashboard_i18n(request),
-            },
+            {'pending_summary': summary},
         )
     if request.user.role == 'student':
         profile = _get_own_student_profile(request.user)
