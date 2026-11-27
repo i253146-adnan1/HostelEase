@@ -44,6 +44,11 @@ HostelEase: single-warden hostel management site. See PRD.md
   resolved otherwise.
 - Meal opt-out: cannot be created for a past date (EC-50); cannot be 
   cancelled after its meal date has passed (EC-51).
+- Warden Dashboard localization (VS-23): presentation-only English/Urdu 
+  toggle and RTL layout (`dir="rtl"`) stored in the server-side session 
+  (ADR-003); no database schema/model/migration changes, no external 
+  translation service, and no impact on student views or backend 
+  business logic.
 
 ## Technology (already decided — do not change without raising as new ADR)
 - Relational DB (MySQL/PostgreSQL) — see ADR-002.

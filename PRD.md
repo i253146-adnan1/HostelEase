@@ -106,6 +106,7 @@ Each requirement lists its source (flow, edge cases, decision log row). Decision
 | FR-18 | The system shall allow the warden to record a visitor log entry (visitor name, student visited, purpose, check-in/check-out time); visible only to the warden. | F-09; EC-49; TA feedback (D2 demo) |
 | FR-19 | The system shall allow a student to opt out of a specific meal (breakfast/lunch/dinner) on a future date, cancel it before that date, and the warden to see opt-out counts per date and meal type. | F-10; EC-50, EC-51; TA feedback (D2 demo) |
 | FR-20 | The system shall allow any authenticated Student or Warden to upload, update, or remove their own profile display picture (JPG/JPEG, PNG, or WEBP, up to 2 MB), render circular avatar thumbnails in the navigation/dashboard UI with a clean fallback to initials/default icon when unset, and enforce strict per-user ownership and automatic file cleanup on replacement or removal. | VS-22; Log 31 |
+| FR-21 | The system shall provide a presentation-only English/Urdu language toggle on the Warden Dashboard (persisted via server-side session preference), rendering Urdu labels for Warden Dashboard cards and navigation with RTL layout (`dir="rtl"`) when Urdu is active and falling back cleanly to English without modifying database schemas, student views, or backend business logic. | VS-23; Log 32 |
 
 ## 8. Non-Functional Requirements
 
@@ -528,6 +529,11 @@ Every edge case describes a situation. The expected response is given by an acce
 - **AC-20.3** (FR-20) **Given** an authenticated user with an existing display picture, **When** they replace it with a new image or remove it, **Then** the previous avatar file is automatically deleted from local storage, and when no display picture is set the UI falls back cleanly to user initials or a default icon.
 - **AC-20.4** (FR-20, NFR-01) **Given** the profile display picture endpoints, **When** an unauthenticated user sends a request, **Then** the request is redirected (`302`) to the login page; and **When** an authenticated user uploads, updates, or removes a display picture, **Then** only their own account's display picture can be modified or deleted.
 
+### FR-21 Warden Dashboard English/Urdu language support (presentation-only)
+- **AC-21.1** (FR-21) **Given** an authenticated Warden viewing the Warden Dashboard, **When** they switch the language toggle from English (`en`) to Urdu (`ur`) or back to English, **Then** the chosen preference is persisted in the server-side session (`ADR-003`) across Warden Dashboard page reloads without modifying database tables or migrations.
+- **AC-21.2** (FR-21) **Given** the Warden Dashboard with Urdu (`ur`) active, **When** the page renders, **Then** Warden Dashboard cards, headings, and navigation labels render in Urdu with right-to-left layout (`dir="rtl"`).
+- **AC-21.3** (FR-21, NFR-01) **Given** no language preference is set or an invalid language value is supplied, **When** the Warden Dashboard renders, **Then** the UI falls back cleanly to English (`en`, `dir="ltr"`), and all existing Warden and Student workflows, pending counts, and role access boundaries remain unchanged.
+
 ### Non-functional requirements
 - **AC-NFR-01** (NFR-01) Using a student account, every attempt to open another student's record, the visitor log, or a warden-only page, from the menu or by entering the page address, is denied.
 - **AC-NFR-02** (NFR-02) After each verification and each fee change, remaining equals the larger of (total minus verified payments) and zero, and any excess paid is shown as "Excess paid".
@@ -606,6 +612,7 @@ These are not decided. Do not treat them as requirements.
 | G-09 Maintain a visitor log | FR-18 |
 | G-10 See meal opt-out counts for planning | FR-19 |
 | G-11 Personalize user profile with a display picture | FR-20 |
+| G-12 View Warden Dashboard in English or Urdu | FR-21 |
 
 **Need to acceptance criteria**
 
@@ -624,3 +631,4 @@ These are not decided. Do not treat them as requirements.
 | Track visitors | Run administration from one place | FR-18 | AC-18.x |
 | Plan meals via opt-outs | Both | FR-19 | AC-19.x |
 | Personalize profile with display picture | Both | FR-20 | AC-20.x |
+| View Warden Dashboard in English or Urdu | Warden | FR-21 | AC-21.x |

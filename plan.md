@@ -1,7 +1,7 @@
 # HostelEase — Deliverable 4 Implementation Plan
 
 **Document:** `plan.md`  
-**Plan version:** v10 — VS-00 to VS-21 integrated and verified; VS-22 (User Display Picture / Profile Avatar) added as Planned / In Progress  
+**Plan version:** v11 — VS-00 to VS-22 integrated/accepted; VS-23 (Urdu Language Support on Warden Dashboard) added as Not Started  
 **Prepared:** 17 November 2026  
 **Submission deadline:** 27 November 2026  
 **Project:** SE-1001 — Introduction to Software Engineering  
@@ -597,6 +597,18 @@ Every slice has a maximum one-working-day allocation. If the slice cannot meet t
 
 ---
 
+### VS-23 — Urdu Language Support on Warden Dashboard
+- **Priority:** Post-integration enhancement (Not Started)
+- **Lead:** Adnanullah
+- **Mode:** HITL + AFK
+- **Dependencies:** VS-01, VS-19
+- **Scope:** Presentation-only English/Urdu language toggle on the Warden Dashboard, Urdu labels for Warden Dashboard cards and navigation, RTL layout support (`dir="rtl"`) when Urdu is active, and server-side session preference (`ADR-003`) with clean English fallback (`en`, `dir="ltr"`). Zero database/model/migration changes, no external translation service, and zero impact on student views or backend business logic.
+- **Acceptance Criteria:** `FR-21`, `AC-21.1–AC-21.3` (English/Urdu toggle persistence in session, Urdu text & RTL layout rendering on Warden Dashboard, English fallback & zero impact on existing Warden/Student functionality and role isolation).
+- **Checks:** Automated tests verifying Warden Dashboard `en`/`ur` session toggle, `dir="rtl"` and Urdu label rendering, English fallback on unset/invalid preference, warden-only access boundary, and full existing suite regression pass.
+- **HITL:** HITL review of Urdu typography, RTL alignment on Warden Dashboard cards/navigation, and English fallback behaviour before acceptance.
+
+---
+
 ## 6. Dependency map
 
 The following is the logical dependency sequence. Work may proceed in parallel only where the upstream interface/schema contract has been agreed. A dependent slice is not Accepted until it passes against the real integrated dependency.
@@ -626,6 +638,7 @@ flowchart TD
     U["VS-20 Student Views"]
     W["VS-21 UI Enhancement"]
     X["VS-22 User Display Picture"]
+    Y["VS-23 Warden Urdu UI"]
     V["Integration + E2E Validation"]
 
     A --> B
@@ -676,7 +689,10 @@ flowchart TD
     B --> X
     I --> X
     W --> X
+    B --> Y
+    T --> Y
     X --> V
+    Y --> V
     O --> V
     R --> V
 ```
@@ -712,7 +728,7 @@ Each feature slice has a one-day maximum allocation. Four members can work in pa
 | **24 Nov** | Room/leave integration review | Student/database integrity review | **VS-20 Student fee/payment/status views**; all members assist with integrated student navigation | Security and dashboard integration review |
 | **25 Nov** | Cross-module integration and end-to-end room/leave flows | Database integrity, fee and feedback tests | File handling, UI and local-run integration tests | Role isolation, security and dashboard tests |
 | **26 Nov** | Demo rehearsal and defect fixes | Demo rehearsal and defect fixes | README, local execution check, packaging and defect fixes | Demo rehearsal and defect fixes |
-| **27 Nov** | Final submission and contribution confirmation | Final submission and contribution confirmation | Final submission and packaging confirmation | Final submission and evidence confirmation |
+| **27 Nov** | Final submission and contribution confirmation | Final submission and contribution confirmation | Final submission and packaging confirmation; **VS-23** documented & planned (`Not Started`) | Final submission and evidence confirmation |
 
 **Allocation correction / guardrail:** VS-08 is a one-day slice and must have exactly one lead-day. If it is completed on 20 November, Adnanullah must not be assigned a second full slice that day; VS-06 may instead be led by Fahad or moved to another member with capacity. The project coordinator must freeze the final allocation in the daily plan before work starts. The table deliberately exposes this scheduling choice rather than pretending one person can complete two full-day slices in parallel.
 
@@ -1041,6 +1057,7 @@ Supporting artefacts may be AI-generated autonomously as D4 permits. UI wirefram
 | v08 | 24 Nov 2026 | Cycle 6 VS-19 (Warden Dashboard) & Cycle 7 VS-20 (Consolidated Student Home) integrated and verified; all 21 slices (VS-00–VS-20) accepted | Full suite: `Ran 220 tests in 195.102s — OK` | Team |
 | v09 | 26 Nov 2026 | Added VS-21 (UI Enhancement) as Planned / In Progress for presentation-only visual polish, brand SVG logo update, and consistent action buttons | Post-integration UI polish scope documented in `PRD.md` (`NFR-05`, `AC-NFR-05`) and `decision-log.md` (`Log 30`) | Team |
 | v10 | 26 Nov 2026 | Added VS-22 (User Display Picture / Profile Avatar) as Planned / In Progress for per-user avatar upload, update, removal, and circular UI thumbnails with initials fallback | Profile avatar scope documented in `PRD.md` (`FR-20`, `AC-20.1–AC-20.4`) and `decision-log.md` (`Log 31`) | Team |
+| v11 | 27 Nov 2026 | Added VS-23 (Urdu Language Support on Warden Dashboard) as Not Started for presentation-only English/Urdu toggle, Urdu dashboard/nav labels, and RTL layout via server-side session preference | Post-VS-22 localization scope documented in `PRD.md` (`FR-21`, `AC-21.1–AC-21.3`, `G-12`), `architecture.md` (Section 12), `AGENTS.md`, and `decision-log.md` (`Log 32`) | Team |
 
 ### 12.3 Plan-change triggers
 
@@ -1173,6 +1190,7 @@ The final report must cover:
 | Remaining (VS-05, VS-08, VS-18 to VS-20) | Remaining planned slices | Designated leads | Scheduled / In Progress |
 | VS-21 | UI Enhancement | Adnanullah | Accepted |
 | VS-22 | User Display Picture (Profile Avatar) | Adnanullah | Accepted |
+| VS-23 | Urdu Language Support on Warden Dashboard | Adnanullah | Not Started |
 
 | Status | Meaning |
 |---|---|

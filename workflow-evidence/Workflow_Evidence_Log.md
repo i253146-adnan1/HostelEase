@@ -25,5 +25,6 @@ See [TEST_REPORT.md](TEST_REPORT.md) for the consolidated Quality Gates (Gates 1
 | VS-18 Meal Opt-Outs | FR-19, EC-50/51, ADR-005 | Adnanullah | HITL + AFK | `operations/test_meal_optouts.py` pass (see `VS-18.md`) | Accepted | v07 |
 | VS-19 Warden Pending Dashboard | FR-14, ADR-005 | Farmanullah | HITL + AFK | `dashboard` tests pass | Accepted | v08 |
 | VS-20 Consolidated Student Home | FR-03–FR-19, NFR-01 | Adnanullah | HITL + AFK | `accounts/test_student_home_vs20.py` pass (see `VS-20.md`) | Accepted | v08 |
+| VS-23 Urdu Language Support on Warden Dashboard | FR-21, AC-21.1–AC-21.3 | Adnanullah | HITL + AFK | Gate 1 Ready (Stage 4 stub in `VS-23.md`) | Not Started | v11 |
 
 **Latest Full Suite Verification (24 Nov 2026):** `venv\Scripts\python.exe manage.py test --noinput -v 1` → `Ran 220 tests in 195.102s — OK`.

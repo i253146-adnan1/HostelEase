@@ -49,6 +49,7 @@ All 8 test modules are kept lightweight and focused on meaningful **Functional**
 | **VS-18** Meal Opt-Outs | Pass (FR-19, EC-50/51, ADR-005) | Pass (`operations/test_meal_optouts.py`) | Pass (Future only, separate from dashboard) | Pass | Pass |
 | **VS-19** Warden Pending Dashboard | Pass (FR-14, NFR-01, ADR-005) | Pass (`dashboard` tests) | Pass (Read-only 4-module counts, meal opt-outs excluded) | Pass | Pass |
 | **VS-20** Consolidated Student Home | Pass (FR-03–FR-19, NFR-01) | Pass (`accounts/test_student_home_vs20.py`) | Pass (Own-record isolation, empty states, no visitor log) | Pass (220 tests OK) | Pass |
+| **VS-23** Urdu Language Support on Warden Dashboard | Pass (FR-21, AC-21.1–AC-21.3, ADR-001, ADR-003) | Not Started | Not Started | Not Started | Not Started |
 
 ---
 

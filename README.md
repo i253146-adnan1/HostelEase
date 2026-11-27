@@ -105,6 +105,7 @@ The dashboard provides a read-only overview of pending:
 - Complaints
 - Room requests
 - Leave requests
+- English/Urdu language toggle with RTL layout support when Urdu is active (planned in VS-23)
 
 Meal opt-outs have a separate summary view.
 
@@ -373,7 +374,7 @@ The following constraints must be preserved:
 
 HostelEase is under active development as part of the Deliverable 4 implementation stage.
 
-The team has reported completion of the initial project foundation (VS-00), including the local Django and PostgreSQL setup.
+Vertical slices VS-00 through VS-22 have been implemented and integrated, while **VS-23** (Warden Dashboard English/Urdu language toggle and RTL layout support) is documented and planned (`Not Started`) in `plan.md`.
 
 The remaining vertical slices, testing, integration, documentation verification, and final validation are tracked in `plan.md`.
 

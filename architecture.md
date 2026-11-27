@@ -161,3 +161,9 @@ flowchart TB
 - ADR-003 — Authentication / access boundary
 - ADR-004 — File storage approach
 - ADR-005 — Dashboard scope (Leave Requests included, Meal Opt-Outs excluded)
+
+## 12. Presentation-Layer Localization Note (VS-23)
+
+- **Warden Dashboard English/Urdu Support (VS-23):** Implemented strictly within the **presentation layer** of the existing layered monolith (`ADR-001`).
+- **Session-Based Preference (`ADR-003`):** The selected Warden Dashboard UI language (`en` default fallback or `ur`) is stored in the existing server-side Django session without adding new database tables, model columns, or migrations (`ADR-002` unchanged), and without introducing any external translation service or new framework.
+- **Scope & Boundaries:** Renders Urdu labels for Warden Dashboard cards and navigation with `dir="rtl"` when `ur` is active, while keeping Dashboard read-only aggregation (`ADR-005`), Student views, and all backend service interfaces unchanged.

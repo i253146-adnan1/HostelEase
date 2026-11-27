@@ -147,3 +147,16 @@ This log records implementation-phase decisions resolving Open Questions (`OQ-xx
    - When a user uploads a new display picture to replace an existing one or explicitly removes their display picture, automatically delete the previous file from `MEDIA_ROOT / avatars/` so orphaned files do not accumulate on disk.
 5. **Strict Per-User Ownership & Authentication (`ADR-003`, `NFR-01`):**
    - Protect all display picture upload, update, and removal endpoints with `@login_required` (redirecting unauthenticated requests with `302` to login) and scope all mutations strictly to `request.user` so no user can view-mutate or delete another user's display picture.
+
+---
+
+## Log 32 — VS-23 Warden Dashboard English/Urdu Localization Decision (27 Nov 2026)
+- **Context:** The team is planning **VS-23 (Urdu Language Support on Warden Dashboard)** so the warden can switch the Warden Dashboard UI between English (`en`) and Urdu (`ur`) with right-to-left (`dir="rtl"`) layout support.
+- **Options Considered:**
+  1. Full-site database-backed i18n or external translation API/service.
+  2. Presentation-only Warden Dashboard dictionary/template localization backed by server-side Django session preference (`ADR-003`).
+- **Decision:** Adopt **Option 2 (Presentation-only localization with server-side session preference)**:
+  - **No database/migration changes:** Store the Warden Dashboard UI language (`en` or `ur`, defaulting/falling back cleanly to `en`) in the existing Django server-side session (`ADR-003`). No new models, columns, or migrations are added (`ADR-002` preserved).
+  - **Layered monolith & no external services (`ADR-001`, `AGENTS.md`):** Keep all Urdu labels and RTL (`dir="rtl"`) rendering inside the Django presentation layer without introducing any new framework or external translation service.
+  - **Strict scope isolation:** Applies only to Warden Dashboard cards, headings, and navigation labels; preserves `ADR-005` read-only aggregation, Student views, and all existing backend business logic and role access guards (`VS-00`–`VS-22`).
+- **Traceability:** `PRD.md` (`FR-21`, `AC-21.1–AC-21.3`, `G-12`), `architecture.md` (Section 12), `AGENTS.md`, `plan.md` (`v11`, `VS-23`).
