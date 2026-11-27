@@ -3,45 +3,93 @@
 {% block title %}Manage Mess Menu — HostelEase{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Manage Mess Menu</h1>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">Manage Mess Menu</h1>
+        <p class="text-muted mb-0">Edit weekly Breakfast and Dinner items and meal timings directly in the table.</p>
+    </div>
     <div class="d-flex gap-2">
         <div class="btn-group btn-group-sm">
             <a href="{% url 'hostel:warden_announcements' %}" class="btn btn-outline-dark">Announcements</a>
             <a href="{% url 'hostel:warden_menu' %}" class="btn btn-dark">Menu</a>
             <a href="{% url 'hostel:warden_rules' %}" class="btn btn-outline-dark">Rules</a>
         </div>
-        <a href="{% url 'hostel:menu_create' %}" class="btn btn-primary btn-sm">Add Menu Entry</a>
     </div>
 </div>
 
-{% if menu_items %}
-    <div class="table-responsive bg-white rounded shadow-sm">
-        <table class="table table-striped mb-0 align-middle">
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Meal</th>
-                    <th>Items</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in menu_items %}
-                    <tr>
-                        <td>{{ item.day_of_week }}</td>
-                        <td>{{ item.meal_type }}</td>
-                        <td>{{ item.items|linebreaksbr }}</td>
-                        <td class="text-end">
-                            <a href="{% url 'hostel:menu_edit' item.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
-                            <a href="{% url 'hostel:menu_delete' item.pk %}" class="btn btn-outline-danger btn-sm">Remove</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<form method="post" action="{% url 'hostel:warden_menu' %}">
+    {% csrf_token %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-clock me-2 text-primary"></i>Meal Timings (Breakfast &amp; Dinner)
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="id_breakfast_timing" class="form-label fw-medium small">Breakfast Timing</label>
+                    <input type="text" class="form-control" id="id_breakfast_timing" name="breakfast_timing" value="{{ mess_timing.breakfast_timing }}" required>
+                </div>
+                <div class="col-md-5">
+                    <label for="id_dinner_timing" class="form-label fw-medium small">Dinner Timing</label>
+                    <input type="text" class="form-control" id="id_dinner_timing" name="dinner_timing" value="{{ mess_timing.dinner_timing }}" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Save Menu</button>
+                </div>
+            </div>
+        </div>
     </div>
-{% else %}
-    <div class="alert alert-info">No menu entries added yet.</div>
-{% endif %}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <span class="fw-semibold"><i class="bi bi-table me-2 text-primary"></i>Weekly Mess Menu Table</span>
+            <button type="submit" class="btn btn-primary btn-sm">Save Menu Table</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 16%;">Day</th>
+                        <th style="width: 42%;">
+                            Breakfast
+                            <div class="small fw-normal text-muted">{{ mess_timing.breakfast_timing }}</div>
+                        </th>
+                        <th style="width: 42%;">
+                            Dinner
+                            <div class="small fw-normal text-muted">{{ mess_timing.dinner_timing }}</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in weekly_rows %}
+                        <tr>
+                            <td class="fw-semibold bg-light">{{ row.day }}</td>
+                            <td>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    name="breakfast_{{ row.day }}"
+                                    value="{% if row.breakfast %}{{ row.breakfast.items }}{% endif %}"
+                                    placeholder="Enter {{ row.day }} breakfast"
+                                >
+                            </td>
+                            <td>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    name="dinner_{{ row.day }}"
+                                    value="{% if row.dinner %}{{ row.dinner.items }}{% endif %}"
+                                    placeholder="Enter {{ row.day }} dinner"
+                                >
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white text-end py-3">
+            <button type="submit" class="btn btn-primary px-4">Save Menu Table</button>
+        </div>
+    </div>
+</form>
 {% endblock %}

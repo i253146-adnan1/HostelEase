@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from hostel.models import Announcement, MenuItem, Rule
+from hostel.models import Announcement, MenuItem, MessTiming, Rule
 
 ANNOUNCEMENTS = [
     (
@@ -42,25 +42,18 @@ RULES = [
 
 MESS_MENU = [
     ('Monday', 'Breakfast', 'Paratha, Omelette, Chai'),
-    ('Monday', 'Lunch', 'Daal Chawal, Fresh Salad'),
     ('Monday', 'Dinner', 'Chicken Karahi, Roti, Raita'),
     ('Tuesday', 'Breakfast', 'Naan Chana, Chai'),
-    ('Tuesday', 'Lunch', 'Aloo Matar, Roti'),
     ('Tuesday', 'Dinner', 'Beef Pulao, Raita, Salad'),
     ('Wednesday', 'Breakfast', 'Toast, Boiled Eggs, Jam, Chai'),
-    ('Wednesday', 'Lunch', 'Lobia Masala, Boiled Rice'),
     ('Wednesday', 'Dinner', 'Chicken Handi, Naan'),
     ('Thursday', 'Breakfast', 'Aloo Paratha, Yogurt, Chai'),
-    ('Thursday', 'Lunch', 'Kari Pakora, Steamed Rice'),
     ('Thursday', 'Dinner', 'Chicken Korma, Roti'),
     ('Friday', 'Breakfast', 'Paratha, Egg Bhurji, Chai'),
-    ('Friday', 'Lunch', 'Chicken Biryani, Raita, Salad'),
-    ('Friday', 'Dinner', 'Daal Fry, Mixed Sabzi, Roti'),
+    ('Friday', 'Dinner', 'Chicken Biryani, Raita, Salad'),
     ('Saturday', 'Breakfast', 'Paratha, Fried Egg, Chai'),
-    ('Saturday', 'Lunch', 'Chana Masala, Roti'),
     ('Saturday', 'Dinner', 'Chicken Tikka, Naan, Mint Chutney'),
     ('Sunday', 'Breakfast', 'Halwa Puri, Chana, Chai'),
-    ('Sunday', 'Lunch', 'Daal Makhani, Jeera Rice'),
     ('Sunday', 'Dinner', 'Chicken Roast, Naan, Salad'),
 ]
 
@@ -88,6 +81,9 @@ class Command(BaseCommand):
             )
             if created:
                 rule_created += 1
+
+        MenuItem.objects.filter(meal_type='Lunch').delete()
+        MessTiming.get_current()
 
         menu_created = 0
         for day, meal, items in MESS_MENU:

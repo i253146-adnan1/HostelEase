@@ -62,6 +62,28 @@ class MenuItem(models.Model):
         return f'{self.day_of_week} - {self.meal_type}'
 
 
+class MessTiming(models.Model):
+    """Editable hostel breakfast and dinner timings."""
+
+    breakfast_timing = models.CharField(max_length=100, default='7:30 AM – 9:30 AM')
+    dinner_timing = models.CharField(max_length=100, default='6:00 PM – 8:00 PM')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_current(cls):
+        obj, _ = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                'breakfast_timing': '7:30 AM – 9:30 AM',
+                'dinner_timing': '6:00 PM – 8:00 PM',
+            },
+        )
+        return obj
+
+    def __str__(self):
+        return f'Breakfast: {self.breakfast_timing} | Dinner: {self.dinner_timing}'
+
+
 class Rule(models.Model):
     """Hostel rule published and maintained by the warden."""
 

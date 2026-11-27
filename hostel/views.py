@@ -230,7 +230,7 @@ def warden_student_reactivate(request, pk):
 # --- Hostel Information (VS-06: Announcements, Mess Menu, Rules) ---
 
 from django import forms as django_forms
-from .models import Announcement, MenuItem, Rule
+from .models import Announcement, MenuItem, MessTiming, Rule
 
 
 def _clean_non_empty(value, field_label):
@@ -325,11 +325,29 @@ def student_announcements(request):
     })
 
 
+DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+
+def _build_weekly_menu_rows():
+    items = MenuItem.objects.filter(meal_type__in=['Breakfast', 'Dinner'])
+    by_day_meal = {(item.day_of_week, item.meal_type): item for item in items}
+    return [
+        {
+            'day': day,
+            'breakfast': by_day_meal.get((day, 'Breakfast')),
+            'dinner': by_day_meal.get((day, 'Dinner')),
+        }
+        for day in DAYS_ORDER
+    ]
+
+
 def student_menu(request):
     if not request.user.is_authenticated:
         return redirect('/accounts/login/')
     return render(request, 'hostel/student_menu.html', {
         'menu_items': MenuItem.objects.all(),
+        'weekly_rows': _build_weekly_menu_rows(),
+        'mess_timing': MessTiming.get_current(),
     })
 
 
@@ -377,8 +395,39 @@ def announcement_delete(request, pk):
 
 @_warden_portal_required
 def warden_menu(request):
+    mess_timing = MessTiming.get_current()
+    if request.method == 'POST':
+        breakfast_timing = request.POST.get('breakfast_timing', '').strip()
+        dinner_timing = request.POST.get('dinner_timing', '').strip()
+        if breakfast_timing:
+            mess_timing.breakfast_timing = breakfast_timing
+        if dinner_timing:
+            mess_timing.dinner_timing = dinner_timing
+        mess_timing.save()
+
+        for day in DAYS_ORDER:
+            for meal in ('Breakfast', 'Dinner'):
+                field_name = f'{meal.lower()}_{day}'
+                if field_name not in request.POST:
+                    continue
+                val = request.POST.get(field_name, '').strip()
+                existing = MenuItem.objects.filter(day_of_week=day, meal_type=meal).first()
+                if val:
+                    if existing:
+                        existing.items = val
+                        existing.save()
+                    else:
+                        MenuItem.objects.create(day_of_week=day, meal_type=meal, items=val)
+                elif existing:
+                    existing.delete()
+
+        messages.success(request, 'Mess menu and timings updated.')
+        return redirect('hostel:warden_menu')
+
     return render(request, 'hostel/warden_menu.html', {
         'menu_items': MenuItem.objects.all(),
+        'weekly_rows': _build_weekly_menu_rows(),
+        'mess_timing': mess_timing,
     })
 
 
