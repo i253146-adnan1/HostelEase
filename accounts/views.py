@@ -453,3 +453,52 @@ def warden_profile_view(request):
         return redirect('accounts:warden_profile')
 
     return render(request, 'accounts/warden_profile.html')
+
+
+@warden_required
+def student_reset_password_view(request, student_id):
+    """Allow a logged-in warden to reset a student's password with an expiring temp password."""
+    target_student = get_object_or_404(User, role='student', student_id=student_id)
+
+    if request.method == 'POST':
+        warden_password = request.POST.get('warden_password', '')
+        raw_temp_password = request.POST.get('temporary_password', '').strip()
+
+        if not request.user.check_password(warden_password):
+            messages.error(request, 'Your warden password is incorrect.')
+            return render(
+                request,
+                'accounts/student_reset_password.html',
+                {'target_student': target_student},
+            )
+
+        temp_password = raw_temp_password or get_random_string(10)
+        if len(temp_password) < 8:
+            messages.error(request, 'Temporary password must be at least 8 characters long.')
+            return render(
+                request,
+                'accounts/student_reset_password.html',
+                {'target_student': target_student},
+            )
+
+        expires_at = timezone.now() + timedelta(hours=24)
+        target_student.set_password(temp_password)
+        target_student.must_change_password = True
+        target_student.password_reset_expires_at = expires_at
+        target_student.save()
+
+        return render(
+            request,
+            'accounts/student_reset_success.html',
+            {
+                'target_student': target_student,
+                'temporary_password': temp_password,
+                'expires_at': expires_at,
+            },
+        )
+
+    return render(
+        request,
+        'accounts/student_reset_password.html',
+        {'target_student': target_student},
+    )

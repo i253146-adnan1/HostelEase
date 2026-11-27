@@ -20,6 +20,7 @@
                 <button type="submit" class="btn btn-success btn-sm">Reactivate Student</button>
             </form>
         {% endif %}
+        <a href="{% url 'accounts:student_reset_password' student.student_id %}" class="btn btn-outline-warning btn-sm">Reset Password</a>
         <a href="{% url 'hostel:warden_student_list' %}" class="btn btn-outline-secondary btn-sm">Back to Students</a>
     </div>
 </div>

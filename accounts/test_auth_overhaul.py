@@ -198,3 +198,34 @@ class AuthOverhaulTests(TestCase):
         )
         self.assertEqual(dup_resp.status_code, 200)
         self.assertContains(dup_resp, 'already used')
+
+    def test_warden_resets_student_password_with_expiry_and_role_guard(self):
+        # Student cannot access student password reset endpoint
+        self.client.force_login(self.student)
+        denied = self.client.get(reverse('accounts:student_reset_password', args=[self.student.student_id]))
+        self.assertEqual(denied.status_code, 403)
+
+        # Warden resets student password while staying logged in
+        self.client.force_login(self.main_warden)
+        resp = self.client.post(
+            reverse('accounts:student_reset_password', args=[self.student.student_id]),
+            {
+                'warden_password': 'adnan@1302',
+                'temporary_password': 'StuResetTemp123',
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'accounts/student_reset_success.html')
+        self.assertEqual(int(self.client.session['_auth_user_id']), self.main_warden.pk)
+
+        self.student.refresh_from_db()
+        self.assertTrue(self.student.must_change_password)
+        self.assertIsNotNone(self.student.password_reset_expires_at)
+
+        # Student logs in with temporary password -> forced to change password
+        self.client.logout()
+        login_resp = self.client.post(
+            reverse('accounts:login'),
+            {'username': 'STU-900', 'password': 'StuResetTemp123'},
+        )
+        self.assertRedirects(login_resp, reverse('accounts:change_password'))

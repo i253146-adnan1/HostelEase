@@ -76,7 +76,10 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'hostel:warden_student_detail' item.student.pk %}" class="btn btn-outline-secondary btn-sm">View</a>
+                                <div class="d-inline-flex gap-1">
+                                    <a href="{% url 'hostel:warden_student_detail' item.student.pk %}" class="btn btn-outline-secondary btn-sm">View</a>
+                                    <a href="{% url 'accounts:student_reset_password' item.student.student_id %}" class="btn btn-outline-danger btn-sm text-nowrap">Reset Password</a>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}

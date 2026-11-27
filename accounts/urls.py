@@ -11,6 +11,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('student/profile/', views.student_profile, name='student_profile'),
+    path('student/<str:student_id>/reset-password/', views.student_reset_password_view, name='student_reset_password'),
     path('warden/manage/', views.warden_list_view, name='warden_list'),
     path('warden/create/', views.warden_create_view, name='warden_create'),
     path('warden/<int:pk>/reset-password/', views.warden_reset_password_view, name='warden_reset_password'),
