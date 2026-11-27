@@ -220,10 +220,10 @@ class WardenDashboardVS23Tests(TestCase):
         response = self.client.get(reverse('dashboard:warden_dashboard'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'lang="ur" dir="rtl"')
-        self.assertContains(response, 'زیرِ التواء امور کا جائزہ')
+        self.assertContains(response, 'باقی کاموں کی تفصیل')
         self.assertContains(response, 'ہاسٹل کی معلومات')
         self.assertContains(response, 'طلبہ اور کمرے')
-        self.assertContains(response, 'مالیات اور آپریشنز')
+        self.assertContains(response, 'فیس اور دیگر کام')
 
     def test_ac_21_3_invalid_or_unset_falls_back_to_english_and_student_isolated(self):
         """AC-21.3 / NFR-01: Invalid/unset lang falls back to English; student views & access stay isolated."""
